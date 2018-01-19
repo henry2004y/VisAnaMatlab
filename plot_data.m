@@ -39,7 +39,7 @@ function plot_data( varargin )
 % inverse way.
 % I need to switch the logics. Improve the code!
 %
-% Hongyang Zhou, hyzhou@umich.edu 06/14/2017
+% Hongyang Zhou, hyzhou@umich.edu ver1.0 06/14/2017
 %--------------------------------------------------------------------------
 
 %% Input parameters parser

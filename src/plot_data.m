@@ -117,37 +117,33 @@ for ivar = 1:numel(func)
          % I want to make this function more powerful to include
          % plotting derived variables, but it may not seem to be easy!
          VarIndex_ = strcmpi(func(ivar),filehead.wnames);
-         W = reshape(w(:,:,VarIndex_),[],1);
-         if isempty(W)
+         if VarIndex_==0
             error('%s not found in output variables!',func{ivar})
          end
-
-         
+        
          if multifigure; figure; end
          
-         % Reorganize and pick data in plot region only
-         % Somebody says it`s better to know the dimension ahead for the
-         % sake of speed. Or maybe it`s even better not to do this
-         % reshaping.
-         X = reshape(x(:,:,1),[],1);
-         Y = reshape(x(:,:,2),[],1);
-         
-         if ~isempty(plotrange)
-            axis(plotrange)
-         else
-            plotrange(1) = min(X);
-            plotrange(2) = max(X);
-            plotrange(3) = min(Y);
-            plotrange(4) = max(Y);
-         end
-         
-         xyIndex = X > plotrange(1) & X < plotrange(2) & ...
-            Y > plotrange(3) & Y < plotrange(4);
-         X = X(xyIndex);
-         Y = Y(xyIndex);
-         W = W(xyIndex);
-         
          if filehead.gencoord % Generalized coordinates
+            % Reorganize and pick data in plot region only
+            % only for generalized coordinates
+            W = reshape(w(:,:,VarIndex_),[],1);
+            X = reshape(x(:,:,1),[],1);
+            Y = reshape(x(:,:,2),[],1);
+            
+            if ~isempty(plotrange)
+               axis(plotrange)
+            else
+               plotrange(1) = min(X);
+               plotrange(2) = max(X);
+               plotrange(3) = min(Y);
+               plotrange(4) = max(Y);
+            end
+            
+            xyIndex = X > plotrange(1) & X < plotrange(2) & ...
+               Y > plotrange(3) & Y < plotrange(4);
+            X = X(xyIndex);
+            Y = Y(xyIndex);
+            W = W(xyIndex);
             % Default is linear interpolation
             F = scatteredInterpolant(X,Y,W);
             [xq,yq] = meshgrid(plotrange(1):plotinterval:plotrange(2)...
@@ -175,19 +171,21 @@ for ivar = 1:numel(func)
                   mesh(xq,yq,log(vq)); c= colorbar;
                   c.Label.String = 'log10';
             end
-         else % Cartesian coordinates, using meshgrid
-            % Note: the number of points in each dimension can be
-            % changed to the proper number you like.
+         else % Cartesian coordinates
+            
             if isempty(plotrange)
-               xlin = linspace(min(X),max(X),filehead.nx(1));
-               ylin = linspace(min(Y),max(Y),filehead.nx(2));
+               xq = x(:,:,1);
+               yq = x(:,:,2);
+               vq = w(:,:,VarIndex_);
             else
+               % Note: the number of points in each dimension can be
+               % changed to the proper number you like. Here I use the
+               % number of points in each dimension from filehead.
                xlin = linspace(plotrange(1),plotrange(2),filehead.nx(1));
                ylin = linspace(plotrange(3),plotrange(4),filehead.nx(2));
+               [xq,yq] = meshgrid(xlin,ylin);
+               vq = interp2(xq,yq,w(:,:,VarIndex_),xq,yq);
             end
-            [xq,yq] = meshgrid(xlin,ylin);
-            f = scatteredInterpolant(X,Y,W);
-            vq = f(xq,yq);
             
             switch string(plotmode{ivar})
                case 'contbar'

@@ -174,12 +174,12 @@ plot_log_data(logdata,filehead,'pmin','plotmode','line');
 % [filehead,data] = read_data(filename);
 
 %% Test of 2D simulation output, Cartesian coordinates
-% filename = '../FileIO_SWMF/z=0_raw_1_n0_258.outs';
-% npict = 4;
-% 
-% [filehead,data] = read_data(filename,'npict',npict);
-% 
-% plot_data(data.file1,filehead(1),'p','plotmode','contbar')
+filename = '../../../research/Ganymede/newPIC/GM_G8/box_var_6_n60000_60321.outs';
+npict = 1;
+
+[filehead,data] = read_data(filename,'npict',npict);
+
+plot_data(data.file1,filehead(1),'p','plotmode','contbar')
 
 %% Test of coarse grid faceBC, Ganymede
 % filename = 'y=0_var_1_n00000000.out';

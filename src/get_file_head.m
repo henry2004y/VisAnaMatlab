@@ -57,15 +57,22 @@ switch ftype
       % This part needs to be tested! I think it is not usable now!
       head.headline = fgetl(fileID);
       line = fgetl(fileID);
-      line = strsplit(line);
-      head.it = line(1);
-      head.time = line(2);
-      head.ndim = str2int(line(3));
-      head.neqpar = str2int(line(4));
-      head.nw = str2int(line(5));
+      line = split(line);
+      head.it = str2double(cell2mat(line(2)));
+      head.time = str2double(cell2mat(line(3)));
+      head.ndim = str2double(cell2mat(line(4)));
+      head.neqpar = str2double(cell2mat(line(5)));
+      head.nw = str2double(cell2mat(line(6)));
       head.gencoord = (head.ndim < 0);
       head.ndim = abs(head.ndim);
-  
+      line = str2double( split( fgetl(fileID) ) );      
+      head.nx = line(2:end);
+      if head.neqpar > 0
+         line = str2double( split( fgetl(fileID) ) );
+         head.eqpar = line(2:end);
+      end
+      varname = fgetl(fileID);
+      
    case {'real4','binary'}
       fseek(fileID,4,'cof'); % skip record start tag.
       head.headline = fread(fileID,lenstr,'*char')';
@@ -110,8 +117,11 @@ if nargout>1
    % Set variables array
    %head.variables = strsplit(varname); % returns a cell array
    head.variables = split(varname);     % returns a string array
-   % remove the last null string
-   head.variables = head.variables(1:end-1);
+      
+   if ftype == 'real4' | ftype == 'binary'
+      % remove the last null string
+      head.variables = head.variables(1:end-1);
+   end
    % Return head as filehead
    filehead = head;
 end

@@ -43,6 +43,10 @@ function plot_data( varargin )
 % Right now this only works for one input data and header. Should I extend
 % this to more?
 %
+% 02/01/2018
+% Add 2D cut of 3D Cartesian outputs?
+% if ndims(x) == 4
+%
 % Hongyang Zhou, hyzhou@umich.edu ver1.0 06/14/2017
 %--------------------------------------------------------------------------
 

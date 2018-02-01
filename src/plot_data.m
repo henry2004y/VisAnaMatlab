@@ -39,6 +39,10 @@ function plot_data( varargin )
 % inverse way.
 % I need to switch the logics. Improve the code!
 %
+% 01/29/2018
+% Right now this only works for one input data and header. Should I extend
+% this to more?
+%
 % Hongyang Zhou, hyzhou@umich.edu ver1.0 06/14/2017
 %--------------------------------------------------------------------------
 

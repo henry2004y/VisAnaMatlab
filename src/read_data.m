@@ -75,14 +75,20 @@ parse(p,filename,varargin{:});
 % First do one file, then try several files.
 % There`s a bug for using * here!
 filename = split(filename);
+%filelist = struct('name',{});
 for ifile=1:size(filename,1)
    newfile = dir(char(filename(ifile,:)));
    if isempty(newfile)
       error('Error in read_data: no matching filename was found for %s.'...
          ,filename{ifile})
    end
-   filelist(ifile) = newfile;
-   %filelist = newfile;
+   for inewfile=1:numel(newfile)
+      try
+         filelist(end+1) = newfile(inewfile);
+      catch
+         filelist = newfile(inewfile);
+      end
+   end
 end
 
 nfile = numel(filelist);
@@ -92,16 +98,21 @@ if nfile>2
    fprintf('filenames = %s\n',filelist.name);
    error('Error in read_data: cannot handle more than 2 files.')
 end
+
 [filelist,fileID,pictsize] = ...
    get_file_types(nfile,filelist);
+
 if p.Results.verbose
    fprintf('filename=%s\n',filelist.name);
    fprintf('npict=%d\n',filelist.npictinfiles);
 end
-if any(bsxfun(@minus, filelist.npictinfiles, p.Results.npict)<0)
-   error('npict out of range!')
+
+for ifile=1:nfile
+   if any(bsxfun(@minus, filelist(ifile).npictinfiles, p.Results.npict)<0)
+      error('file %n: npict out of range!',ifile)
+   end
+   frewind(fileID(ifile));
 end
-for ifile=1:nfile; frewind(fileID(ifile)); end
 
 %% Read data from file ifile
 for ifile=1:nfile
@@ -113,7 +124,8 @@ for ifile=1:nfile
       fseek(fileID(ifile),...
          pictsize(ifile)*(p.Results.npict-1),'cof');  
 
-      [~,filehead(ifile)] = get_file_head(fileID(ifile),filelist.type);
+      [~,filehead(ifile)] = get_file_head(fileID(ifile),...
+         filelist(ifile).type);
       
       % Read data
       switch string(lower(filelist(ifile).type))

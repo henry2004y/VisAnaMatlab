@@ -109,7 +109,7 @@ end
 
 for ifile=1:nfile
    if any(bsxfun(@minus, filelist(ifile).npictinfiles, p.Results.npict)<0)
-      error('file %n: npict out of range!',ifile)
+      error('file %d: npict out of range!',ifile)
    end
    frewind(fileID(ifile));
 end

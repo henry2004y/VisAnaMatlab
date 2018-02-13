@@ -164,7 +164,9 @@ for ivar = 1:numel(func)
                   %c.Label.String = '[nPa]';
                   %ylabel(c,'$\mu A/m^2$','Interpreter','LateX')
                case 'cont'
-                  contour(xq,yq,vq,20,'Edgecolor','none');
+                  contour(xq,yq,vq,20);
+               case 'contf'
+                  contourf(xq,yq,zq,20,'Edgecolor','none');
                case 'contlog'
                   contourf(xq,yq,log(vq),20,'Edgecolor','none');
                case 'contbarlog'
@@ -199,7 +201,9 @@ for ivar = 1:numel(func)
                case 'contbar'
                   contourf(xq,yq,vq,20,'Edgecolor','none'); c = colorbar;
                case 'cont'
-                  contour(xq,yq,vq,'Edgecolor','none');
+                  contour(xq,yq,vq,20);
+               case 'contf'
+                  contourf(xq,yq,zq,20,'Edgecolor','none');
                case 'contlog'
                   contourf(xq,yq,log(vq),20,'Edgecolor','none');
                case 'contbarlog'

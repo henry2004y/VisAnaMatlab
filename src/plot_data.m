@@ -119,7 +119,7 @@ for ivar = 1:numel(func)
    % vars for streamline or quiver plotting!!!
    %validatestring(func(ivar),filehead.wnames)
    switch plotmode{ivar}
-      case {'mesh','meshbar','meshbarlog','cont','contbar',...
+      case {'mesh','meshbar','meshbarlog','cont','contf','contbar',...
             'contlog','contbarlog'}
          % find the index for var in filehead.wnames
          % I want to make this function more powerful to include
@@ -158,31 +158,7 @@ for ivar = 1:numel(func)
                ,plotrange(3):plotinterval:plotrange(4));
             vq = F(xq,yq);
             
-            switch string(plotmode{ivar})
-               case 'contbar'
-                  contourf(xq,yq,vq,20,'Edgecolor','none'); c = colorbar;
-                  %c.Label.String = '[nPa]';
-                  %ylabel(c,'$\mu A/m^2$','Interpreter','LateX')
-               case 'cont'
-                  contour(xq,yq,vq,20);
-               case 'contf'
-                  contourf(xq,yq,zq,20,'Edgecolor','none');
-               case 'contlog'
-                  contourf(xq,yq,log(vq),20,'Edgecolor','none');
-               case 'contbarlog'
-                  contourf(xq,yq,log(vq),20,'Edgecolor','none');
-                  c = colorbar;
-                  c.Label.String = 'log10';
-               case 'meshbar'
-                  mesh(xq,yq,vq); colorbar
-               case 'mesh'
-                  mesh(xq,yq,vq);
-               case 'meshbarlog'
-                  mesh(xq,yq,log(vq)); c= colorbar;
-                  c.Label.String = 'log10';
-            end
          else % Cartesian coordinates
-            
             if isempty(plotrange)
                xq = x(:,:,1);
                yq = x(:,:,2);
@@ -196,29 +172,31 @@ for ivar = 1:numel(func)
                [xq,yq] = meshgrid(xlin,ylin);
                vq = interp2(xq,yq,w(:,:,VarIndex_),xq,yq);
             end
-            
-            switch string(plotmode{ivar})
-               case 'contbar'
-                  contourf(xq,yq,vq,20,'Edgecolor','none'); c = colorbar;
-               case 'cont'
-                  contour(xq,yq,vq,20);
-               case 'contf'
-                  contourf(xq,yq,zq,20,'Edgecolor','none');
-               case 'contlog'
-                  contourf(xq,yq,log(vq),20,'Edgecolor','none');
-               case 'contbarlog'
-                  contourf(xq,yq,log(vq),20,'Edgecolor','none');
-                  c = colorbar;
-                  c.Label.String = 'log10';
-               case 'meshbar'
-                  mesh(xq,yq,vq); colorbar
-               case 'mesh'
-                  mesh(xq,yq,vq);
-               case 'meshbarlog'
-                  mesh(xq,yq,log(vq)); c= colorbar;
-                  c.Label.String = 'log10';
-            end
          end
+                  
+         switch string(plotmode{ivar})
+            case 'contbar'
+               contourf(xq,yq,vq,20,'Edgecolor','none'); c = colorbar;
+               %c.Label.String = '[nPa]';
+               %ylabel(c,'$\mu A/m^2$','Interpreter','LateX')
+            case 'cont'
+               contour(xq,yq,vq,20);
+            case 'contf'
+               contourf(xq,yq,vq,20,'Edgecolor','none');
+            case 'contlog'
+               contourf(xq,yq,log(vq),20,'Edgecolor','none');
+            case 'contbarlog'
+               contourf(xq,yq,log(vq),20,'Edgecolor','none');
+               c = colorbar;
+               c.Label.String = 'log10';
+            case 'meshbar'
+               mesh(xq,yq,vq); colorbar
+            case 'mesh'
+               mesh(xq,yq,vq);
+            case 'meshbarlog'
+               mesh(xq,yq,log(vq)); c= colorbar;
+               c.Label.String = 'log10';
+         end       
          
          xlabel(filehead.variables{1}); ylabel(filehead.variables{2});
          title(filehead.wnames{VarIndex_});
@@ -226,7 +204,6 @@ for ivar = 1:numel(func)
          str = sprintf('it=%d, time=%.1fs',filehead.it,filehead.time);
          annotation('textbox',dim,'String',str,'FitBoxToText','on',...
             'FontWeight','bold');
-
 
       case {'trimesh','trisurf','tricont','tristream'} % triangular mesh
          figure;

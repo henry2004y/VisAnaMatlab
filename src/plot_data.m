@@ -170,7 +170,14 @@ for ivar = 1:numel(func)
                xlin = linspace(plotrange(1),plotrange(2),filehead.nx(1));
                ylin = linspace(plotrange(3),plotrange(4),filehead.nx(2));
                [xq,yq] = meshgrid(xlin,ylin);
-               vq = interp2(xq,yq,w(:,:,VarIndex_),xq,yq);
+               % 3D? 2D?
+               X = x(:,:,:,1);
+               Y = x(:,:,:,2);
+               % From ndgrid to meshgrid format
+               X  = permute(X,[2 1 3]);
+               Y  = permute(Y,[2 1 3]);
+               W  = permute(w(:,:,VarIndex_),[2 1 3]);
+               vq = interp2(X,Y,W,xq,yq);
             end
          end
                   
@@ -257,10 +264,21 @@ for ivar = 1:numel(func)
          VarIndexS1 = strcmpi(VarStream(1),filehead.wnames);
          VarIndexS2 = strcmpi(VarStream(2),filehead.wnames);
          
-         F1 = scatteredInterpolant(x(:,1,1),x(:,1,2),w(:,1,VarIndexS1));
-         v1 = F1(xq,yq);
-         F2 = scatteredInterpolant(x(:,1,1),x(:,1,2),w(:,1,VarIndexS2));
-         v2 = F2(xq,yq);
+         if filehead.gencoord % Generalized coordinates
+            F1 = scatteredInterpolant(x(:,1,1),x(:,1,2),w(:,1,VarIndexS1));
+            v1 = F1(xq,yq);
+            F2 = scatteredInterpolant(x(:,1,1),x(:,1,2),w(:,1,VarIndexS2));
+            v2 = F2(xq,yq);
+         else % Cartesian coordinates
+            % 3D? 2D?
+            X = x(:,:,:,1);
+            Y = x(:,:,:,2);
+            F1 = griddedInterpolant(X,Y,w(:,:,1,VarIndexS1));
+            v1 = F1(xq,yq);
+            F2 = griddedInterpolant(X,Y,w(:,:,1,VarIndexS2));
+            v2 = F2(xq,yq);            
+         end
+         
          
          s = streamslice(xq,yq,v1,v2);
          

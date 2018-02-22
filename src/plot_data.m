@@ -43,6 +43,10 @@ function plot_data( varargin )
 % Right now this only works for one input data and header. Should I extend
 % this to more?
 %
+% 02/01/2018
+% Add 2D cut of 3D Cartesian outputs?
+% if ndims(x) == 4
+%
 % 02/14/2018
 % I should improve the plotmode by splitting each term and reorganize the
 % structure.
@@ -119,7 +123,7 @@ for ivar = 1:numel(func)
    % vars for streamline or quiver plotting!!!
    %validatestring(func(ivar),filehead.wnames)
    switch plotmode{ivar}
-      case {'mesh','meshbar','meshbarlog','cont','contbar',...
+      case {'mesh','meshbar','meshbarlog','cont','contf','contbar',...
             'contlog','contbarlog'}
          % find the index for var in filehead.wnames
          % I want to make this function more powerful to include
@@ -158,29 +162,7 @@ for ivar = 1:numel(func)
                ,plotrange(3):plotinterval:plotrange(4));
             vq = F(xq,yq);
             
-            switch string(plotmode{ivar})
-               case 'contbar'
-                  contourf(xq,yq,vq,20,'Edgecolor','none'); c = colorbar;
-                  %c.Label.String = '[nPa]';
-                  %ylabel(c,'$\mu A/m^2$','Interpreter','LateX')
-               case 'cont'
-                  contour(xq,yq,vq,20,'Edgecolor','none');
-               case 'contlog'
-                  contourf(xq,yq,log(vq),20,'Edgecolor','none');
-               case 'contbarlog'
-                  contourf(xq,yq,log(vq),20,'Edgecolor','none');
-                  c = colorbar;
-                  c.Label.String = 'log10';
-               case 'meshbar'
-                  mesh(xq,yq,vq); colorbar
-               case 'mesh'
-                  mesh(xq,yq,vq);
-               case 'meshbarlog'
-                  mesh(xq,yq,log(vq)); c= colorbar;
-                  c.Label.String = 'log10';
-            end
          else % Cartesian coordinates
-            
             if isempty(plotrange)
                xq = x(:,:,1);
                yq = x(:,:,2);
@@ -192,29 +174,40 @@ for ivar = 1:numel(func)
                xlin = linspace(plotrange(1),plotrange(2),filehead.nx(1));
                ylin = linspace(plotrange(3),plotrange(4),filehead.nx(2));
                [xq,yq] = meshgrid(xlin,ylin);
-               vq = interp2(xq,yq,w(:,:,VarIndex_),xq,yq);
-            end
-            
-            switch string(plotmode{ivar})
-               case 'contbar'
-                  contourf(xq,yq,vq,20,'Edgecolor','none'); c = colorbar;
-               case 'cont'
-                  contour(xq,yq,vq,'Edgecolor','none');
-               case 'contlog'
-                  contourf(xq,yq,log(vq),20,'Edgecolor','none');
-               case 'contbarlog'
-                  contourf(xq,yq,log(vq),20,'Edgecolor','none');
-                  c = colorbar;
-                  c.Label.String = 'log10';
-               case 'meshbar'
-                  mesh(xq,yq,vq); colorbar
-               case 'mesh'
-                  mesh(xq,yq,vq);
-               case 'meshbarlog'
-                  mesh(xq,yq,log(vq)); c= colorbar;
-                  c.Label.String = 'log10';
+               % 3D? 2D?
+               X = x(:,:,:,1);
+               Y = x(:,:,:,2);
+               % From ndgrid to meshgrid format
+               X  = permute(X,[2 1 3]);
+               Y  = permute(Y,[2 1 3]);
+               W  = permute(w(:,:,VarIndex_),[2 1 3]);
+               vq = interp2(X,Y,W,xq,yq);
             end
          end
+                  
+         switch string(plotmode{ivar})
+            case 'contbar'
+               contourf(xq,yq,vq,20,'Edgecolor','none'); c = colorbar;
+               %c.Label.String = '[nPa]';
+               %ylabel(c,'$\mu A/m^2$','Interpreter','LateX')
+            case 'cont'
+               contour(xq,yq,vq,20);
+            case 'contf'
+               contourf(xq,yq,vq,20,'Edgecolor','none');
+            case 'contlog'
+               contourf(xq,yq,log(vq),20,'Edgecolor','none');
+            case 'contbarlog'
+               contourf(xq,yq,log(vq),20,'Edgecolor','none');
+               c = colorbar;
+               c.Label.String = 'log10';
+            case 'meshbar'
+               mesh(xq,yq,vq); colorbar
+            case 'mesh'
+               mesh(xq,yq,vq);
+            case 'meshbarlog'
+               mesh(xq,yq,log(vq)); c= colorbar;
+               c.Label.String = 'log10';
+         end       
          
          xlabel(filehead.variables{1}); ylabel(filehead.variables{2});
          title(filehead.wnames{VarIndex_});
@@ -222,7 +215,6 @@ for ivar = 1:numel(func)
          str = sprintf('it=%d, time=%.1fs',filehead.it,filehead.time);
          annotation('textbox',dim,'String',str,'FitBoxToText','on',...
             'FontWeight','bold');
-
 
       case {'trimesh','trisurf','tricont','tristream'} % triangular mesh
          figure;
@@ -276,10 +268,21 @@ for ivar = 1:numel(func)
          VarIndexS1 = strcmpi(VarStream(1),filehead.wnames);
          VarIndexS2 = strcmpi(VarStream(2),filehead.wnames);
          
-         F1 = scatteredInterpolant(x(:,1,1),x(:,1,2),w(:,1,VarIndexS1));
-         v1 = F1(xq,yq);
-         F2 = scatteredInterpolant(x(:,1,1),x(:,1,2),w(:,1,VarIndexS2));
-         v2 = F2(xq,yq);
+         if filehead.gencoord % Generalized coordinates
+            F1 = scatteredInterpolant(x(:,1,1),x(:,1,2),w(:,1,VarIndexS1));
+            v1 = F1(xq,yq);
+            F2 = scatteredInterpolant(x(:,1,1),x(:,1,2),w(:,1,VarIndexS2));
+            v2 = F2(xq,yq);
+         else % Cartesian coordinates
+            % 3D? 2D?
+            X = x(:,:,:,1);
+            Y = x(:,:,:,2);
+            F1 = griddedInterpolant(X,Y,w(:,:,1,VarIndexS1));
+            v1 = F1(xq,yq);
+            F2 = griddedInterpolant(X,Y,w(:,:,1,VarIndexS2));
+            v2 = F2(xq,yq);            
+         end
+         
          
          s = streamslice(xq,yq,v1,v2);
          

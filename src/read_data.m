@@ -45,6 +45,8 @@ function [ filehead,data,filelist ] = read_data( filename, varargin )
 %
 % I can try containers.map or table data structure to save vars. 09/22/2017
 %
+% I need a way to deal with no output arguments. 02/14/2018
+%
 %--------------------------------------------------------------------------
 
 

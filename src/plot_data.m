@@ -47,6 +47,10 @@ function plot_data( varargin )
 % Add 2D cut of 3D Cartesian outputs?
 % if ndims(x) == 4
 %
+% 02/14/2018
+% I should improve the plotmode by splitting each term and reorganize the
+% structure.
+%
 % Hongyang Zhou, hyzhou@umich.edu ver1.0 06/14/2017
 %--------------------------------------------------------------------------
 

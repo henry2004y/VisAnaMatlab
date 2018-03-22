@@ -341,7 +341,7 @@ for ivar = 1:numel(func)
    % at the bottom for loop end, but I moved it upward inside the inner
    % loop.
    ax = gca;
-   ax.FontSize = 16;  
+   ax.FontSize = 14; ax.LineWidth = 1.2;
 end
 
 else % 2D cut from 3D output, now only for Cartesian output
@@ -356,6 +356,8 @@ else % 2D cut from 3D output, now only for Cartesian output
       end
          
       W  = permute(w(:,:,:,VarIndex_),[2 1 3]);
+ 
+      if multifigure; figure; end
       
       switch cut
          case 'x'
@@ -366,7 +368,6 @@ else % 2D cut from 3D output, now only for Cartesian output
             cut1 = squeeze(X(CutPlaneIndex,:,:));
             cut2 = squeeze(Z(CutPlaneIndex,:,:));
             W    = squeeze(W(CutPlaneIndex,:,:));
-            [cut1, cut2, W] = subsurface(cut1, cut2, W, plotrange);
          case 'z'
             cut1 = squeeze(X(:,:,CutPlaneIndex));
             cut2 = squeeze(Y(:,:,CutPlaneIndex));
@@ -374,10 +375,22 @@ else % 2D cut from 3D output, now only for Cartesian output
       end
    end
    
-   if multifigure; figure; end
+   [cut1, cut2, W] = subsurface(cut1, cut2, W, plotrange);
+   
    contourf(cut1,cut2,W);
    colorbar; axis equal;
    
+   switch cut
+      case 'x'
+            xlabel('y'); ylabel('z')         
+      case 'y'
+            xlabel('x'); ylabel('z')         
+      case 'z'
+            xlabel('x'); ylabel('y')         
+   end
+   
+   ax = gca;
+   ax.FontSize = 14; ax.LineWidth = 1.2;
 end
 
 end

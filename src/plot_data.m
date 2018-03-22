@@ -60,6 +60,7 @@ defaultplotmode = 'contbar';
 defaultplotrange = [];
 defaultplotinterval = 1;
 defaultmultifigure = 1;
+defaultcut = '';
 
 addRequired(p,'data',@isstruct);
 addRequired(p,'filehead',@isstruct);
@@ -68,6 +69,8 @@ addParameter(p,'plotrange',defaultplotrange,@isnumeric);
 addParameter(p,'plotinterval',defaultplotinterval,@isnumeric);
 addParameter(p,'plotmode',defaultplotmode,@ischar);
 addParameter(p,'multifigure',defaultmultifigure,@islogical);
+addParameter(p,'cut',defaultcut,@ischar);
+addParameter(p,'CutPlaneIndex',[],@isnumeric);
 
 parse(p,varargin{:});
 
@@ -80,6 +83,8 @@ plotmode = split(p.Results.plotmode);
 plotrange = p.Results.plotrange;
 plotinterval = p.Results.plotinterval;
 multifigure = p.Results.multifigure;
+cut = p.Results.cut; 
+CutPlaneIndex = p.Results.CutPlaneIndex;
 filehead = p.Results.filehead;
 data = p.Results.data;
 x = data.x; w = data.w;
@@ -118,6 +123,7 @@ if numel(plotmode) < numel(func)
 end
 
 %% Plot
+if isempty(cut)
 for ivar = 1:numel(func)
    % I need to think of a better way to check. now this cannot identify the
    % vars for streamline or quiver plotting!!!
@@ -174,7 +180,8 @@ for ivar = 1:numel(func)
                xlin = linspace(plotrange(1),plotrange(2),filehead.nx(1));
                ylin = linspace(plotrange(3),plotrange(4),filehead.nx(2));
                [xq,yq] = meshgrid(xlin,ylin);
-               % 3D? 2D?
+               % 3D? 2D? My understanding is that as long as the last index
+               % is 1, it is fine.
                X = x(:,:,:,1);
                Y = x(:,:,:,2);
                % From ndgrid to meshgrid format
@@ -337,5 +344,92 @@ for ivar = 1:numel(func)
    ax.FontSize = 16;  
 end
 
+else % 2D cut from 3D output, now only for Cartesian output
+   for ivar = 1:numel(func)
+      X = permute(x(:,:,:,1),[2 1 3]);
+      Y = permute(x(:,:,:,2),[2 1 3]);
+      Z = permute(x(:,:,:,3),[2 1 3]);
+      
+      VarIndex_ = strcmpi(func(ivar),filehead.wnames);
+      if VarIndex_==0
+         error('%s not found in output variables!',func{ivar})
+      end
+         
+      W  = permute(w(:,:,:,VarIndex_),[2 1 3]);
+      
+      switch cut
+         case 'x'
+            cut1 = squeeze(X(:,CutPlaneIndex,:));
+            cut2 = squeeze(Z(:,CutPlaneIndex,:));
+            W    = squeeze(W(:,CutPlaneIndex,:));
+         case 'y'
+            cut1 = squeeze(X(CutPlaneIndex,:,:));
+            cut2 = squeeze(Z(CutPlaneIndex,:,:));
+            W    = squeeze(W(CutPlaneIndex,:,:));
+            [cut1, cut2, W] = subsurface(cut1, cut2, W, plotrange);
+         case 'z'
+            cut1 = squeeze(X(:,:,CutPlaneIndex));
+            cut2 = squeeze(Y(:,:,CutPlaneIndex));
+            W    = squeeze(W(:,:,CutPlaneIndex));
+      end
+   end
+   
+   if multifigure; figure; end
+   contourf(cut1,cut2,W);
+   colorbar; axis equal;
+   
+end
+
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [newx, newy, newdata] = subsurface(varargin)
+%SUBSURFACE Extract subset of surface dataset.
+%  This is a simplified version of subvolume.
+
+x      = varargin{1};
+y      = varargin{2};
+data   = varargin{3};
+limits = varargin{4};
+
+if numel(limits)~=4
+  error('Reduction must be [xmin xmax ymin ymax]');
+end
+
+if limits(1) > limits(2)
+  error(message('MATLAB:subvolume:InvalidReductionXRange'));
+end
+if limits(3) > limits(4)
+  error(message('MATLAB:subvolume:InvalidReductionYRange'));
+end
+
+sz = size(data);
+
+hx = x(:,1);
+hy = y(1,:);
+
+if isnan(limits(1)),  limits(1) = min(hx); end
+if isnan(limits(3)),  limits(3) = min(hy); end
+if isnan(limits(2)),  limits(2) = max(hx); end
+if isnan(limits(4)),  limits(4) = max(hy); end
+
+xind = find(limits(1)<=hx & hx<=limits(2));
+yind = find(limits(3)<=hy & hy<=limits(4));
+
+newdata = subdata(data, xind, yind, sz);
+
+newx = x(xind, yind);
+newy = y(xind, yind);
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function newdata = subdata(data, xind, yind, sz)
+newdata = data(xind, yind);
+newsz = size(newdata);
+if length(sz)>2
+  newdata = reshape(newdata, [newsz(1:3) sz(4:end)]);
+end
+
+end
 
 end

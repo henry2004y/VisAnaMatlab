@@ -290,8 +290,8 @@ for ivar = 1:numel(func)
             v2 = F2(xq,yq);            
          end
          
-         
-         s = streamslice(xq,yq,v1,v2);
+         % Modify the density of streamlines if needed
+         s = streamslice(xq,yq,v1,v2,1,'linear');
          
          for is=1:numel(s)
             s(is).Color = 'w'; % Change streamline color to white

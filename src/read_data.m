@@ -119,7 +119,8 @@ end
 %% Read data from file ifile
 for ifile=1:nfile
    if strcmp(filelist(ifile).type,'log')     
-      [filehead,data] = read_log_data(filelist(ifile).name);     
+      [filehead,data] = read_log_data(fullfile(filelist(ifile).folder,...
+         filelist(ifile).name));     
       return
    else          
       % Skip npict-1 snapshots (because we only want npict snapshot)      

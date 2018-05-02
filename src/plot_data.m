@@ -78,16 +78,24 @@ parse(p,varargin{:});
 % which plotmode to use. Think about it.
 % func = strsplit(p.Results.func); % returns a cell array
 % plotmode = strsplit(p.Results.plotmode); % returns a cell array
-func = split(p.Results.func);
-plotmode = split(p.Results.plotmode);
-plotrange = p.Results.plotrange;
-plotinterval = p.Results.plotinterval;
-multifigure = p.Results.multifigure;
-cut = p.Results.cut; 
+func          = split(p.Results.func);
+plotmode      = split(p.Results.plotmode);
+plotrange     = p.Results.plotrange;
+plotinterval  = p.Results.plotinterval;
+multifigure   = p.Results.multifigure;
+cut           = p.Results.cut; 
 CutPlaneIndex = p.Results.CutPlaneIndex;
-filehead = p.Results.filehead;
-data = p.Results.data;
+filehead      = p.Results.filehead;
+data          = p.Results.data;
 x = data.x; w = data.w;
+
+%if isempty(plotmode)
+%   plotmode = defaultplotmode;
+%end
+
+if isempty(plotinterval)
+   plotinterval = defaultplotinterval;
+end
 
 %% Display parameters
 disp('======= CURRENT PLOTTING PARAMETERS =======')

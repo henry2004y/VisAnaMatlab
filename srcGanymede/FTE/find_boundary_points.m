@@ -2,8 +2,17 @@ function [ x3bc,y3bc,z3bc ] = find_boundary_points( filename,s )
 %FIND_BOUNDARY_POINTS Returns the boundary points position for a volume.
 %   
 % Two conditions are used to pick the required boundary pts:
-% 1. The distance from center should be larger than 1.6 Rg;
-% 2. x must be negative (indicating upstream hemisphere).
+% # The distance from center should be larger than rThres;
+% # x must be smaller than xThres (indicating upstream hemisphere).
+%
+% INPUT:
+% filename: 3D output file name that contains status infomation
+% s       : compact boundary factor (see built-in function *boundary*)
+%
+% OUTPUT:
+% x3bc,y3bc,z3bc: coordinates of boundary points
+%
+% Hongyang Zhou, hyzhou@umich.edu
 %--------------------------------------------------------------------------
 
 [head,data] = read_data(filename,'verbose',false);

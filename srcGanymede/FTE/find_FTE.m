@@ -1,6 +1,6 @@
 function [ centroid, boundaries, clusterNumber ] = find_FTE( var,varargin )
 %FIND_FTE Find the number and boundaries of flux ropes
-%% FTE counts
+% FTE counts
 % # filter/smoothing
 % # determine threshold for each variable
 % # transform into binary(logical) matrix
@@ -9,6 +9,8 @@ function [ centroid, boundaries, clusterNumber ] = find_FTE( var,varargin )
 % # Identify moving blobs
 %
 % See references from image processing toolbox, and demos by experts.
+%
+% Hongyang Zhou, hyzhou@umich.edu
 
 %% Parameters and thresholds
 

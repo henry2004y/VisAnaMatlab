@@ -1,5 +1,8 @@
-% Ganymede G8 & G28 comparison plots for the paper
+% Ganymede G8 FTE plots for the paper
 % Inherited from the AGU plots.
+%
+% Plot $B_{normal}$, $j$ and $P_e$ and reconnection efficiency in a
+% time-series manner.
 %
 % Hongyang Zhou, hyzhou@umich.edu  12/04/2017
 % Modified on 02/20/2018
@@ -55,7 +58,7 @@ for ix=1:size(xq,1)
    end
 end
 
-%% Output variables in the local coordinate system as a movie
+%% Output variables in the local coordinate system
 
 % box outputs
 filename = '~/Ganymede/newPIC/run_G8_newPIC/box_FTE_G8_1200s.outs';

@@ -2,11 +2,11 @@
 % Procedures:
 % 1. Get 3D cell-centered status and coordinates from steady state run(t=0)
 % 2. Collect all the points with status==3 (which are located on closed 
-%    field lines) and find the boundary points at the dayside
+%    field lines) and find the boundary points at the dayside.
 % 3. Do interpolation of variable values onto these boundary points for
 %    each snapshot. Make contour plots on the projection y-z plane and then
 %    animate. Probably you want to pick the max from a shell instead of
-%    just a surface cut.
+%    just a surface cut. Quantities are shown in Cartesian coordinates.
 % 4. Capture the edge of peaks and count.
 %
 % Pay attention to the artificial thresholds I picked. These may be changed

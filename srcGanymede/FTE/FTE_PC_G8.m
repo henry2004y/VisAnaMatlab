@@ -1,3 +1,5 @@
+% Magnetopause contour plots animation from 3D PC outputs for G8.
+%
 % Repeat the same procedure of analyzing GM outputs to PC outputs.
 % From PC outputs, we can get electron velocity information.
 % My impression from doing this is that Ve is not clear in showing the
@@ -12,6 +14,7 @@ mu0      = 4*pi*1e-7;    %[H/m]
 me       = 9.1094e-31;   %[kg] 
 mp       = 1.6726*1e-27; %[kg]
 mi       = 14; % average ion mass [amu]
+VA = 200; %[km/s], for normalization
 
 %% Find boundary points from steady state solution
 filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs'; % 3d GM outputs
@@ -135,9 +138,7 @@ for ipict = 1:10%npict
       end
    end  
    
-   
-   
-   
+   %
    nev= interp3(x, y, z, ne, Coef*xq, Coef*yq, Coef*zq);
    niv= interp3(x, y, z, ni, Coef*xq, Coef*yq, Coef*zq);
    bxv= interp3(x, y, z, bx, Coef*xq, Coef*yq, Coef*zq);
@@ -173,10 +174,10 @@ for ipict = 1:10%npict
       end
    end
    
-   
-   % Alfven velocity
-   VA = sqrt((bL.^2 + bM.^2 + bN.^2) ./ (mu0*(niv*mp+nev*me)))*1e-12;
-   
+   % Alfven velocity 
+   %VA = sqrt((bL.^2 + bM.^2 + bN.^2) ./ (mu0*(niv*mp+nev*me)))*1e-12;
+   % Note: This normalization is wrong! I shouldn't use different Alfven
+   % velocity for different cells!
    
    % Current density
    J = e*(niv(:).*[uixv(:) uiyv(:) uizv(:)]./mi - ...

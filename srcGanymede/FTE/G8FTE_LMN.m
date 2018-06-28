@@ -10,7 +10,7 @@
 %    (d1) tangent to the surface as \vec{d1}=\vec{d3}x\vec{z}; the other 
 %    (d2) complete the right-hand rule. Note that in the following code, 
 %    I only care about the orientation, so d1, d2 and d3 may not strictly
-%    the right-hand rule. However, it is not needed to be truly
+%    follow the right-hand rule. However, it is not needed to be truly
 %    right-handed as long as you know the direction of vectors.
 %    Probably you want to pick the max value from a shell instead of single
 %    surface cut. (Gabor suggested it, but I`ve never tried.) 

@@ -1,5 +1,8 @@
-% Ganymede G8 & G28 comparison plots for the paper
+% Ganymede G28 FTE plots for the paper
 % Inherited from the AGU plots.
+%
+% Plot $B_{normal}$, $j$ and $P_e$ and reconnection efficiency in a
+% time-series manner.
 %
 % Hongyang Zhou, hyzhou@umich.edu  12/04/2017
 % Modified on 02/20/2018

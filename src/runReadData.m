@@ -15,6 +15,12 @@ filename = 'logTest.log';
 plot_log_data(logdata,filehead,'pmin','plotmode','line');
 
 %% Test of 2D plot, generalized coordinates
+filename = '~/SWMF/SWMF/GM/BATSRUS/run_test/GM/IO2/y*';
+
+[filehead,data] = read_data(filename);
+
+plot_data(data.file1,filehead,'p','plotmode','contbar')
+
 % % default parameters for read_data
 % npict = 61;        % index of snapshot to be read
 %  

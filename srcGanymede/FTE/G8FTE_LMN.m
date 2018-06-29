@@ -27,19 +27,21 @@
 % In each processing step, there are some coefficients that can be
 % modified. Be careful for those numbers!
 %
-% Hongyang Zhou, hyzhou@umich.edu  11/02/2017
+% Hongyang Zhou, hyzhou@umich.edu  11/02/2017, version 1.1
 %
-% modified on 01/03/2018
+% modified 01/03/2018, version 1.2
+% modified 06/29/2018, version 1.3
 
 
 clear; clc
 %% Find boundary points from steady state solution
-filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs'; % 3d GM outputs
+% 3D GM outputs
+filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs';
 s = 0.5; % compact boundary factor [0,1]
 
 [x3bc,y3bc,z3bc] = find_boundary_points( filename,s );
 
-%% Fit the closed field line boundary with hypersurface
+%% Fit the closed field line boundary with hypersurface fit
 
 % Set up fittype and options.
 ft = fittype( 'poly55' );

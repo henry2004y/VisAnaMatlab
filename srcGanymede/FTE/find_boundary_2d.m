@@ -1,6 +1,6 @@
 % Capturing magnetopause in 2D 
 %
-% Purpose: identify the boundary of status.
+% Purpose: identify the boundary of status from 2D cuts.
 %
 % This script is transformed into a function find_boundary_points.
 %

@@ -10,7 +10,7 @@
 % magnetosheath at Ganymede);
 %
 % Test done here:
-% 1. find the reconnection sites using $E^\prime$ term;
+% 1. find the reconnection sites using $E ^\prime$ term;
 % 2. create a line in the boundary normal direction through the
 % reconnection site; The problem is that the strongest residual does not
 % locate exactly on the fitted surface from status;

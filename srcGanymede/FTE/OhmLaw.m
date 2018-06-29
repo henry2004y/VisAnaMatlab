@@ -1,6 +1,6 @@
 % E^\prime in Ohm`s law
 %
-%
+% This should be collected into ReconnectionIdeaTest.m
 
 clear; clc
 %%

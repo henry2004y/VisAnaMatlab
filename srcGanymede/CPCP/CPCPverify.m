@@ -1,9 +1,11 @@
-% Script for 3d box outputs.
+% Script for comparing CPCP calculation from different locations.
+%
+% Used for verifying the accuracy of CPCP calculation approach.
 %
 % Hongyang Zhou, hyzhou@umich.edu 01/18/2018
 
 clear; clc
-%%
+%% Read data and make contour plots
 Rg = 2634000; %[m], radius of Ganymede
 e  = 1.60217662e-19; % [C], electron charge
 

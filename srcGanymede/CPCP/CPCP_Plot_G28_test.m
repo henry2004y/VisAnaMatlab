@@ -1,5 +1,7 @@
 % G28 CPCP periodicity analysis
 %
+% Comparison between different z location. 
+%
 
 %% 
 

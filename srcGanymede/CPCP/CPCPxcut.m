@@ -1,29 +1,33 @@
 % Calculating cross polar cap potential for G8 flyby from x=0 cuts.
 % Procedure:
-% 1. E = -uxB from MHD output; if necessary, it should be more accurate to
-%    to use ue x B, where ue = u - nJ/e. What I found from the simulation
-%    is that this term is relatively small, so it is like a correction term.
+% 1. Calculate E = -uxB from MHD output. It should be more accurate to use 
+%    ue x B, where ue = u - nJ/e. What I found from the simulation is that 
+%    this term is relatively small, so it is like a correction term.
 % 2. Use status to find the region of half open field lines that have one
-%    end connected to the polar cap; more specifically in this cut, I need
-%    a line at a certain height within the region.
-% 3. Integrate the electric field along the line.
+%    end connected to the polar cap; specifically in x=0 cut, I need a line
+%    at a certain height within the region.
+% 3. Get electric potential by integrating the electric field along the 
+%    line.
 %
 % This script works for G8 and G28 Galileo flybys. 
 %
 % The interpolation is slow because it is using scattered interpolation.
 % For x=0 cut in spherical coordinates, the data are arranged like
-% unstructured mesh. 
+% unstructured mesh (DxSavePlot=-1).
 %
 % As we discussed heavily, using a line integral in the x=0 cut is not the
 % proper way of calculating the electric field integral. A better way would
-% be integrate along the magnetopause edges in a plane cut above/below the
-% moon. This is done in CPCP_cutplane.m.
+% be integrating along the magnetopause edges in a plane cut above/below 
+% the moon. This is done in *CPCP_zcut.m*.
 %
 % Hongyang Zhou, hyzhou@umich.edu 11/02/2017
 %
-% Modified on 01/04/2017
+% Modified 01/04/2018
 % 1. One script for both G8 and G28 flybys.
 % 2. Reorganize each part of the code.
+%
+% Modified 06/29/2018
+% Added comments.
 
 clear; clc
 %% Parameters

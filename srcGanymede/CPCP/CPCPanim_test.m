@@ -1,3 +1,6 @@
+% CPCP scan movie plot.
+%
+% Require preprocessed CPCP data.
 
 v = VideoWriter('CPCP vs time.avi');
 v.FrameRate = 10;

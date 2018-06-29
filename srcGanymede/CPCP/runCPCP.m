@@ -229,14 +229,20 @@ plot(EPotential);
 %
 
 %% FFT
-% This is an issue; ask Gabor, Xianzhe and others.
-%CPCPfft = fft(CPCPt);
-CPCPfft = fft(CPCPt./Potential_bk);
+% There are 2 ways of doing FFT:
+% 1. using CPCP along;
+% 2. using CPCP / background potential drop.
+%
+% If we think that background condition will only effect the amplitude but
+% not the frequency, it is better to use method (1).
+
+CPCPfft = fft(CPCPt);
+%CPCPfft = fft(CPCPt./Potential_bk);
 CPCPfft(1) = [];
 n = length(CPCPfft);
 power = abs(CPCPfft(1:floor(n/2))).^2; % power of first half of transform data
-maxfreq = 1;                   % maximum frequency
-freq = (1:n/2)/(n/2)*maxfreq;    % equally spaced frequency grid
+maxfreq = 1;                   % maximum frequency (sample freq = 1s)
+freq = (1:n/2)/(n/2)*maxfreq;  % equally spaced frequency grid
 
 figure
 plot(freq,power)

@@ -20,7 +20,7 @@
 %    upstream boundary curve for integration.
 % 3. Integrate the electric field along the line.
 %
-% This script works for G8 and G28 Galileo flybys, and also two runs with 
+% This script works for G8 and G28 Galileo flybys, and also runs with 
 % mixed parameters mix1 and mix2.
 %
 % Hongyang Zhou, hyzhou@umich.edu 11/02/2017
@@ -76,7 +76,7 @@ end
 npict   = fileinfo.npictinfiles; % # of snapshot in the file
 dsample = 1/32;                  % grid resolution in [Rg]
 
-%% CPCP calculation by line integral at x=1, z=2
+%% CPCP calculation by line integral along x=1, z=2
 
 % CPCPt = Inf(npict,1);
 % time = Inf(npict,1);
@@ -152,7 +152,9 @@ dsample = 1/32;                  % grid resolution in [Rg]
 % difference as the potential drop.
 % Following Gabor`s advice, I shouldn`t use x=1 to 'force' the cutoff. It
 % would make more sense to integrate the closed curve and pick the
-% difference between the end and the middle.
+% difference between the maximum and minimum.
+% Note: the x=1 condition is still there!
+
 CPCPt = Inf(npict,1);
 time = Inf(npict,1);
 xCenter = 0; yCenter = 0; % coordinates of the center of points
@@ -263,13 +265,21 @@ set(gca,'FontSize',14,'LineWidth',1.2);
 % plot(EPotential);
 
 %% FFT
-%CPCPfft = fft(CPCPt);
-CPCPfft = fft(CPCPt./Potential_bk);
+
+% There are 2 ways of doing FFT:
+% 1. using CPCP along;
+% 2. using CPCP / background potential drop.
+%
+% If we think that background condition will only effect the amplitude but
+% not the frequency, it is better to use method (1).
+
+CPCPfft = fft(CPCPt);
+%CPCPfft = fft(CPCPt./Potential_bk);
 CPCPfft(1) = [];
 n = length(CPCPfft);
 power = abs(CPCPfft(1:floor(n/2))).^2; % power of first half of transform data
-maxfreq = 1;                   % maximum frequency
-freq = (1:n/2)/(n/2)*maxfreq;    % equally spaced frequency grid
+maxfreq = 1;                   % maximum frequency (sample freq = 1s)
+freq = (1:n/2)/(n/2)*maxfreq;  % equally spaced frequency grid
 
 figure
 plot(freq,power)

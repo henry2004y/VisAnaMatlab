@@ -1,5 +1,7 @@
 % Comparison of G8/G28 Hall MHD and MHD-EPIC reconnection efficiencies.
 %
+% Require pre-processed CPCP data.
+%
 % Hongyang Zhou, hyzhou@umich.edu 02/26/2018
 
 clear; clc

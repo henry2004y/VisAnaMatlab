@@ -1,9 +1,15 @@
-% Figures for demonstrating CPCP calculation
+% Script for demonstrating CPCP calculation
 %
+% Creating figures for demonstrating CPCP calculation from simulation.
+% * CPCP calculation from BATSRUS box output;
+% * Create contour plot for showing the magnetic field connectivity;
+% * Create line plot for showing the potential calculation along the
+% boundary curve.
 %
+% Hongyang Zhou, hyzhou@umich.edu 06/28/2018
 
-clear; clc
-
+clear; clc; close all
+%% CPCP calculation for one snapshot
 Rg = 2634000; %[m], radius of Ganymede
 e  = 1.60217662e-19; % [C], electron charge
 
@@ -91,8 +97,7 @@ EPotential = EPotential./1e3; % [kV]
 
 CPCPt(ipict) = EPotentialMax - EPotentialMin;
 
-
-%%
+%% Contour for B topology
 func      = 'status';
 plotmode  = 'contf';
 %
@@ -107,7 +112,7 @@ opt.FileName = 'zCutPlaneStatus.eps';
 xlabel(opt.XLabel); ylabel(opt.YLabel);
 set(gca,'LineWidth',1.2)
 
-%%
+%% Line plot for potential calculation
 opt.XLabel = 'Position along the curve'; % xlabel
 opt.YLabel = 'Electric Potential [kV]'; %ylabel
 opt.Colors = [ % two colors for two data set

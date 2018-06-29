@@ -2,6 +2,9 @@
 %
 % Could be used after the calculation of CPCP for all four runs.
 %
+% Requirement:
+% PlotPub must be added to path.
+%
 % Hongyang Zhou, hyzhou@umich.edu 01/11/2018
 
 clear;clc; %close all; 

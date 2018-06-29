@@ -14,7 +14,7 @@ flyby = 'G8'; % default is G8
 
 Rg = 2634000; %[m], radius of Ganymede
 StatusIn = 2; % Region connectivity defined by BATSRUS
-StatusOut= 0;
+StatusOut= 0; % Region connectivity defined by BATSRUS
 
 switch flyby
    case 'G8'
@@ -26,7 +26,7 @@ switch flyby
 end
 
 [~,~,fileinfo] = read_data(filename,'verbose',false);
-npict = fileinfo.npictinfiles; % # of snapshot in the file
+npict = fileinfo.npictinfiles; % # of snapshots in the file
 
 %% Magnetic Flux through a plane surface closed region
 % Right now the results seems to be wrong. I need to verify it.

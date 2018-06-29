@@ -11,6 +11,9 @@
 % There is a quick tranformation for the two grid formats.
 % 
 % Hongyang Zhou, hyzhou@umich.edu 09/28/2017
+%
+% Note: This is a test script. Matlab is not good at visualizing 3D
+% structures, so later I turned to Tecplot and Paraview. 06/29/2018
 
 %{
 % filename = '~/Documents/research/Ganymede/box_PIC.out';

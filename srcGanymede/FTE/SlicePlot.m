@@ -1,5 +1,7 @@
 % Contour plot on a curve surface --- slice
 %
+% Test on magnetospause surface plot.
+%
 % Hongyang Zhou, hyzhou@umich.edu 02/28/2018
 
 
@@ -11,7 +13,7 @@ s = 0.5; % compact boundary factor [0,1]
 [x3bc,y3bc,z3bc] = find_boundary_points( filename,s );
 
 
-%% Fit the closed field line boundary with paraboloid
+%% Fit the closed field line boundary with hypersurface
 
 % Set up fittype and options.
 ft = fittype( 'poly55' );

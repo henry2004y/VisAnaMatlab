@@ -11,6 +11,7 @@ function [ x3bc,y3bc,z3bc ] = find_boundary_points( filename,varargin )
 % DoPlot  : logical var, deciding doing scatter plot or not
 % rThres  : radius threshold for picking boundary points
 % xThres  : x coordinate threshold for picking boundary pts
+% npict   : snapshots in 3D output
 %
 % OUTPUT:
 % x3bc,y3bc,z3bc: coordinates of boundary points
@@ -21,17 +22,16 @@ function [ x3bc,y3bc,z3bc ] = find_boundary_points( filename,varargin )
 
 if nargin==0
    error('Not enough inputs.')
-elseif nargin > 5
+elseif nargin > 6
    error('Too Many Inputs.');
 end
 
-optargs = {0.5 true 1.5 -1.125}; % default parameters
+optargs = {0.5 true 1.5 -1.125 1}; % default parameters
 optargs(1:nargin-1) = varargin;
 % Place optional args in memorable variable names
-[s, DoPlot, rThres, xThres] = optargs{:};
+[s, DoPlot, rThres, xThres, npict] = optargs{:};
 
-
-[head,data] = read_data(filename,'verbose',false);
+[head,data] = read_data(filename,'verbose',false,'npict',npict);
 
 data = data.file1;
 

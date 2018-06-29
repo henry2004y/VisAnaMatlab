@@ -90,7 +90,7 @@ hfig = figure(4);
 set(hfig,'position', [10, 10, 800, 600]) 
 colormap(jet);
 
-for ipict=1:10%npict
+for ipict=1:1%npict
    fprintf('ipict=%d\n',ipict)
    [filehead,data] = read_data(filenamePC,'verbose',false,'npict',ipict);
    

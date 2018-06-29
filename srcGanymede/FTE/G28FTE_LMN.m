@@ -135,18 +135,20 @@ colormap(jet);
 for ipict = 1:npict
    [filehead,data] = read_data(fnameFTE,'verbose',false,'npict',ipict);
    
-   x = data.file1.x(:,:,:,1);
-   y = data.file1.x(:,:,:,2);
-   z = data.file1.x(:,:,:,3);
+   data = data.file1;
    
-   bx = data.file1.w(:,:,:,5);
-   by = data.file1.w(:,:,:,6);
-   bz = data.file1.w(:,:,:,7);
-   pe = data.file1.w(:,:,:,9);
-   p  = data.file1.w(:,:,:,10);
-   jx = data.file1.w(:,:,:,11);
-   jy = data.file1.w(:,:,:,12);
-   jz = data.file1.w(:,:,:,13);
+   x = data.x(:,:,:,1);
+   y = data.x(:,:,:,2);
+   z = data.x(:,:,:,3);
+   
+   bx = data.w(:,:,:,5);
+   by = data.w(:,:,:,6);
+   bz = data.w(:,:,:,7);
+   pe = data.w(:,:,:,9);
+   p  = data.w(:,:,:,10);
+   jx = data.w(:,:,:,11);
+   jy = data.w(:,:,:,12);
+   jz = data.w(:,:,:,13);
    %j  = sqrt(jx.^2 + jy.^2 + jz.^2); 
    
    % From ndgrid to meshgrid format

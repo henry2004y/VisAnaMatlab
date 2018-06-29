@@ -3,53 +3,23 @@
 % This should be collected into ReconnectionIdeaTest.m
 
 clear; clc
-%%
-
-ipict = 30;
-
+%% Parameters
 filenameGM = '~/Ganymede/newPIC/run_G8_newPIC/box_FTE_G8_1200s.outs';
-
-[filehead,data] = read_data(filenameGM,'verbose',false,'npict',ipict);
-
+ipict = 30;
 s = 0.5; % compact boundary factor [0,1]
-
-data = data.file1;
-
-x = data.x(:,:,:,1); 
-y = data.x(:,:,:,2);
-z = data.x(:,:,:,3);
-
-VarIndex_ = strcmpi('status',filehead.wnames);
-status = data.w(:,:,:,VarIndex_);
-
-x3_1 = x(status==3 & x<0);
-y3_1 = y(status==3 & x<0);
-z3_1 = z(status==3 & x<0);
-
-% Pick the compact boundary points coords.
-k31  = boundary(x3_1,y3_1,z3_1,s);
-bc31 = unique(k31);
-
-x3bc = x3_1(bc31);
-y3bc = y3_1(bc31);
-z3bc = z3_1(bc31);
-
 rThres = 1.6; % [Rg] radius threshold for finding dayside boundary pts
 xThres = -1.5;
 
-% Find the outer boundary points
-mapindex_ = (x3bc.^2 + y3bc.^2 + z3bc.^2) > rThres^2 & x3bc < xThres;
-x3bc = x3bc(mapindex_);
-y3bc = y3bc(mapindex_);
-z3bc = z3bc(mapindex_);
+%% Find magnetopause, generate mesh
 
-%Fit the closed field line boundary with hypersurface
+[x3bc,y3bc,z3bc] = ...
+   find_boundary_points( filename,s,DoPlot,xThres,rThres,ipict );
 
-% Set up fittype and options.
-ft = fittype( 'poly55' );
+[filehead,data] = read_data(filenameGM,'verbose',false,'npict',ipict);
 
-% Fit model to data.
-[fitresult, gof] = fit( [y3bc, z3bc], x3bc, ft );
+% Fit the closed field line boundary with hypersurface
+
+[fitresult,gof] = surface_fit(x3bc,y3bc,z3bc);
 
 % Generate meshgrid from fitted surface
 ymin = -1.; ymax = 1.; zmin = -0.5; zmax = 0.5;
@@ -59,7 +29,6 @@ xq = fitresult(yq,zq);
 
 %% PC 
 filenamePC='~/Ganymede/newPIC/run_G8_newPIC/3d_fluid_35.outs';
-%filenamePC='~/Ganymede/newPIC/3d_theta51_test.outs';
 [filehead,data] = read_data(filenamePC,'verbose',false,'npict',ipict);
 
 data = data.file1;

@@ -20,19 +20,21 @@
 %    upstream boundary curve for integration.
 % 3. Integrate the electric field along the line.
 %
-% This script works for G8 and G28 Galileo flybys, and also two runs with 
-% mixed parameters mix1 and mix2.
+% This script can run for Galileo flybys, and also two runs with 
+% mixed parameters mix1 and mix2. It only works for GM box outputs 
+% (actually z=2 cuts in a limited region) analysis.
 %
 % Hongyang Zhou, hyzhou@umich.edu 11/02/2017
 %
-% Modified on 02/19/2018
+% Modified 02/19/2018
+% Fixed the problem in upstream maximum potential drop calculation.
 %
-% 1.I fixed the problem in upstream maximum potential drop calculation.
+%
 
 clear; clc
 %% Parameters
 % All the following sections need parameters here.
-flyby = 'G28'; % default is G8
+flyby = 'G8'; % default is G8
 
 Rg = 2634000; %[m], radius of Ganymede
 e  = 1.60217662e-19; % [C], electron charge

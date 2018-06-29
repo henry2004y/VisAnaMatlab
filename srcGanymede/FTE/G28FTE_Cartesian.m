@@ -14,43 +14,38 @@
 %
 % colormap jet instead of default
 %
-% Hongyang Zhou, hyzhou@umich.edu  10/12/2017
+% Hongyang Zhou, hyzhou@umich.edu  10/12/2017 version 1.1
+%
+% modified 06/29/2018 version 1.2
 
 
 clear; clc
-%% Find boundary points from steady state solution
-filename = '../../run_status_test/3d_idl_G28.out'; % 3d GM outputs
+%% Parameters
+% 3D GM outputs
+filename = '~/Ganymede/newPIC/run_G28_newPIC/3d_G28_steady.outs';
 s = 0.5; % compact boundary factor [0,1]
+DoPlot = false;
+xThres = 1.5;
+rThres = -1.1;
+
+% GM upstream box outputs
+fnameFTE = '~/Ganymede/newPIC/run_G28_newPIC/box_FTE_G28_1200s.outs';
+% Output movie
+Vname = 'test.avi';
+vFrameRate = 10;
+
+% Criteria for surface contour and FTE identification
+Coef = 1.05; % expansion factor
+threshold_p = 5.0;
+threshold_j = 0.45;
+
+%% Find boundary points from steady state solution
 
 [x3bc,y3bc,z3bc] = find_boundary_points( filename,s );
 
-%% Fit the closed field line boundary with paraboloid
+%% Fit the closed field line boundary with hypersurface
 
-% Set up fittype and options.
-ft = fittype( 'poly55' );
-
-% Fit model to data.
-[fitresult, gof] = fit( [y3bc, z3bc], x3bc, ft );
-
-% Plot fit with data.
-figure( 'Name', 'poly5' );
-h = plot( fitresult);
-legend( h, 'poly5', 'x3bc vs. y3bc, z3bc', 'Location', 'NorthEast' );
-% Label axes
-xlabel y3bc
-ylabel z3bc
-zlabel x3bc
-grid on
-
-xx = get(h, 'XData');
-yy = get(h, 'YData');
-zz = get(h, 'Zdata');
-set(h, 'XData', zz, 'YData', xx, 'ZData', yy);
-
-%hold on;
-%scatter3(x3bc,y3bc,z3bc,'.'); hold off
-%axis tight
-xlim([-2 0]); ylim([-1.5 1.5]); zlim([-0.6 0.8]);
+[fitresult,gof] = surface_fit(x3bc,y3bc,z3bc);
 
 %% Generate mesh points from fitted surface
 ymin = -1.; ymax = 1.; zmin = -0.6; zmax = 0.8;
@@ -59,23 +54,15 @@ dy = 1/30; dz = dy;
 
 xq = fitresult(yq,zq);
 
-
 %% Original output variables as a movie
 % bx,by,bz,jx,jy,jz,j,b,p
 
-% box outputs
-filename = '../../newPIC/box_G28_600s.outs'; 
 [~,~,fileinfo] = read_data(filename,'verbose',false);
 npict = fileinfo.npictinfiles;
 
-% Parameters and thresholds
-Coef = 1.05; % expansion factor
-threshold_p = 5.0;
-threshold_j = 0.45;
-
 % Create video
-v = VideoWriter('test.avi');
-v.FrameRate = 10;
+v = VideoWriter(Vname);
+v.FrameRate = vFrameRate;
 v.open
 
 % Create figure with specified size

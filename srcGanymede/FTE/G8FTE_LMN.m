@@ -34,42 +34,32 @@
 
 
 clear; clc
-%% Find boundary points from steady state solution
+%% Parameters
 % 3D GM outputs
 filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs';
 s = 0.5; % compact boundary factor [0,1]
+DoPlot = false;
+xThres = 1.5;
+rThres = -1.1;
 
-[x3bc,y3bc,z3bc] = find_boundary_points( filename,s );
+% GM upstream box outputs
+fnameFTE = '~/Ganymede/newPIC/run_G8_newPIC/box_FTE_G8_1200s.outs';
+% Output movie
+Vname = 'test.avi';
+vFrameRate = 10;
+
+% Criteria for surface contour and FTE identification
+Coef         = 1.02; % expansion factor from original surface fit 
+threshold_pe = 2.1;
+threshold_j  = 0.52; 
+
+%% Find boundary points from steady state solution
+
+[x3bc,y3bc,z3bc] = find_boundary_points( filename,s,DoPlot,xThres,rThres );
 
 %% Fit the closed field line boundary with hypersurface fit
 
-% Set up fittype and options.
-ft = fittype( 'poly55' );
-
-% Fit model to data.
-[fitresult, gof] = fit( [y3bc, z3bc], x3bc, ft );
-
-% Plot fit with data.
-figure(1); %hold on
-h = plot( fitresult );
-legend( h, 'poly5, x=x(y,z)', 'Location', 'NorthEast' );
-% Label axes
-xlabel('x [R_G]')
-ylabel('y [R_G]')
-zlabel('z [R_G]')
-grid on; axis equal
-
-xx = get(h, 'XData');
-yy = get(h, 'YData');
-zz = get(h, 'Zdata');
-set(h, 'XData', zz, 'YData', xx, 'ZData', yy);
-
-hold on;
-scatter3(x3bc,y3bc,z3bc,20,'r','filled'); hold off
-%axis tight
-xlim([-2 0]); ylim([-1.5 1.5]); zlim([-0.6 0.8]);
-set(gca,'FontSize',14,'LineWidth',1.2)
-
+[fitresult,gof] = surface_fit(x3bc,y3bc,z3bc);
 
 %% Generate mesh points from fitted surface
 ymin = -1.1+1/15; ymax = 1.1-1/15; zmin = -0.54+1/15; zmax = 0.8-1/15;
@@ -78,7 +68,7 @@ dy = 1/30; dz = dy;
 
 xq = fitresult(yq,zq);
 
-%% Transform into local coordinate system
+% Transform into local coordinate system
 
 % Calculate the normal direction to the fitted surface
 [V, W] = differentiate(fitresult, yq, zq);
@@ -90,7 +80,7 @@ figure(1); hold on
 quiver3(xq,yq,zq,U,V,W,2,'color','r')
 hold off
 
-%% get the three local directions
+% get the three local directions
 % dipole-direction unit vector
 unitDipole = [18 -51.82 716.8]/sqrt(18^2+51.82^2+716.8^2);
 % Initialize local vectors
@@ -111,67 +101,16 @@ for ix=1:size(xq,1)
    end
 end
 
-
-% filenamePC='~/Ganymede/newPIC/run_G8_newPIC/3d_fluid_35.outs';
-% [filehead,data] = read_data(filenamePC,'verbose',false,'npict',1);
-% data = data.file1;
-% x = data.x(:,:,:,1);       % [Rg]
-% y = data.x(:,:,:,2);
-% z = data.x(:,:,:,3);
-% Bx = data.w(:,:,:,5);      % [nT]
-% By = data.w(:,:,:,6);
-% Bz = data.w(:,:,:,7);
-% x  = permute(x,[2 1 3]);
-% y  = permute(y,[2 1 3]);
-% z  = permute(z,[2 1 3]);
-% Bx = permute(Bx,[2 1 3]);
-% By = permute(By,[2 1 3]);
-% Bz = permute(Bz,[2 1 3]);
-% 
-% [FX,FY,FZ] = gradient(Bx.^2+By.^2+Bz.^2,dy);
-% 
-% FX= interp3(x, y, z, -FX, xq, yq, zq);
-% FY= interp3(x, y, z, -FY, xq, yq, zq);
-% FZ= interp3(x, y, z, -FZ, xq, yq, zq);
-% 
-% dNtest = Inf(3,size(xq,1),size(xq,2));
-% 
-% % This part could potentially be optimized!
-% for ix=1:size(xq,1)
-%    for iy=1:size(xq,2)
-%       dNtest(:,ix,iy) = [FX(ix,iy) FY(ix,iy) FZ(ix,iy)];
-% 
-%       % Normalization
-%       dNtest(:,ix,iy) = dNtest(:,ix,iy) / norm(dNtest(:,ix,iy));
-%    end
-% end
-% 
-% figure(1); hold on
-% quiver3(xq,yq,zq,squeeze(dNtest(1,:,:)),squeeze(dNtest(2,:,:)),...
-%    squeeze(dNtest(3,:,:)),2,'color','g')
-% hold off
-
-
 %% Visualizing in local coordinates as a movie
 
-% box outputs
-filename = '~/Ganymede/newPIC/run_G8_newPIC/box_FTE_G8_1200s.outs';
-%filename = '~/Ganymede/newPIC/G8_HallTimeAcc/box_var_5_n60000_153813.outs';
-
-[~,~,fileinfo] = read_data(filename,'verbose',false);
+[~,~,fileinfo] = read_data(fnameFTE,'verbose',false);
 npict = fileinfo.npictinfiles;
-
-% Parameters and thresholds
-Coef = 1.02; % expansion factor
-threshold_pe = 2.1;
-threshold_j = 0.52; 
 
 FTEcount = zeros(npict,2); % # counts for FTE with J and P respectively
 
 % Create video
-v = VideoWriter('~/Ganymede/newPIC/G8_test.avi');
-v = VideoWriter('~/Ganymede/testJ.avi');
-v.FrameRate = 10;
+v = VideoWriter(Vname);
+v.FrameRate = vFrameRate;
 v.open
 
 % Create figure with specified size
@@ -180,9 +119,9 @@ set(hfig,'position', [10, 10, 800, 300])
 colormap(jet);
 
 % Loop over snapshots
-for ipict = 1:50%npict
+for ipict=1:50%npict
    fprintf('ipict=%d\n',ipict)
-   [filehead,data] = read_data(filename,'verbose',false,'npict',ipict);
+   [filehead,data] = read_data(fnameFTE,'verbose',false,'npict',ipict);
    
    x = data.file1.x(:,:,:,1);
    y = data.file1.x(:,:,:,2);

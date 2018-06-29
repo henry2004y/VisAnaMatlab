@@ -14,42 +14,35 @@
 %
 % colormap jet instead of default
 %
-% Hongyang Zhou, hyzhou@umich.edu  10/12/2017
+% Hongyang Zhou, hyzhou@umich.edu  10/12/2017 version 1.1
+%
+% modified 06/29/2018, version 1.2
 
 clear; clc
-%% Find boundary points from steady state solution
-filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs'; % 3d GM outputs
+%% Parameters
+% 3D GM outputs
+filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs';
 s = 0.5; % compact boundary factor [0,1]
+DoPlot = false;
+xThres = 1.5;
+rThres = -1.1;
 
-[x3bc,y3bc,z3bc] = find_boundary_points( filename,s );
+% GM upstream box outputs
+fnameFTE = '~/Ganymede/newPIC/run_G8_newPIC/box_FTE_G8_1200s.outs';
+% Output movie
+Vname = 'test.avi';
+vFrameRate = 10;
+Coef = 1.05; % expansion factor
+threshold_p = 6.5;
+threshold_j = 0.52;
+
+%% Find boundary points from steady state solution
+
+[x3bc,y3bc,z3bc] = find_boundary_points( filename,s,DoPlot,xThres,rThres );
 
 %% Fit the closed field line boundary with paraboloid
 
-% Set up fittype and options.
-ft = fittype( 'poly55' );
-
-% Fit model to data.
-[fitresult, gof] = fit( [y3bc, z3bc], x3bc, ft );
-
-% Plot fit with data.
-figure( 'Name', 'poly5' );
-h = plot( fitresult);
-legend( h, 'poly5', 'x3bc vs. y3bc, z3bc', 'Location', 'NorthEast' );
-% Label axes
-xlabel y3bc
-ylabel z3bc
-zlabel x3bc
-grid on
-
-xx = get(h, 'XData');
-yy = get(h, 'YData');
-zz = get(h, 'Zdata');
-set(h, 'XData', zz, 'YData', xx, 'ZData', yy);
-
-%hold on;
-%scatter3(x3bc,y3bc,z3bc,'.'); hold off
-%axis tight
-xlim([-2 0]); ylim([-1.5 1.5]); zlim([-0.6 0.8]);
+[fitresult,gof] = surface_fit(x3bc,y3bc,z3bc);
 
 %% Generate mesh points from fitted surface
 ymin = -1.1+1/15; ymax = 1.1-1/15; zmin = -0.54+1/15; zmax = 0.8-1/15;
@@ -58,23 +51,15 @@ dy = 1/30; dz = dy;
 
 xq = fitresult(yq,zq);
 
-
 %% Original output variables as a movie
 % bx,by,bz,jx,jy,jz,j,b,p
 
-% box outputs
-filename = '~/Ganymede/newPIC/run_G8_newPIC/box_FTE_G8_1200s.outs'; 
 [~,~,fileinfo] = read_data(filename,'verbose',false);
 npict = fileinfo.npictinfiles;
 
-% Parameters and thresholds
-Coef = 1.05; % expansion factor
-threshold_p = 6.5;
-threshold_j = 0.52;
-
 % Create video
-v = VideoWriter('../../newPIC/FTE_G8.avi');
-v.FrameRate = 10;
+v = VideoWriter(Vname);
+v.FrameRate = vFrameRate;
 v.open
 
 % Create figure with specified size
@@ -83,9 +68,9 @@ set(hfig,'position', [10, 10, 900, 520]);
 colormap(jet);
 
 % Loop over snapshots
-%1:npict
-for ipict = 371:371
-   [filehead,data] = read_data(filename,'verbose',false,'npict',ipict);
+%ipict = 371:371
+for ipict = 1:npict
+   [filehead,data] = read_data(fnameFTE,'verbose',false,'npict',ipict);
    
    x = data.file1.x(:,:,:,1);
    y = data.file1.x(:,:,:,2);

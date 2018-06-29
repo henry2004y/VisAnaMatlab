@@ -1,35 +1,48 @@
 % Magnetopause contour plots animation from 3D PC outputs for G8.
 %
-% Repeat the same procedure of analyzing GM outputs to PC outputs.
+% Repeat the same procedure of analyzing GM outputs as in G8FTE_LMN.m
+% to PC outputs.
 % From PC outputs, we can get electron velocity information.
 % My impression from doing this is that Ve is not clear in showing the
 % reconnection at the upstream magnetopause.
 % This script needs to be improved for further usage.
 %
 % Hongyang Zhou, hyzhou@umich.edu
+%
+% modified 06/29/2018, version 1.2
 
 clear; clc
 %% Parameters
-mu0      = 4*pi*1e-7;    %[H/m]
-me       = 9.1094e-31;   %[kg] 
-mp       = 1.6726*1e-27; %[kg]
-mi       = 14; % average ion mass [amu]
-VA = 200; %[km/s], for normalization
+% 3D GM outputs
+filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs';
+s = 0.8; % compact boundary factor [0,1]
+
+% GM upstream box outputs
+filenamePC = '~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
+% Output movie
+Vname = 'test.avi';
+vFrameRate = 10;
+
+% Criteria for surface contour and FTE identification
+Coef         = 1.08; % expansion factor from original surface fit 
+threshold_pe = 2.1;
+threshold_j  = 0.52; 
+
+%% Physical Parameters
+mu0 = 4*pi*1e-7;    %[H/m]
+me  = 9.1094e-31;   %[kg] 
+mp  = 1.6726*1e-27; %[kg]
+mi  = 14; % average ion mass [amu]
+e   = 1.6022e-19; %[C]
+VA  = 230; %[km/s], for normalization
 
 %% Find boundary points from steady state solution
-filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs'; % 3d GM outputs
-s = 0.8; % compact boundary factor [0,1]
 
 [x3bc,y3bc,z3bc] = find_boundary_points( filename,s );
 
+%% Fit the closed field line boundary with hypersurface
 
-%% Fit the closed field line boundary with paraboloid
-
-% Set up fittype and options.
-ft = fittype( 'poly55' );
-
-% Fit model to data.
-[fitresult, gof] = fit( [y3bc, z3bc], x3bc, ft );
+[fitresult,gof] = surface_fit(x3bc,y3bc,z3bc);
 
 %% Generate mesh points from fitted surface and calculate LMN directions
 ymin = -1.2; ymax = 1.2; zmin = -0.8; zmax = 0.8;
@@ -63,18 +76,13 @@ for ix=1:size(xq,1)
    end
 end
 
-%% Electron velocity from PIC outputs
-%filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_fluid_35.outs';
-filename = '~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
-[~,~,fileinfo] = read_data(filename,'verbose',false);
+%% Movie from PIC outputs
+[~,~,fileinfo] = read_data(filenamePC,'verbose',false);
 npict = fileinfo.npictinfiles;
 
-Coef = 1.08; % Boundary expansion factor
-e = 1.6022e-19; %[C]
-
 % Create video
-v = VideoWriter('~/Ganymede/PC_theta51_test.avi');
-v.FrameRate = 10;
+v = VideoWriter(Vname);
+v.FrameRate = vFrameRate;
 v.open
 
 % create new figure with specified size
@@ -82,8 +90,9 @@ hfig = figure(4);
 set(hfig,'position', [10, 10, 800, 600]) 
 colormap(jet);
 
-for ipict = 1:10%npict
-   [filehead,data] = read_data(filename,'verbose',false,'npict',ipict);
+for ipict=1:10%npict
+   fprintf('ipict=%d\n',ipict)
+   [filehead,data] = read_data(filenamePC,'verbose',false,'npict',ipict);
    
    data = data.file1;
    x = data.x(:,:,:,1);

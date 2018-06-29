@@ -30,45 +30,39 @@
 % Comparing with G8, I rotate the orientation of meshgrid to fit the tilted
 % surface due to strong By in the upstream condition.
 %
-% Hongyang Zhou, hyzhou@umich.edu  11/02/2017
+% Hongyang Zhou, hyzhou@umich.edu  11/02/2017, version 1.1
 %
-% modified on 01/03/2018
+% modified 01/03/2018, version 1.2
+% modified 06/29/2018, version 1.3
 
 
 clear; clc
-%% Find boundary points from steady state solution
-filename = '~/Ganymede/newPIC/run_G28_newPIC/3d_G28_steady.out'; % 3d GM outputs
+%% Parameters
+% 3D GM outputs
+filename = '~/Ganymede/newPIC/run_G28_newPIC/3d_G28_steady.outs';
 s = 0.5; % compact boundary factor [0,1]
+DoPlot = false;
+xThres = 1.5;
+rThres = -1.1;
 
-[x3bc,y3bc,z3bc] = find_boundary_points( filename,s );
+% GM upstream box outputs
+fnameFTE = '~/Ganymede/newPIC/run_G28_newPIC/box_FTE_G28_1200s.outs';
+% Output movie
+Vname = 'test.avi';
+vFrameRate = 10;
 
-%% Fit the closed field line boundary with paraboloid
+% Criteria for surface contour and FTE identification
+Coef         = 1.02; % expansion factor from original surface fit
+threshold_pe = 1.8;
+threshold_j  = 0.50;
 
-% Set up fittype and options.
-ft = fittype( 'poly55' );
+%% Find boundary points from steady state solution
 
-% Fit model to data.
-[fitresult, gof] = fit( [y3bc, z3bc], x3bc, ft );
+[x3bc,y3bc,z3bc] = find_boundary_points( filename,s,DoPlot,xThres,rThres );
 
-% Plot fit with data.
-figure( 'Name', 'poly5' );
-h = plot( fitresult );
-legend( h, 'poly5, x=x(y,z)', 'Location', 'NorthEast' );
-% Label axes
-xlabel('x3bc [R_G]')
-ylabel('y3bc [R_G]')
-zlabel('z3bc [R_G]')
-grid on
+%% Fit the closed field line boundary with hypersurface
 
-xx = get(h, 'XData');
-yy = get(h, 'YData');
-zz = get(h, 'Zdata');
-set(h, 'XData', zz, 'YData', xx, 'ZData', yy);
-
-%hold on;
-%scatter3(x3bc,y3bc,z3bc,'.'); hold off
-%axis tight
-xlim([-2 0]); ylim([-1.5 1.5]); zlim([-0.6 0.8]);
+[fitresult,gof] = surface_fit(x3bc,y3bc,z3bc);
 
 %% Generate mesh points from fitted surface
 ymin = -1.1+5/30; ymax = 1.1-5/30; zmin = -0.5; zmax = 0.75-3/30;
@@ -103,7 +97,7 @@ quiver3(Xrot,Yrot,Zrot,U,V,W,2,'color','r')
 xlabel('x'); ylabel('y'); zlabel('z');
 hold off; box on
 
-%% Get the normal vectors of local coordinates for rotated ndgrid
+% Get the normal vectors of local coordinates for rotated ndgrid
 unitz = [0 0 1]; % z-direction unit vector
 % Initialize local vectors
 dL = Inf(3,size(Xrot,1));
@@ -122,23 +116,14 @@ end
 
 %% Visualizing in local coordinates as a movie
 
-% box outputs
-filename = '~/Ganymede/newPIC/run_G28_newPIC/box_FTE_G28_1200s.outs'; 
-filename = '~/Ganymede/newPIC/G28HallTimeAcc/box_FTE.outs';
-
-[~,~,fileinfo] = read_data(filename,'verbose',false);
+[~,~,fileinfo] = read_data(fnameFTE,'verbose',false);
 npict = fileinfo.npictinfiles;
-
-% Parameters and thresholds
-Coef = 1.02; % expansion factor
-threshold_pe = 1.8;
-threshold_j = 0.50;
 
 FTEcount = zeros(npict,2); % # counts for FTE with J and P respectively
 
 % Create video
-v = VideoWriter('G28_test.avi');
-v.FrameRate = 10;
+v = VideoWriter(Vname);
+v.FrameRate = vFrameRate;
 v.open
 
 % create new figure with specified size
@@ -148,7 +133,7 @@ colormap(jet);
 
 % Loop over snapshots
 for ipict = 1:npict
-   [filehead,data] = read_data(filename,'verbose',false,'npict',ipict);
+   [filehead,data] = read_data(fnameFTE,'verbose',false,'npict',ipict);
    
    x = data.file1.x(:,:,:,1);
    y = data.file1.x(:,:,:,2);

@@ -4,26 +4,41 @@
 % changes sign.
 % Approximate boundary points is found by tracking Bz=0.
 %
+% The orientation of LMN needs to be checked!!!
+%
 % Hongyang Zhou, hyzhou@umich.edu
+%
+% modified 06/29/2018, version 1.2
 
 clear; clc
 %% Parameters
-mu0      = 4*pi*1e-7;    %[H/m]
-me       = 9.1094e-31;   %[kg] 
-mp       = 1.6726*1e-27; %[kg]
-mi       = 14; % average ion mass [amu]
+% 3D PC outputs
+filename = '~/Ganymede/newPIC/G28_PIC_theta51/3d_fluid_600s.outs';
+s = 1.0; % compact boundary factor [0,1]
+xThres = -1.75;
 
-% Estimation of Alfven velocity
-VA = 450; %[km/s]
+% GM upstream box outputs
+filenamePC = '~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
+% Output movie
+Vname = 'test.avi';
+vFrameRate = 10;
+
+% Criteria for surface contour and FTE identification
+Coef         = 1.08; % expansion factor from original surface fit 
+threshold_pe = 2.1;
+threshold_j  = 0.52; 
+
+%% Physical Parameters
+mu0 = 4*pi*1e-7;    %[H/m]
+me  = 9.1094e-31;   %[kg] 
+mp  = 1.6726*1e-27; %[kg]
+mi  = 14; % average ion mass [amu]
+e   = 1.6022e-19; %[C]
+VA  = 450; %[km/s] Estimation of Alfven velocity for nomalization
 
 %% Find boundary points from steady state solution
-%filename = '~/Ganymede/newPIC/run_G28_newPIC/3d_G28_steady.out'; % 3d GM outputs
-%filename = '~/Ganymede/newPIC/G28_PIC_theta51/3d_status.out';
-filename = '~/Ganymede/newPIC/G28_PIC_theta51/3d_fluid_600s.outs'; %PC
-s = 1.0; % compact boundary factor [0,1]
 
-%[x3bc,y3bc,z3bc] = find_boundary_points( filename,s );
-xThres = -1.75;
+%[x3bc,y3bc,z3bc] = find_boundary_points( filename,s ); 
 [x3bc,y3bc,z3bc] = find_bz0_boundary( filename,s,xThres );
 
 %% Fit the closed field line boundary
@@ -40,7 +55,7 @@ ymin = -1.15; ymax = 1.15; zmin = -0.75; zmax = 0.75;
 dy = 1/32; dz = dy;
 [yq,zq] = ndgrid(ymin:dy:ymax,zmin:dz:zmax);
 
-% Try to rotate the ndgrid by 13 degrees
+% Try to rotate the ndgrid by 15 degrees
 % Define rotation angle
 theta = 15/180*pi; 
 % Define rotation matrix
@@ -69,7 +84,6 @@ unitDipole = [19.26 -16.54 716.8]/sqrt(19.26^2+16.54^2+716.8^2);
 % Upstream B unit vector
 %unitUpstreamB = [-7 78 -76]/sqrt(7^2+78^2+76^2);
 
-%unitL = [0 -1 1]/sqrt(2);
 unitL = [0 -sind(15) cosd(15)];
 
 % Initialize local vectors: d1-> M d2->L d3-> N
@@ -91,18 +105,17 @@ for ix=1:size(xq,1)
    end
 end
 
-%% 
-filename = '~/Ganymede/newPIC/G28_PIC_theta51/3d_fluid_600s.outs';
-[~,~,fileinfo] = read_data(filename,'verbose',false);
+%% Movie from PIC outputs
+
+[~,~,fileinfo] = read_data(filenamePC,'verbose',false);
 npict = fileinfo.npictinfiles;
 
-% Offset by a distance of 1 cell (depends on grid resolution)
+% Offset by a distance of 1 cell (dependent on grid resolution)
 dn = dy;
-e = 1.6022e-19; %[C]
 
 % Create video
-v = VideoWriter('~/Ganymede/PCG28test.avi');
-v.FrameRate = 10;
+v = VideoWriter(Vname);
+v.FrameRate = vFrameRate;
 v.open
 
 % create new figure with specified size
@@ -111,7 +124,7 @@ set(hfig,'position', [10, 10, 800, 520])
 colormap(jet);
 
 for ipict = 1:npict
-   [filehead,data] = read_data(filename,'verbose',false,'npict',ipict);
+   [filehead,data] = read_data(filenamePC,'verbose',false,'npict',ipict);
    
    data = data.file1;
    x = data.x(:,:,:,1);

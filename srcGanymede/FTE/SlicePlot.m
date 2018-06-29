@@ -1,6 +1,6 @@
 % Contour plot on a curve surface --- slice
 %
-% Test on magnetospause surface plot.
+% Test on magnetospause surface plot. Later use for FTE_PC_G8
 %
 % Hongyang Zhou, hyzhou@umich.edu 02/28/2018
 

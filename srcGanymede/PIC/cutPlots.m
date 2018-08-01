@@ -20,8 +20,10 @@
 clear;clc; close all
 %%
 
-filename='~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
-ipict = 132;
+%filename='~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
+%ipict = 132;
+filename='~/Documents/research/Ganymede/data/3d_fluid.out';
+ipict = 1;
 
 % Estimation of Alfven velocity
 VA = 253; %[km/s]
@@ -39,6 +41,7 @@ z = data.file1.x(:,:,:,3);
 x = permute(x,[2 1 3]);
 y = permute(y,[2 1 3]);
 z = permute(z,[2 1 3]);
+
 
 %% Hall Magnetic Field
 
@@ -70,8 +73,8 @@ figure(1);
 subplot(231)
 contourf(cut1,cut2,w,50,'Linestyle','none');
 colorbar; axis equal; 
-%hold on
-%scatter(cutX(:),cutZ(:),'+')
+% hold on
+% scatter(cut1(:),cut2(:),'+')
 xlabel('x [R_G]'); ylabel('z [R_G]');
 title('(a) By [nT]');
 set(gca,'FontSize',14,'LineWidth',1.2)

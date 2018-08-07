@@ -36,9 +36,9 @@
 clear; clc
 %% Parameters
 % 3D GM outputs
-filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs';
+filename = '~/Documents/research/Ganymede/SteadyRun/3d_G8_idl.out';
 s = 0.5; % compact boundary factor [0,1]
-DoPlot = false;
+DoPlot = true;
 xThres = 1.5;
 rThres = -1.1;
 
@@ -88,18 +88,23 @@ dL = Inf(3,size(xq,1),size(xq,2));
 dM = dL; dN = dL;
 
 % This part could potentially be optimized!
-for ix=1:size(xq,1)
-   for iy=1:size(xq,2)
-      dN(:,ix,iy) = [U(ix,iy) V(ix,iy) W(ix,iy)];
-      dM(:,ix,iy) = cross(dN(:,ix,iy),unitDipole);
-      dL(:,ix,iy) = cross(dM(:,ix,iy),dN(:,ix,iy));
+for ix=1:size(xq,1); for iy=1:size(xq,2)
+   dN(:,ix,iy) = [U(ix,iy) V(ix,iy) W(ix,iy)];
+   dM(:,ix,iy) = cross(dN(:,ix,iy),unitDipole);
+   dL(:,ix,iy) = cross(dM(:,ix,iy),dN(:,ix,iy));
       
-      % Normalization
-      dL(:,ix,iy) = dL(:,ix,iy) / norm(dL(:,ix,iy));
-      dM(:,ix,iy) = dM(:,ix,iy) / norm(dM(:,ix,iy));
-      dN(:,ix,iy) = dN(:,ix,iy) / norm(dN(:,ix,iy));
-   end
-end
+   % Normalization
+   dL(:,ix,iy) = dL(:,ix,iy) / norm(dL(:,ix,iy));
+   dM(:,ix,iy) = dM(:,ix,iy) / norm(dM(:,ix,iy));
+   dN(:,ix,iy) = dN(:,ix,iy) / norm(dN(:,ix,iy));
+end; end
+
+% Test this for normalization
+%dN = Inf(3,size(xq,1)*size(xq,2));
+% dN = [U(:) V(:) W(:)];
+% dN = bsxfun(@rdivide,dN,sum(dN,2));
+% dN = reshape(dN,size(xq));
+%bsxfun(@times,)
 
 %% Visualizing in local coordinates as a movie
 

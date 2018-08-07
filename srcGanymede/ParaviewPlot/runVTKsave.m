@@ -4,14 +4,16 @@
 
 %% Pre-processing
 
-flyby = 'G28';
+flyby = 'G8';
 
 switch flyby
    case 'G8'
-      filename = '3d_fluid_G8_350s.out';
+      %filename = '3d_fluid_G8_350s.out';
+      %filename = '~/Documents/research/Ganymede/data/3dPC_G8_t=1090.out';
+      filename = '~/Documents/research/Ganymede/data/3d_fluid_G8_350s.out';
    case 'G28'
       %filename = '3d_fluid_G28_242s.out';
-      filename = '3d_fluid_G28_test.out';
+      filename = '~/Documents/research/Ganymede/data/3dPC_G28_t=580.out';
 end
 
 ipict = 1;
@@ -43,16 +45,16 @@ func_ = strcmpi(func,filehead.wnames);
 Bz = data.file1.w(:,:,:,func_);
 Bz = permute(Bz,[2 1 3]);
 
-func = 'ps0'; 
+func = 'ps1'; 
 func_ = strcmpi(func,filehead.wnames);
-pe = data.file1.w(:,:,:,func_);
-pe = permute(pe,[2 1 3]);
+pi = data.file1.w(:,:,:,func_);
+pi = permute(pi,[2 1 3]);
 
 
 %% Save to vtk file
-vtkwrite('test_G28.vtk', 'structured_grid', x, y, z, ... 
+vtkwrite('G8_t350.vtk', 'structured_grid', x, y, z, ... 
    'vectors', 'magnetic_field', ...
-   Bx, By, Bz, 'scalars', 'Pe', pe);
+   Bx, By, Bz, 'scalars', 'Pi', pi);
 
 
 

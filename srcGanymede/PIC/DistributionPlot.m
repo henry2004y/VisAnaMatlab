@@ -2,7 +2,7 @@
 %
 % Hongyang Zhou, hyzhou@umich.edu 07/27/2018
 
-clear; clc; close all
+%clear; clc; close all
 %% Read data
 filename = '~/Documents/research/Ganymede/data/3d_Inside_t=0_electron.out';
 
@@ -64,3 +64,5 @@ ylabel('uy')
 colorbar
 %view(2)
 set(gca,'FontSize',16,'LineWidth',1.1)
+
+% v_perp .vs. v_par phase space plot

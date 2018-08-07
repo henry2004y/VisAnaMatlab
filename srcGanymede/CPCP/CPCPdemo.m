@@ -14,7 +14,8 @@ Rg = 2634000; %[m], radius of Ganymede
 e  = 1.60217662e-19; % [C], electron charge
 
 disp('G8 flyby CPCP calculation')
-filename= '~/Ganymede/newPIC/run_G8_newPIC/box_CPCP_G8_1200s.outs';
+%filename= '~/Ganymede/newPIC/run_G8_newPIC/box_CPCP_G8_1200s.outs';
+filename='~/Documents/research/Ganymede/data/box_cut_test.out';
 
 ipict = 1;
 fprintf('ipict=%d\n',ipict);

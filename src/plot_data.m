@@ -51,6 +51,9 @@ function plot_data( varargin )
 % I should improve the plotmode by splitting each term and reorganize the
 % structure.
 %
+% 08/01/2018
+% 2D cuts from 3D outputs cannot handle streamover right now
+%
 % Hongyang Zhou, hyzhou@umich.edu ver1.0 06/14/2017
 %--------------------------------------------------------------------------
 

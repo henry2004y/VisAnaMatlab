@@ -15,11 +15,12 @@
 % Hongyang Zhou, hyzhou@umich.edu 01/03/2018
 
 %% Parameters
-flyby = 28;   % [1,2,7,8,28,29]
+flyby =  28;   % [1,2,7,8,28,29]
 DoPlot = 1;  % Plot output
 DoSave = 0;  % Save norm2 number
-firstpict = 61; % first snapshot to pick
+firstpict = 1; % first snapshot to pick
 lastpict  = 1; % last snapshot to pick
+fileGathered = false; % Input data in 1 file or multiple files
 
 %% Read observation data
 flybyfile = strcat('Galileo_G',int2str(flyby),'_flyby_MAG.dat');
@@ -34,15 +35,17 @@ BobsStrength = sqrt(Bobs(:,1).^2+Bobs(:,2).^2+Bobs(:,3).^2);
 %% Read/Plot simulation data 
 switch flyby
    case 8
-      filename='~/Ganymede/newPIC/run_G8_newPIC/box_B_G8_1200s.outs';
+      filename='~/Ganymede/MOP2018/runG8_PIC_estimatePhi_1200s/GM/box_B_Galileo.outs';
       % Select the starting time for synthetic satellite
-      time_start = datetime(1997,5,7,15,45,2); % G8
+      %time_start = datetime(1997,5,7,15,45,2); % G8
+      time_start = datetime(1997,5,7,15,48,7); % G8
    case 28
-      filename='~/Ganymede/newPIC/run_G28_newPIC/box_B_G28_1200s.outs';
+      filename='~/Ganymede/MOP2018/runG28_PIC_1200s/GM/box_B_Galileo.outs';
       % Select the starting time for synthetic satellite
       %time_start = datetime(2000,5,20,9,48,0); % G28
       %time_start = datetime(2000,5,20,9,52,35); % G28
-      time_start = datetime(2000,5,20,9,51,40); % G28
+      %time_start = datetime(2000,5,20,9,51,40); % G28
+      time_start = datetime(2000,5,20,10,0,12);
 end
 [filehead,~,filelist] = read_data(filename,'verbose',false);
 nx = filehead.nx; nw = filehead.nw;

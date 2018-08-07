@@ -12,19 +12,23 @@
 
 clear; clc
 %% Parameters
+IsGatheredFile = false; % Single or multiple input files
 % 3D PC outputs
-filename = '~/Ganymede/newPIC/G28_PIC_theta51/3d_fluid_600s.outs';
-s = 1.0; % compact boundary factor [0,1]
-xThres = -1.75;
+%filename = '~/Ganymede/newPIC/G28_PIC_theta51/3d_fluid_600s.outs';
+filename = '~/Ganymede/MOP2018/runG28_PIC_1200s/3d_t=135.out';
+s = 0.8; % compact boundary factor [0,1]
+xThres = -1.55;
 
 % GM upstream box outputs
-filenamePC = '~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
+PCdir = '~/Ganymede/MOP2018/runG28_PIC_1200s/PC';
+%filenamePC = '~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
 % Output movie
+%Vname = '~/Ganymede/MOP2018/2DMagnetopause_G28_t135.avi';
 Vname = 'test.avi';
 vFrameRate = 10;
 
 % Criteria for surface contour and FTE identification
-Coef         = 1.08; % expansion factor from original surface fit 
+Coef         = 1.00; % expansion factor from original surface fit 
 threshold_pe = 2.1;
 threshold_j  = 0.52; 
 
@@ -38,20 +42,16 @@ VA  = 450; %[km/s] Estimation of Alfven velocity for nomalization
 
 %% Find boundary points from steady state solution
 
-%[x3bc,y3bc,z3bc] = find_boundary_points( filename,s ); 
-[x3bc,y3bc,z3bc] = find_bz0_boundary( filename,s,xThres );
+[x3bc,y3bc,z3bc] = find_boundary_points( filename,s ); 
+% This requires including Bz in 3d GM output
+%[x3bc,y3bc,z3bc] = find_bz0_boundary( filename,s,xThres );
 
-%% Fit the closed field line boundary
+%% Fit the closed field line boundary with hypersurface
 
-% Set up fittype and options.
-ft = fittype( 'poly55' );
-%ft = fittype( 'thinplateinterp' );
-
-% Fit model to data.
-[fitresult, gof] = fit( [y3bc, z3bc], x3bc, ft );
+[fitresult,gof] = surface_fit(x3bc,y3bc,z3bc);
 
 %% Generate mesh points from fitted surface and calculate LMN directions
-ymin = -1.15; ymax = 1.15; zmin = -0.75; zmax = 0.75;
+ymin = -1.15; ymax = 1.15; zmin = -0.6; zmax = 0.6;
 dy = 1/32; dz = dy;
 [yq,zq] = ndgrid(ymin:dy:ymax,zmin:dz:zmax);
 
@@ -106,9 +106,33 @@ for ix=1:size(xq,1)
 end
 
 %% Movie from PIC outputs
+if IsGatheredFile
+   % single input file case
+   [filehead,~,fileinfo] = read_data(filename,'verbose',false);
+   npict = fileinfo.npictinfiles; % # of snapshot in the file
+else
+   % multiple input file case
+   listing = dir(fullfile(PCdir,'3d*out'));
+   [filehead,data] = read_data(...
+         fullfile(listing(1).folder,listing(1).name),...
+         'verbose',false);
+   npict = numel(listing); 
+end
 
-[~,~,fileinfo] = read_data(filenamePC,'verbose',false);
-npict = fileinfo.npictinfiles;
+% Maybe write a function?
+ne_ = strcmpi('rhos0',filehead.wnames);
+ni_ = strcmpi('rhos1',filehead.wnames);
+bx_ = strcmpi('bx',filehead.wnames);
+by_ = strcmpi('by',filehead.wnames);
+bz_ = strcmpi('bz',filehead.wnames);
+uex_ = strcmpi('uxs0',filehead.wnames);
+uey_ = strcmpi('uys0',filehead.wnames);
+uez_ = strcmpi('uzs0',filehead.wnames);
+uix_ = strcmpi('uxs1',filehead.wnames);
+uiy_ = strcmpi('uys1',filehead.wnames);
+uiz_ = strcmpi('uzs1',filehead.wnames);
+pe_ = strcmpi('ps0',filehead.wnames);
+pi_ = strcmpi('ps1',filehead.wnames);
 
 % Offset by a distance of 1 cell (dependent on grid resolution)
 dn = dy;
@@ -120,30 +144,36 @@ v.open
 
 % create new figure with specified size
 hfig = figure(4);
-set(hfig,'position', [10, 10, 800, 520]) 
+set(hfig,'position', [10, 10, 800, 520],'Visible','on') 
 colormap(jet);
 
-for ipict = 1:npict
-   [filehead,data] = read_data(filenamePC,'verbose',false,'npict',ipict);
+for ipict=1:npict
+   if IsGatheredFile
+      [filehead,data] = read_data(filenamePC,'verbose',false,'npict',ipict);
+   else
+      [filehead,data] = read_data(...
+         fullfile(listing(ipict).folder,listing(ipict).name),...
+         'verbose',false);
+   end 
    
    data = data.file1;
    x = data.x(:,:,:,1);
    y = data.x(:,:,:,2);
    z = data.x(:,:,:,3);
 
-   ne = data.w(:,:,:,1)*1e6;    % [/m^3]
-   ni = data.w(:,:,:,2)*1e6;    % [/m^3]
-   bx   = data.w(:,:,:,3);      % [nT]
-   by   = data.w(:,:,:,4);
-   bz   = data.w(:,:,:,5);
-   uex  = data.w(:,:,:,9);      % [km/s]
-   uey  = data.w(:,:,:,10);
-   uez  = data.w(:,:,:,11);
-   uix  = data.w(:,:,:,12);
-   uiy  = data.w(:,:,:,13);
-   uiz  = data.w(:,:,:,14);
-   pe   = data.w(:,:,:,15);     % [nPa]
-   pi   = data.w(:,:,:,16);
+   ne = data.w(:,:,:,ne_)*1e6;    % [/m^3]
+   ni = data.w(:,:,:,ni_)*1e6;    % [/m^3]
+   bx   = data.w(:,:,:,bx_);      % [nT]
+   by   = data.w(:,:,:,by_);
+   bz   = data.w(:,:,:,bz_);
+   uex  = data.w(:,:,:,uex_);      % [km/s]
+   uey  = data.w(:,:,:,uey_);
+   uez  = data.w(:,:,:,uez_);
+   uix  = data.w(:,:,:,uix_);
+   uiy  = data.w(:,:,:,uiy_);
+   uiz  = data.w(:,:,:,uiz_);
+   pe   = data.w(:,:,:,pe_);     % [nPa]
+   pi   = data.w(:,:,:,pi_);
    
    % From ndgrid to meshgrid format
    ne = permute(ne,[2 1 3]);
@@ -169,45 +199,45 @@ for ipict = 1:npict
 %    byv= interp3(x, y, z, by, xq, yq, zq);
 %    bzv= interp3(x, y, z, bz, xq, yq, zq);
    
-   isurf = -5;
-   bxv= interp3(x, y, z, bx, xq + isurf*dn*squeeze(dN(1,:,:)),...
-      yq + isurf*dn*squeeze(dN(2,:,:)),...
-      zq + isurf*dn*squeeze(dN(3,:,:)));
-   byv= interp3(x, y, z, by, xq + isurf*dn*squeeze(dN(1,:,:)),...
-      yq + isurf*dn*squeeze(dN(2,:,:)), ...
-      zq + isurf*dn*squeeze(dN(3,:,:)));
-   bzv= interp3(x, y, z, bz, xq + isurf*dn*squeeze(dN(1,:,:)),...
-      yq + isurf*dn*squeeze(dN(2,:,:)), ...
-      zq + isurf*dn*squeeze(dN(3,:,:)));
+%    isurf = -5;
+%    bxv= interp3(x, y, z, bx, xq + isurf*dn*squeeze(dN(1,:,:)),...
+%       yq + isurf*dn*squeeze(dN(2,:,:)),...
+%       zq + isurf*dn*squeeze(dN(3,:,:)));
+%    byv= interp3(x, y, z, by, xq + isurf*dn*squeeze(dN(1,:,:)),...
+%       yq + isurf*dn*squeeze(dN(2,:,:)), ...
+%       zq + isurf*dn*squeeze(dN(3,:,:)));
+%    bzv= interp3(x, y, z, bz, xq + isurf*dn*squeeze(dN(1,:,:)),...
+%       yq + isurf*dn*squeeze(dN(2,:,:)), ...
+%       zq + isurf*dn*squeeze(dN(3,:,:)));
+%    
+%    bL = sum([bxv(:) byv(:) bzv(:)]'.*reshape(dL,[3,numel(xq)]));
+%    bL = reshape(bL,size(xq));
+%    
+%    offset = zeros(size(xq));
+%    % Loop over the inner/outer surfaces
+%    for isurf = -4:10
+%       bxv= interp3(x, y, z, bx, xq + isurf*dn*squeeze(dN(1,:,:)),...
+%          yq + isurf*dn*squeeze(dN(2,:,:)),...
+%          zq + isurf*dn*squeeze(dN(3,:,:)));
+%       byv= interp3(x, y, z, by, xq + isurf*dn*squeeze(dN(1,:,:)),...
+%          yq + isurf*dn*squeeze(dN(2,:,:)), ...
+%          zq + isurf*dn*squeeze(dN(3,:,:)));
+%       bzv= interp3(x, y, z, bz, xq + isurf*dn*squeeze(dN(1,:,:)),...
+%          yq + isurf*dn*squeeze(dN(2,:,:)), ...
+%          zq + isurf*dn*squeeze(dN(3,:,:)));
+%       
+%       % Get bL on the outside surface
+%       bLOut = sum([bxv(:) byv(:) bzv(:)]'.*reshape(dL,[3,numel(xq)]));
+%       bLOut = reshape(bLOut,size(xq));
+% 
+%       % Assuming bL changes monotonically     
+%       offset = offset + dn * (bL.*bLOut<0) .* (isurf-1+bL./(bL-bLOut));     
+%       bL = bLOut;
+%       %mesh(offset)
+%    end
    
-   bL = sum([bxv(:) byv(:) bzv(:)]'.*reshape(dL,[3,numel(xq)]));
-   bL = reshape(bL,size(xq));
-   
-   offset = zeros(size(xq));
-   % Loop over the inner/outer surfaces
-   for isurf = -4:10
-      bxv= interp3(x, y, z, bx, xq + isurf*dn*squeeze(dN(1,:,:)),...
-         yq + isurf*dn*squeeze(dN(2,:,:)),...
-         zq + isurf*dn*squeeze(dN(3,:,:)));
-      byv= interp3(x, y, z, by, xq + isurf*dn*squeeze(dN(1,:,:)),...
-         yq + isurf*dn*squeeze(dN(2,:,:)), ...
-         zq + isurf*dn*squeeze(dN(3,:,:)));
-      bzv= interp3(x, y, z, bz, xq + isurf*dn*squeeze(dN(1,:,:)),...
-         yq + isurf*dn*squeeze(dN(2,:,:)), ...
-         zq + isurf*dn*squeeze(dN(3,:,:)));
-      
-      % Get bL on the outside surface
-      bLOut = sum([bxv(:) byv(:) bzv(:)]'.*reshape(dL,[3,numel(xq)]));
-      bLOut = reshape(bLOut,size(xq));
-
-      % Assuming bL changes monotonically     
-      offset = offset + dn * (bL.*bLOut<0) .* (isurf-1+bL./(bL-bLOut));     
-      bL = bLOut;
-      %mesh(offset)
-   end
-   
-   offset(offset==0) = nan; % Remove the unecessary points
-   %offset = 0;
+%   offset(offset==0) = nan; % Remove the unecessary points
+   offset = 0;
    xqNew = xq + offset.*squeeze(dN(1,:,:));
    yqNew = yq + offset.*squeeze(dN(2,:,:));
    zqNew = zq + offset.*squeeze(dN(3,:,:)); 
@@ -259,28 +289,23 @@ for ipict = 1:npict
    contourf(yqNew,zqNew,uiL./VA,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-0.5 0.5])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
-   title('U_{iL} [km/s]')
+   caxis([-0.3 0.3])
+   title('U_{iL}')
    
    subplot_tight(4,3,2);
    contourf(yqNew,zqNew,uiM./VA,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-0.6 0.1])
-   %caxis([-200 100])
-   %xlabel('y [R_G]');
+   caxis([-0.4 0.4])
    ylabel('z [R_G]');
-   title('U_{iM} [km/s]')
+   title('U_{iM}')
        
    subplot_tight(4,3,3);
    contourf(yqNew,zqNew,uiN./VA,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-0.3 0.1])
-   %caxis([-60 100])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
-   title('U_{iN} [km/s]')
+   caxis([-0.3 0.3])
+   title('U_{iN}')
    
    % ueL
    subplot_tight(4,3,4);
@@ -288,37 +313,30 @@ for ipict = 1:npict
    axis tight equal
    set(gca,'Xdir','reverse')
    caxis([-1.5 1.5])
-   %caxis([-600 600])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
-   title('U_{eL} [km/s]')
+   title('U_{eL}')
    
    % ueM
    subplot_tight(4,3,5);
    contourf(yqNew,zqNew,ueM./VA,50,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-1 4])
-   %caxis([0 1300])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
-   title('U_{eM} [km/s]')
+   caxis([0 5])
+   title('U_{eM}')
    
    % ueN
    subplot_tight(4,3,6);
    contourf(yqNew,zqNew,ueN./VA,50,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-0.6 1])
-   %caxis([-400 300])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
-   title('U_{eN} [km/s]')
+   caxis([-0.6 0.6])
+   title('U_{eN}')
    
    % BL (positive pointing upstream)
    subplot_tight(4,3,7);
    contourf(yqNew,zqNew,bL,50,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-10 10])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
+   caxis([-50 150])
    title('B_L [nT]')
    
    % BM (positive pointing in roughly y direction)
@@ -326,8 +344,7 @@ for ipict = 1:npict
    contourf(yqNew,zqNew,bM,50,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([40 180])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
+   caxis([40 120])
    title('B_M [nT]')
    
    % BN
@@ -335,8 +352,7 @@ for ipict = 1:npict
    contourf(yqNew,zqNew,bN,50,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-60 60])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
+   caxis([-40 40])
    title('B_N [nT]')
    
    % Pi
@@ -344,8 +360,7 @@ for ipict = 1:npict
    contourf(yqNew,zqNew,piv,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([0.5 6])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
+   caxis([0 4])
    title('P_{i} [nPa]')
    
    % Pe
@@ -353,7 +368,7 @@ for ipict = 1:npict
    contourf(yqNew,zqNew,pev,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([0.2 2.5])
+   caxis([0 2])
    xlabel('y [R_G]'); ylabel('z [R_G]');
    title('P_{e} [nPa]')
    
@@ -362,10 +377,8 @@ for ipict = 1:npict
    contourf(yqNew,zqNew,J,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([0 0.20])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
-   title('J [\mu A/m^2]')
-    
+   caxis([0 0.25])
+   title('J [\mu A/m^2]')  
    
    %
    dim = [0.2 0.01 0.05 0.02];
@@ -373,7 +386,7 @@ for ipict = 1:npict
    a = annotation('textbox',dim,'String',str,'FitBoxToText','on',...
       'FontWeight','bold','EdgeColor','none');
    
-   frame = getframe(gcf);
+   frame = getframe(hfig);
    
    set(gca,'nextplot','replacechildren');
    

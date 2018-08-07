@@ -5,65 +5,81 @@
 % time-series manner.
 %
 % Hongyang Zhou, hyzhou@umich.edu  12/04/2017
-% Modified on 02/20/2018
+% Modified on 02/20/2018, 08/07/2018
 
-clear;clc
+clear;clc;close all
 %% Read data and preprocess
-G28 = load('~/Ganymede/newPIC/CPCP_G28.mat');
+IsGatheredFile = false; % Single or multiple input files
+boxdir = '~/Ganymede/MOP2018/runG28_PIC_1200s/GM';
+
+G28 = load('~/Ganymede/MOP2018/ProcessedData/CPCP_G28.mat');
 rateG28 = G28.CPCPt ./ G28.Potential_bk;
 rateMeanG28  = mean(rateG28);
 
+% box outputs
+%filename = '~/Ganymede/newPIC/run_G28_newPIC/box_FTE_G28_1200s.outs';
+
+% Parameters and thresholds
+Coef = 1.00; % expansion factor
+threshold_pe = 2.1;
+threshold_j = 0.52; 
+
 %% Find boundary points from steady state solution
-filename = '~/Ganymede/newPIC/run_G28_newPIC/3d_G28_steady.out';
-s = 0.5; % compact boundary factor [0,1]
+filename3dGM = '~/Ganymede/MOP2018/runG28_PIC_1200s/3d_t=566.out';
+s = 0.8; % compact boundary factor [0,1]
 
-[x3bc,y3bc,z3bc] = find_boundary_points( filename,s );
+[x3bc,y3bc,z3bc] = find_boundary_points( filename3dGM,s );
 
-%% Fit the closed field line boundary
+%% Fit the closed field line boundary with hypersurface
 
-% Set up fittype and options.
-ft = fittype( 'poly55' );
-
-% Fit model to data.
-[fitresult, gof] = fit( [y3bc, z3bc], x3bc, ft );
+[fitresult,gof] = surface_fit(x3bc,y3bc,z3bc);
 
 %% Generate mesh points from fitted surface
-ymin = -1.1+5/30; ymax = 1.1-5/30; zmin = -0.5; zmax = 0.75-3/30;
-dy = 1/30; dz = dy;
+ymin = -1.15; ymax = 1.15; zmin = -0.6; zmax = 0.6;
+dy = 1/32; dz = dy;
 [yq,zq] = ndgrid(ymin:dy:ymax,zmin:dz:zmax);
 
-% Try to rotate the ndgrid by 11 degrees
+% Try to rotate the ndgrid by 15 degrees
 % Define rotation angle
-theta = 11/180*pi; 
+theta = 15/180*pi; 
 % Define rotation matrix
 rot = [cos(theta) -sin(theta); sin(theta) cos(theta)]; 
 
 temp = [yq(:),zq(:)]*rot.' ;
-sz = numel(yq);
-Yq = reshape(temp(:,1),[sz,1]);
-Zq = reshape(temp(:,2),[sz,1]);
-Xq = fitresult(Yq,Zq);
+Yrot = reshape(temp(:,1),[numel(yq),1]);
+Zrot = reshape(temp(:,2),[numel(yq),1]);
 
-Xq = reshape(Xq,size(yq));
-Yq = reshape(Yq,size(yq));
-Zq = reshape(Zq,size(yq));
+Xrot = fitresult(Yrot,Zrot);
 
-%% get the three local directions
-z = [0 0 1]; % z-direction unit vector
-% Initialize local vectors
-dL = Inf(3,size(Xq,1),size(Xq,2));
-dM = dL; dN = dL;
+xq = reshape(Xrot,size(yq));
+yq = reshape(Yrot,size(yq));
+zq = reshape(Zrot,size(yq));
 
-% Try to do the same for rotated ndgrid points
-[V, W] = differentiate(fitresult, Yrot, Zrot);
+% xq = fitresult(yq,zq);
+xq(xq>-1.13) = nan;
+
+% Calculate the normal direction to the fitted surface
+[V, W] = differentiate(fitresult, yq, zq);
 U = -ones(size(V));
 
+% get the three local directions
+% dipole-direction unit vector
+unitDipole = [19.26 -16.54 716.8]/sqrt(19.26^2+16.54^2+716.8^2);
+% Upstream B unit vector
+%unitUpstreamB = [-7 78 -76]/sqrt(7^2+78^2+76^2);
+
+unitL = [0 -sind(15) cosd(15)];
+
+% Initialize local vectors: d1-> M d2->L d3-> N
+dL = Inf(3,size(xq,1),size(xq,2));
+dM = dL; dN = dL;
+
 % This part could potentially be optimized!
-for ix=1:size(Xq,1)
-   for iy=1:size(Xq,2)
-      dN(:,ix,iy) = [U(ix,iy) V(ix,iy) W(ix,iy)];      
-      dL(:,ix,iy) = cross(dN(:,ix,iy),z);
-      dM(:,ix,iy) = cross(dL(:,ix,iy),dN(:,ix,iy));
+for ix=1:size(xq,1)
+   for iy=1:size(xq,2)
+      dN(:,ix,iy) = [U(ix,iy) V(ix,iy) W(ix,iy)];
+      dM(:,ix,iy) = cross(dN(:,ix,iy),unitL);
+      dL(:,ix,iy) = cross(dM(:,ix,iy),dN(:,ix,iy));
       
       % Normalization
       dL(:,ix,iy) = dL(:,ix,iy) / norm(dL(:,ix,iy));
@@ -73,19 +89,37 @@ for ix=1:size(Xq,1)
 end
 
 %% Plots from rotated ndgrid in the local coordinate system
+if IsGatheredFile
+   % single input file case
+   [filehead,~,fileinfo] = read_data(filename,'verbose',false);
+   npict = fileinfo.npictinfiles; % # of snapshot in the file
+   firstpict = 516; dpict = 10; lastpict = firstpict + 2*dpict; 
+else
+   % multiple input file case
+   listing = dir(fullfile(boxdir,'box_var_5*out'));
+   [filehead,data] = read_data(...
+         fullfile(listing(1).folder,listing(1).name),...
+         'verbose',false);
+   npict = numel(listing); 
+   firstpict = 567; dpict = 15; lastpict = firstpict + 2*dpict; 
+end
 
-% box outputs
-filename = '~/Ganymede/newPIC/run_G28_newPIC/box_FTE_G28_1200s.outs';
-
-[~,~,fileinfo] = read_data(filename,'verbose',false);
-npict = fileinfo.npictinfiles;
-firstpict = 516; dpict = 10; lastpict = firstpict + 2*dpict; 
-
-% Parameters and thresholds
-Coef = 1.03; % expansion factor
+% Maybe write a function?
+n_ = strcmpi('rho',filehead.wnames);
+bx_ = strcmpi('bx',filehead.wnames);
+by_ = strcmpi('by',filehead.wnames);
+bz_ = strcmpi('bz',filehead.wnames);
+ux_ = strcmpi('ux',filehead.wnames);
+uy_ = strcmpi('uy',filehead.wnames);
+uz_ = strcmpi('uz',filehead.wnames);
+pe_ = strcmpi('pe',filehead.wnames);
+p_ = strcmpi('p',filehead.wnames);
+jx_ = strcmpi('jx',filehead.wnames);
+jy_ = strcmpi('jy',filehead.wnames);
+jz_ = strcmpi('jz',filehead.wnames);
 
 % create new figure with specified size
-hfig = figure('position',[10, 10, 800, 700]);
+hfig = figure('position',[10, 10, 800, 660]);
 colormap(jet);
 
 iplot = 1;
@@ -93,20 +127,29 @@ height = 0.24;
 
 % Loop over snapshots
 for ipict = firstpict:dpict:lastpict
-   [filehead,data] = read_data(filename,'verbose',false,'npict',ipict);
+   fprintf('ipict=%d\n',ipict)
+
+   if IsGatheredFile
+      [filehead,data] = read_data(filenamePC,'verbose',false,'npict',ipict);
+   else
+      [filehead,data] = read_data(...
+         fullfile(listing(ipict).folder,listing(ipict).name),...
+         'verbose',false);
+      data = data.file1;
+   end
    
-   x = data.file1.x(:,:,:,1);
-   y = data.file1.x(:,:,:,2);
-   z = data.file1.x(:,:,:,3);
+   x = data.x(:,:,:,1);
+   y = data.x(:,:,:,2);
+   z = data.x(:,:,:,3);
    
-   bx = data.file1.w(:,:,:,5);
-   by = data.file1.w(:,:,:,6);
-   bz = data.file1.w(:,:,:,7);
-   pe = data.file1.w(:,:,:,9);
-   p  = data.file1.w(:,:,:,10);
-   jx = data.file1.w(:,:,:,11);
-   jy = data.file1.w(:,:,:,12);
-   jz = data.file1.w(:,:,:,13);
+   bx = data.w(:,:,:,bx_);
+   by = data.w(:,:,:,by_);
+   bz = data.w(:,:,:,bz_);
+   pe = data.w(:,:,:,pe_);
+   p  = data.w(:,:,:,p_);
+   jx = data.w(:,:,:,jx_);
+   jy = data.w(:,:,:,jy_);
+   jz = data.w(:,:,:,jz_);
    %j  = sqrt(jx.^2 + jy.^2 + jz.^2); 
    
    % From ndgrid to meshgrid format
@@ -123,24 +166,24 @@ for ipict = firstpict:dpict:lastpict
    p  = permute(p,[2 1 3]);
    %j  = permute(j,[2 1 3]);
    
-   bxv= interp3(x, y, z, bx, Coef*Xq, Coef*Yq, Coef*Zq);
-   byv= interp3(x, y, z, by, Coef*Xq, Coef*Yq, Coef*Zq); 
-   bzv= interp3(x, y, z, bz, Coef*Xq, Coef*Yq, Coef*Zq);
-   jxv= interp3(x, y, z, jx, Coef*Xq, Coef*Yq, Coef*Zq);
-   jyv= interp3(x, y, z, jy, Coef*Xq, Coef*Yq, Coef*Zq); 
-   jzv= interp3(x, y, z, jz, Coef*Xq, Coef*Yq, Coef*Zq);  
-   pev= interp3(x, y, z, pe, Coef*Xq, Coef*Yq, Coef*Zq);
-   pv = interp3(x, y, z, p,  Coef*Xq, Coef*Yq, Coef*Zq);
+   bxv= interp3(x, y, z, bx, Coef*xq, Coef*yq, Coef*zq);
+   byv= interp3(x, y, z, by, Coef*xq, Coef*yq, Coef*zq); 
+   bzv= interp3(x, y, z, bz, Coef*xq, Coef*yq, Coef*zq);
+   jxv= interp3(x, y, z, jx, Coef*xq, Coef*yq, Coef*zq);
+   jyv= interp3(x, y, z, jy, Coef*xq, Coef*yq, Coef*zq); 
+   jzv= interp3(x, y, z, jz, Coef*xq, Coef*yq, Coef*zq);  
+   pev= interp3(x, y, z, pe, Coef*xq, Coef*yq, Coef*zq);
+   pv = interp3(x, y, z, p,  Coef*xq, Coef*yq, Coef*zq);
    
    jv = sqrt(jxv.^2 + jyv.^2 + jzv.^2);
       
    % Transform vectors into local coordinate system
-   uL = Inf(size(Xq)); uM = uL; uN = uL;
-   bL = Inf(size(Xq)); bM = bL; bN = bL;
+   uL = Inf(size(xq)); uM = uL; uN = uL;
+   bL = Inf(size(xq)); bM = bL; bN = bL;
       
    % This could potentially be improved!
-   for ix=1:size(Xq,1)
-      for iy=1:size(Xq,2)
+   for ix=1:size(xq,1)
+      for iy=1:size(xq,2)
          bL(ix,iy) = [bxv(ix,iy) byv(ix,iy) bzv(ix,iy)]*dL(:,ix,iy);
          bM(ix,iy) = [bxv(ix,iy) byv(ix,iy) bzv(ix,iy)]*dM(:,ix,iy);
          bN(ix,iy) = [bxv(ix,iy) byv(ix,iy) bzv(ix,iy)]*dN(:,ix,iy);
@@ -150,17 +193,15 @@ for ipict = firstpict:dpict:lastpict
    % Bnormal plots
    h = subplot(4,3,iplot);
    
-   contourf(Yq,Zq,bN,50,'Linestyle','none'); 
+   contourf(yq,zq,bN,50,'Linestyle','none'); 
    title(sprintf('t=%ds',ipict));
    
    if iplot == 1
       text(1.3,0,'Bnormal [nT]','rotation',90,...
          'fontsize',14,'FontWeight','bold',...
          'horizontalalignment','center','verticalalignment','bottom');
-   elseif iplot == 2
-      h.YTickLabel = [];
    elseif iplot == 3
-      h.YTickLabel = [];
+      %h.YTickLabel = [];
       % Get the current axis size
       originalSize = get(gca, 'Position');
       colorbar; 
@@ -169,28 +210,26 @@ for ipict = firstpict:dpict:lastpict
    
    axis tight equal   
    h.Position(4) = height;
-   h.XTickLabel = [];   
+   %h.XTickLabel = [];   
    h.XDir = 'reverse';
    h.FontSize = 12;
-   caxis([-60 60])
+   caxis([-40 40])
    
    % Current density plots
    h = subplot(4,3,iplot+3);
    
-   contourf(Yq,Zq,jv,50,'Linestyle','none'); 
+   contourf(yq,zq,jv,50,'Linestyle','none'); 
    
    if iplot == 1
       text(1.3,0,'j [\mu A/m^2]','rotation',90,...
          'fontsize',14,'FontWeight','bold',...
          'horizontalalignment','center','verticalalignment','bottom');
    elseif iplot == 2
-      h.YTickLabel = [];
       xlabel('Y [R_G]','FontWeight','bold','fontsize',14,...
          'horizontalalignment','center','verticalalignment','bottom');
       ylabel('Z [R_G]','FontWeight','bold','fontsize',14,...
          'horizontalalignment','center','verticalalignment','bottom');      
    elseif iplot == 3
-      h.YTickLabel = [];
       % Get the current axis size
       originalSize = get(gca, 'Position');
       c = colorbar;
@@ -199,24 +238,21 @@ for ipict = firstpict:dpict:lastpict
    
    axis tight equal     
    h.Position(4) = height;
-   h.XTickLabel = [];
+   %h.XTickLabel = [];
    h.XDir = 'reverse';
    h.FontSize = 12;
-   caxis([0.1 0.7])
+   caxis([0 0.5])
    
    % Electron pressure plots
    h = subplot(4,3,iplot+6);
    
-   contourf(Yq,Zq,pev,50,'Linestyle','none'); 
+   contourf(yq,zq,pev,50,'Linestyle','none'); 
 
    if iplot == 1
       text(1.3,0,'P_e [nPa]','rotation',90,...
          'fontsize',14,'FontWeight','bold',...
          'horizontalalignment','center','verticalalignment','bottom');
-   elseif iplot == 2
-      h.YTickLabel = [];
    elseif iplot == 3
-      h.YTickLabel = [];
       % Get the current axis size
       originalSize = get(gca, 'Position');
       colorbar;
@@ -227,7 +263,7 @@ for ipict = firstpict:dpict:lastpict
    h.Position(4) = height;
    h.XDir = 'reverse';
    h.FontSize = 12;   
-   caxis([0.2 4]);
+   caxis([0.1 0.8]);
      
    iplot = iplot + 1;
 end
@@ -242,7 +278,7 @@ vline(firstpict+dpict,'b');
 vline(lastpict,'b');
 xlabel('time [s]'); 
 ylabel('reconnection efficiency')
-h.YLim = [0.2,0.4];
+h.YLim = [0.32,0.52];
 
 % dim = [0.2 0.05 0.05 0.02];
 % str = sprintf('it=%d, time=%.1fs, countJ=%d,countP=%d',...

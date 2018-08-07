@@ -61,7 +61,7 @@ y3bc = y3bc(mapindex_);
 z3bc = z3bc(mapindex_);
 
 if DoPlot
-   figure; scatter3(x3bc,y3bc,z3bc,'.'); axis equal
+   figure(1); scatter3(x3bc,y3bc,z3bc,'.'); axis equal
 end
 
 end

@@ -13,18 +13,23 @@
 
 clear; clc
 %% Parameters
+IsGatheredFile = false; % Single or multiple input files
 % 3D GM outputs
-filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs';
+%filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs';
+%filename = '~/Ganymede/MOP2018/runG8_PIC_1200s/3d_t=0.out';
+filename = '~/Ganymede/MOP2018/runG8_PIC_1200s/3d_t=280.out';
 s = 0.8; % compact boundary factor [0,1]
 
-% GM upstream box outputs
-filenamePC = '~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
+% PC upstream box outputs
+PCdir = '~/Ganymede/MOP2018/runG8_PIC_1200s/PC';
+%filenamePC = '~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
+%filenamePC = '3d_fluid_600s.outs';
 % Output movie
-Vname = 'test.avi';
+Vname = '~/Ganymede/MOP2018/2DMagnetopause_G8.avi';
 vFrameRate = 10;
 
 % Criteria for surface contour and FTE identification
-Coef         = 1.08; % expansion factor from original surface fit 
+Coef         = 1.00; % expansion factor from original surface fit 
 threshold_pe = 2.1;
 threshold_j  = 0.52; 
 
@@ -45,7 +50,7 @@ VA  = 230; %[km/s], for normalization
 [fitresult,gof] = surface_fit(x3bc,y3bc,z3bc);
 
 %% Generate mesh points from fitted surface and calculate LMN directions
-ymin = -1.2; ymax = 1.2; zmin = -0.8; zmax = 0.8;
+ymin = -1.2; ymax = 1.2; zmin = -0.6; zmax = 0.6;
 dy = 1/32; dz = dy;
 [yq,zq] = ndgrid(ymin:dy:ymax,zmin:dz:zmax);
 
@@ -77,8 +82,34 @@ for ix=1:size(xq,1)
 end
 
 %% Movie from PIC outputs
-[~,~,fileinfo] = read_data(filenamePC,'verbose',false);
-npict = fileinfo.npictinfiles;
+if IsGatheredFile
+   % single input file case
+   [filehead,~,fileinfo] = read_data(filename,'verbose',false);
+   npict = fileinfo.npictinfiles; % # of snapshot in the file
+else
+   % multiple input file case
+   listing = dir(fullfile(PCdir,'3d*out'));
+   [filehead,data] = read_data(...
+         fullfile(listing(1).folder,listing(1).name),...
+         'verbose',false);
+   npict = numel(listing); 
+end
+
+% Maybe write a function?
+ne_ = strcmpi('rhos0',filehead.wnames);
+ni_ = strcmpi('rhos1',filehead.wnames);
+bx_ = strcmpi('bx',filehead.wnames);
+by_ = strcmpi('by',filehead.wnames);
+bz_ = strcmpi('bz',filehead.wnames);
+uex_ = strcmpi('uxs0',filehead.wnames);
+uey_ = strcmpi('uys0',filehead.wnames);
+uez_ = strcmpi('uzs0',filehead.wnames);
+uix_ = strcmpi('uxs1',filehead.wnames);
+uiy_ = strcmpi('uys1',filehead.wnames);
+uiz_ = strcmpi('uzs1',filehead.wnames);
+pe_ = strcmpi('ps0',filehead.wnames);
+pi_ = strcmpi('ps1',filehead.wnames);
+
 
 % Create video
 v = VideoWriter(Vname);
@@ -87,31 +118,38 @@ v.open
 
 % create new figure with specified size
 hfig = figure(4);
-set(hfig,'position', [10, 10, 800, 600]) 
+set(hfig,'position', [10, 10, 800, 550]) 
 colormap(jet);
 
-for ipict=1:1%npict
+for ipict=1:npict
    fprintf('ipict=%d\n',ipict)
-   [filehead,data] = read_data(filenamePC,'verbose',false,'npict',ipict);
+
+   if IsGatheredFile
+      [filehead,data] = read_data(filenamePC,'verbose',false,'npict',ipict);
+   else
+      [filehead,data] = read_data(...
+         fullfile(listing(ipict).folder,listing(ipict).name),...
+         'verbose',false);
+   end   
    
    data = data.file1;
    x = data.x(:,:,:,1);
    y = data.x(:,:,:,2);
    z = data.x(:,:,:,3);
-
-   ne = data.w(:,:,:,1)*1e6;    % [/m^3]
-   ni = data.w(:,:,:,2)*1e6;    % [/m^3]
-   bx   = data.w(:,:,:,3);      % [nT]
-   by   = data.w(:,:,:,4);
-   bz   = data.w(:,:,:,5);
-   uex  = data.w(:,:,:,9);      % [km/s]
-   uey  = data.w(:,:,:,10);
-   uez  = data.w(:,:,:,11);
-   uix  = data.w(:,:,:,12);
-   uiy  = data.w(:,:,:,13);
-   uiz  = data.w(:,:,:,14);
-   pe   = data.w(:,:,:,15);     % [nPa]
-   pi   = data.w(:,:,:,16);
+   
+   ne = data.w(:,:,:,ne_)*1e6;    % [/m^3]
+   ni = data.w(:,:,:,ni_)*1e6;    % [/m^3]
+   bx   = data.w(:,:,:,bx_);      % [nT]
+   by   = data.w(:,:,:,by_);
+   bz   = data.w(:,:,:,bz_);
+   uex  = data.w(:,:,:,uex_);      % [km/s]
+   uey  = data.w(:,:,:,uey_);
+   uez  = data.w(:,:,:,uez_);
+   uix  = data.w(:,:,:,uix_);
+   uiy  = data.w(:,:,:,uiy_);
+   uiz  = data.w(:,:,:,uiz_);
+   pe   = data.w(:,:,:,pe_);     % [nPa]
+   pi   = data.w(:,:,:,pi_);
    
    % From ndgrid to meshgrid format
    ne = permute(ne,[2 1 3]);
@@ -198,49 +236,39 @@ for ipict=1:1%npict
    contourf(yq,zq,uiL./VA,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-1 1])
-   %caxis([-200 200])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
-   title('U_{iL} [km/s]')
+   caxis([-0.6 0.6])
+   title('U_{iL}')
    
    subplot_tight(4,3,2);
    contourf(yq,zq,uiM./VA,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-1.5 0.5])
-   %caxis([-200 100])
-   %xlabel('y [R_G]');
+   caxis([-0.5 0.5])
    ylabel('z [R_G]');
-   title('U_{iM} [km/s]')
+   title('U_{iM}')
        
    subplot_tight(4,3,3);
    contourf(yq,zq,uiN./VA,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
    caxis([-0.5 0.5])
-   %caxis([-60 100])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
-   title('U_{iN} [km/s]')
+   title('U_{iN}')
    
    % ueL
    subplot_tight(4,3,4);
    contourf(yq,zq,ueL./VA,50,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-4 4])
-   %caxis([-600 600])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
-   title('U_{eL} [km/s]')
+   caxis([-3 3])
+   title('U_{eL}')
    
    % ueM
    subplot_tight(4,3,5);
    contourf(yq,zq,ueM./VA,50,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([0 6])
-   %caxis([0 1300])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
-   title('U_{eM} [km/s]')
+   caxis([0 5])
+   title('U_{eM}')
    
    % ueN
    subplot_tight(4,3,6);
@@ -248,17 +276,14 @@ for ipict=1:1%npict
    axis tight equal
    set(gca,'Xdir','reverse')
    caxis([-1 1])
-   %caxis([-400 300])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
-   title('U_{eN} [km/s]')
+   title('U_{eN}')
    
-   % BL (positive pointing upstream)
+   % BL
    subplot_tight(4,3,7);
    contourf(yq,zq,bL,50,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   %caxis([0 180])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
+   caxis([0 180])
    title('B_L [nT]')
    
    % BM (positive pointing in roughly y direction)
@@ -266,32 +291,29 @@ for ipict=1:1%npict
    contourf(yq,zq,bM,50,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-80 40])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
+   caxis([-80 80])
    title('B_M [nT]')
    
-   % BN
+   % BN (positive pointing upstream)
    subplot_tight(4,3,9);
    contourf(yq,zq,bN,50,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([-100 100])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
+   caxis([-50 50])
    title('B_N [nT]')
    
    subplot_tight(4,3,10);
    contourf(yq,zq,piv,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([2 11])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
+   caxis([0 7])
    title('P_{i} [nPa]')
    
    subplot_tight(4,3,11);
    contourf(yq,zq,pev,'Linestyle','none'); colorbar;
    axis tight equal
    set(gca,'Xdir','reverse')
-   caxis([0.1 3.5])
+   caxis([0 1])
    xlabel('y [R_G]'); ylabel('z [R_G]');
    title('P_{e} [nPa]')
    
@@ -300,9 +322,7 @@ for ipict=1:1%npict
    axis tight equal
    set(gca,'Xdir','reverse')
    caxis([0 0.2])
-   %xlabel('y [R_G]'); ylabel('z [R_G]');
    title('J [\mu A/m^2]')
-    
    
    %
    dim = [0.2 0.01 0.05 0.02];

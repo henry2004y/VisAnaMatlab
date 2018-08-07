@@ -33,8 +33,9 @@
 
 clear; clc
 %% Parameters
-% All the following sections need parameters here.
-flyby = 'G8'; % default is G8
+% All the following sections need the parameters defined here.
+flyby = 'mix2'; % default is G8
+IsGatheredFile = false; % Single or multiple input files
 
 Rg = 2634000; %[m], radius of Ganymede
 e  = 1.60217662e-19; % [C], electron charge
@@ -42,8 +43,10 @@ e  = 1.60217662e-19; % [C], electron charge
 switch flyby
    case 'G8'
       disp('G8 flyby CPCP calculation')
-      filename= '~/Ganymede/newPIC/run_G8_newPIC/box_CPCP_G8_1200s.outs';
-      filename= '~/Ganymede/newPIC/G8_PIC_theta51/box_CPCP_1200s.outs';
+      %filename= '~/Ganymede/newPIC/run_G8_newPIC/box_CPCP_G8_1200s.outs';
+      %filename= '~/Ganymede/newPIC/G8_PIC_theta51/box_CPCP_1200s.outs';
+      directory = '~/Ganymede/MOP2018/runG8_PIC_1200s/GM';
+      filename = fullfile(directory,'box_CPCP_1200s.outs');
       % Background
       % G8 B= -10 -6 -86 [nT], U=140 0 0 [km/s]
       Uxbk = 140; Bybk = -6; Bzbk = -86;
@@ -57,8 +60,10 @@ switch flyby
       TiltedAngle = atan(6/86);     
    case 'G28'
       disp('G28 flyby CPCP calculation')
-      filename= '~/Ganymede/newPIC/run_G28_newPIC/box_CPCP_G28_1200s.outs';
-      filename= '~/Ganymede/newPIC/G28_PIC_theta51/box_CPCP_G28_1200s.outs';
+      %filename= '~/Ganymede/newPIC/run_G28_newPIC/box_CPCP_G28_1200s.outs';
+      %filename= '~/Ganymede/newPIC/G28_PIC_theta51/box_CPCP_G28_1200s.outs';
+      directory = '~/Ganymede/MOP2018/runG28_PIC_1200s/GM';
+      filename = fullfile(directory,'box_CPCP_G28_1200s.outs');
       % Background
       % G28 B= -7 78 -76 [nT], U=140 0 0 [km/s]
       Uxbk = 140; Bybk = 78; Bzbk = -76;
@@ -72,14 +77,18 @@ switch flyby
       TiltedAngle = atan(-78/76);
    case 'mix1'
       disp('mix1 CPCP calculation')
-      filename='~/Ganymede/newPIC/run_mix1/box_CPCP_mix1_1200s.outs';
+      %filename='~/Ganymede/newPIC/run_mix1/box_CPCP_mix1_1200s.outs';
+      directory = '~/Ganymede/MOP2018/mix1';
+      filename = fullfile(directory,'box_CPCP_1200s.outs');
       % Background
       % G8 B= -10 -6 -86 [nT], U=140 0 0 [km/s]
       Uxbk = 140; Bybk = -6; Bzbk = -86;
       TiltedAngle = atan(6/86);
    case 'mix2'
       disp('mix2 CPCP calculation')
-      filename='~/Ganymede/newPIC/run_mix2/box_CPCP_mix2_1200s.outs';  
+      %filename='~/Ganymede/newPIC/run_mix2/box_CPCP_mix2_1200s.outs';
+      directory = '~/Ganymede/MOP2018/mix2';
+      filename = fullfile(directory,'box_CPCP_1200s.outs');
       % Background
       % G28 B= -7 78 -76 [nT], U=140 0 0 [km/s]
       Uxbk = 140; Bybk = 78; Bzbk = -76;
@@ -93,10 +102,6 @@ switch flyby
       TiltedAngle = atan(73/85);
 end
 
-[~,~,fileinfo] = read_data(filename,'verbose',false);
-npict   = fileinfo.npictinfiles; % # of snapshot in the file
-dsample = 1/32;                  % grid resolution in [Rg]
-
 
 %% CPCP calculation by curve line integral
 % Integrate along the upstream boundary curve and find the maximum
@@ -104,13 +109,31 @@ dsample = 1/32;                  % grid resolution in [Rg]
 % Following Gabor`s advice, I shouldn`t use x=1 to 'force' the cutoff. It
 % would make more sense to integrate the closed curve and pick the
 % difference between the end and the middle.
+dsample = 1/32;                  % grid resolution in [Rg]
+
+if IsGatheredFile
+   % single input file case
+   [~,~,fileinfo] = read_data(filename,'verbose',false);
+   npict = fileinfo.npictinfiles; % # of snapshot in the file
+else
+   % multiple input file case
+   listing = dir(fullfile(directory,'box_var_6*'));
+   npict = numel(listing); 
+end
+
 CPCPt = Inf(npict,1);
 time = Inf(npict,1);
 Potential_bk = Inf(npict,1);
 
 for ipict=1:npict
    fprintf('ipict=%d\n',ipict);
-   [filehead,data] = read_data(filename,'verbose',false,'npict',ipict);
+   if IsGatheredFile
+      [filehead,data] = read_data(filename,'verbose',false,'npict',ipict);
+   else
+      [filehead,data] = read_data(...
+         fullfile(listing(ipict).folder,listing(ipict).name),...
+         'verbose',false);
+   end
    time(ipict) = filehead.time;
    
    %
@@ -211,6 +234,7 @@ for ipict=1:npict
      
    CPCPt(ipict) = EPotential(end) - min(EPotential);
 end
+
 
 figure
 plot(time,CPCPt,'*-');

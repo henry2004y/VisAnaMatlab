@@ -17,12 +17,13 @@
 %
 % Hongyang Zhou, hyzhou@umich.edu 03/21/2018
 
-clear;clc; close all
+clear;clc; %close all
 %%
 
 %filename='~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
 %ipict = 132;
-filename='~/Documents/research/Ganymede/data/3d_fluid.out';
+%filename='~/Ganymede/MOP2018/runG8_PIC_1200s/PC/3d_var_region0_0_t00000520_n00009629.out';
+filename='~/Ganymede/MOP2018/runG8_PIC_1200s/PC/3d_var_region0_0_t00000450_n00008729.out';
 ipict = 1;
 
 % Estimation of Alfven velocity

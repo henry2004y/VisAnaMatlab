@@ -7,48 +7,46 @@
 %
 % Hongyang Zhou, hyzhou@umich.edu 01/11/2018
 
-clear;clc; %close all; 
+clear;clc; close all; 
 %% Read data and preprocess
-% G8 = load('~/Ganymede/newPIC/CPCPdata_theta50/CPCP_G8.mat');
-% G28 = load('~/Ganymede/newPIC/CPCPdata_theta50/CPCP_G28.mat');
-mix1 = load('~/Ganymede/newPIC/CPCPdata_theta50/CPCP_mix1.mat');
-mix2 = load('~/Ganymede/newPIC/CPCPdata_theta50/CPCP_mix2.mat');
+% % G8 = load('~/Ganymede/newPIC/CPCPdata_theta50/CPCP_G8.mat');
+% % G28 = load('~/Ganymede/newPIC/CPCPdata_theta50/CPCP_G28.mat');
+% mix1 = load('~/Ganymede/newPIC/CPCPdata_theta50/CPCP_mix1.mat');
+% mix2 = load('~/Ganymede/newPIC/CPCPdata_theta50/CPCP_mix2.mat');
+% 
+% % Remove the duplicate time(s)
+% % G28.time(601) = [];
+% % G28.CPCPt(601) = [];
+% % G28.Potential_bk(601) = [];
+% 
+% mix1.time(601) = [];
+% mix1.CPCPt(601) = [];
+% mix1.Potential_bk(601) = [];
+% 
+% mix2.time(601) = [];
+% mix2.CPCPt(601) = [];
+% mix2.Potential_bk(601) = [];
+% 
+% 
+% G8 = load('~/Ganymede/newPIC/CPCPdata_theta51/CPCP_G8_51.mat');
+% G8.time(301) = [];
+% G8.CPCPt(301) = [];
+% G8.Potential_bk(301) = [];
+% G8.time(601) = [];
+% G8.CPCPt(601) = [];
+% G8.Potential_bk(601) = [];
+% G8.time(901) = [];
+% G8.CPCPt(901) = [];
+% G8.Potential_bk(901) = [];
+% G28 = load('~/Ganymede/newPIC/CPCPdata_theta51/CPCP_G28_51.mat');
 
-% Remove the duplicate time(s)
-% G28.time(601) = [];
-% G28.CPCPt(601) = [];
-% G28.Potential_bk(601) = [];
+G8 = load('~/Ganymede/MOP2018/ProcessedData/CPCP_G8.mat');
+G28 = load('~/Ganymede/MOP2018/ProcessedData/CPCP_G28.mat');
+mix1 = load('~/Ganymede/MOP2018/ProcessedData/CPCP_mix1.mat');
+mix2 = load('~/Ganymede/MOP2018/ProcessedData/CPCP_mix2.mat');
 
-mix1.time(601) = [];
-mix1.CPCPt(601) = [];
-mix1.Potential_bk(601) = [];
-
-mix2.time(601) = [];
-mix2.CPCPt(601) = [];
-mix2.Potential_bk(601) = [];
-
-
-G8 = load('~/Ganymede/newPIC/CPCPdata_theta51/CPCP_G8_51.mat');
-G8.time(301) = [];
-G8.CPCPt(301) = [];
-G8.Potential_bk(301) = [];
-G8.time(601) = [];
-G8.CPCPt(601) = [];
-G8.Potential_bk(601) = [];
-G8.time(901) = [];
-G8.CPCPt(901) = [];
-G8.Potential_bk(901) = [];
-G28 = load('~/Ganymede/newPIC/CPCPdata_theta51/CPCP_G28_51.mat');
-
-% G8 = load('CPCP_G8.mat');
-% G28 = load('CPCP_G28.mat');
-% mix1 = load('CPCP_mix1.mat');
-% mix2 = load('CPCP_mix2.mat');
-
-
-
-% Ignore the transition time (100s) for FFT calculation
-TimeTransition = 100; %[s]
+% Ignore the transition time from MHD to PIC coupling for FFT calculation
+tTransition = 100; %[s]
 
 %% Test
 % use reconnection to do fft instead of CPCP itself
@@ -58,10 +56,10 @@ rateG28 = G28.CPCPt ./ G28.Potential_bk;
 ratemix1 = mix1.CPCPt ./ mix1.Potential_bk;
 ratemix2 = mix2.CPCPt ./ mix2.Potential_bk;
 
-rateMeanG8  = mean(rateG8(1:TimeTransition:end));
-rateMeanG28 = mean(rateG28(1:TimeTransition:end));
-rateMeanMix1= mean(ratemix1(1:TimeTransition:end));
-rateMeanMix2= mean(ratemix2(1:TimeTransition:end));
+rateMeanG8  = mean(rateG8(tTransition:end));
+rateMeanG28 = mean(rateG28(tTransition:end));
+rateMeanMix1= mean(ratemix1(tTransition:end));
+rateMeanMix2= mean(ratemix2(tTransition:end));
 
 % Smooth the original data
 % rateG8Smooth   = smoothdata(rateG8);
@@ -72,23 +70,23 @@ rateMeanMix2= mean(ratemix2(1:TimeTransition:end));
 %% FFT
 Fs = 1; % Sample rate is 1 per second
 
-NFFT = length(rateG8) - TimeTransition; % Number of FFT points
+NFFT = length(rateG8) - tTransition; % Number of FFT points
 freq = (0 : 1/NFFT : 1/2-1/NFFT)*Fs; % Frequency vector 
 period = 1./freq;
 
-fftG8 = fft(rateG8(1+TimeTransition:end),NFFT);
+fftG8 = fft(rateG8(1+tTransition:end),NFFT);
 fftG8(1) = 0;   % Remove the DC component for better visualization
 powerG8 = abs(fftG8(1:floor(NFFT/2))).^2;
 
-fftG28 = fft(rateG28(1+TimeTransition:end),NFFT);
+fftG28 = fft(rateG28(1+tTransition:end),NFFT);
 fftG28(1) = 0;  % Remove the DC component for better visualization
 powerG28 = abs(fftG28(1:floor(NFFT/2))).^2;
 
-fftmix1 = fft(ratemix1(1+TimeTransition:end),NFFT);
+fftmix1 = fft(ratemix1(1+tTransition:end),NFFT);
 fftmix1(1) = 0; % Remove the DC component for better visualization
 powermix1 = abs(fftmix1(1:floor(NFFT/2))).^2;
 
-fftmix2 = fft(ratemix2(1+TimeTransition:end),NFFT);
+fftmix2 = fft(ratemix2(1+tTransition:end),NFFT);
 fftmix2(1) = 0; % Remove the DC component for better visualization
 powermix2 = abs(fftmix2(1:floor(NFFT/2))).^2;
 
@@ -249,11 +247,11 @@ xlabel('Period (second/cycle)');
 
 
 %% FIR Filter
-% Create ?sgolayfilt? Filtered FFT
-sgfG8 = sgolayfilt(powerG8, 1, 61);
-sgfG28 = sgolayfilt(powerG28, 1, 41);
-sgfmix1 = sgolayfilt(powermix1, 1, 61);
-sgfmix2 = sgolayfilt(powermix2, 1, 41);
+% Create sgolayfilt Filtered FFT, linear polynomial fit
+sgfG8 = sgolayfilt(powerG8, 1, 23);
+sgfG28 = sgolayfilt(powerG28, 1, 23);
+sgfmix1 = sgolayfilt(powermix1, 1, 23);
+sgfmix2 = sgolayfilt(powermix2, 1, 23);
 
 % figure
 % loglog(freq,powermix2); hold on
@@ -271,13 +269,13 @@ setPlotProp(opt)
 
 
 % Power series fit
-k = find(sgfG8<4.7);
+k = find(sgfG8<4.734);
 fG8 = fit(freq(k)',sgfG8(k),'power1');
-k = find(sgfG28<3.9);
+k = find(sgfG28<9.801);
 fG28 = fit(freq(k)',sgfG28(k),'power1');
-k = find(sgfmix1<2.4);
+k = find(sgfmix1<7.777);
 fmix1 = fit(freq(k)',sgfmix1(k),'power1');
-k = find(sgfmix2<1.5);
+k = find(sgfmix2<12.49);
 fmix2 = fit(freq(k)',sgfmix2(k),'power1');
 figure;
 loglog(freq,sgfG8,freq,sgfG28,freq,sgfmix1,freq,sgfmix2); hold on

@@ -29,7 +29,7 @@ norm2 = Inf(nboxfile,1);
 for i=1:nboxfile
    
 %filename = strcat('~/Ganymede/DivBCTtest/boxFile/box_',int2str(i),'.outs');
-filename = '~/Ganymede/MOP2018/box_G7.outs';
+filename = '~/Ganymede/SeriesTest/Run78*/GM/box*.outs';
 [filehead,data,filelist] = read_data(filename);
 
    for ipict=1:filelist.npictinfiles
@@ -96,8 +96,9 @@ filename = '~/Ganymede/MOP2018/box_G7.outs';
       Bdiff = Bobs - Bsim;
       % There`s a difference between 2 definitions of 2-norm.
       %norm(Bdiff(~isnan(Bdiff)))
-      norm2(i) = min(norm2(i),mean(abs(Bdiff(~isnan(Bdiff))).^2)^(1/2));
-      %norm_old = mean(abs(Bdiff(~isnan(Bdiff))).^2)^(1/2);
+      normNew = mean(abs(Bdiff(~isnan(Bdiff))).^2)^(1/2);
+      norm2(i) = min(norm2(i),normNew);
+      if norm2(i)==normNew; ipictSmall = ipict; end
       
    end
               
@@ -140,5 +141,5 @@ end
 
 fprintf('---------------------------\n');
 fprintf('Best fit output number = %d\n',idx);
-fprintf('min(norm2) = %f\n',val);
+fprintf('ipict, min(norm2) = %d, %f\n',ipictSmall,val);
 fprintf('---------------------------\n')

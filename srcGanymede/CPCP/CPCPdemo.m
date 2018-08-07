@@ -15,7 +15,12 @@ e  = 1.60217662e-19; % [C], electron charge
 
 disp('G8 flyby CPCP calculation')
 %filename= '~/Ganymede/newPIC/run_G8_newPIC/box_CPCP_G8_1200s.outs';
+<<<<<<< HEAD
 filename='~/Documents/research/Ganymede/data/box_cut_test.out';
+=======
+filename= '~/Ganymede/newPIC/G8_PIC_theta51/box_CPCP_1200s.outs';
+%filename = '~/Ganymede/MOP2018/runG8_PIC_estimatePhi_1200s/GM/box_var_6_t00000000_n00050000.out';
+>>>>>>> f9c3d47982bc32af0ccdde477d14d8e24a9079c5
 
 ipict = 1;
 fprintf('ipict=%d\n',ipict);

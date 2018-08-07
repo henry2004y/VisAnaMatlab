@@ -39,8 +39,12 @@ BobsStrength = sqrt(Bobs(:,1).^2+Bobs(:,2).^2+Bobs(:,3).^2);
 %filename = strcat('~/Ganymede/newPIC/run_G8_newPIC/box_B_G8_1200s.outs');
 %filename = strcat('~/Ganymede/newPIC/run_G28_newPIC/box_B_G28_1200s.outs');
 %filename = strcat('~/Ganymede/newPIC/G2/box*.out');
-filename = '~/Ganymede/MOP2018/runG*/GM/box*';
-npict = 11; % Remember to change this for different runs!
+%filename = '~/Ganymede/newPIC/G8_PIC_theta51/box_B_1200s.outs';
+% filename = '~/Ganymede/MOP2018/G8_PIC/GM/box_B_estimatePhi.outs';
+%filename='~/Ganymede/MOP2018/runG8_PIC_estimatePhi_1200s/GM/box_var_4_t00000557_n00250489.out';
+filename='~/Ganymede/MOP2018/runG28_PIC_1200s/GM/box_var_4_t00000212_n00127429.out';
+% filename = '~/Ganymede/MOP2018/G8_PIC/GM/box_B_600s.outs';
+npict = 1; % Remember to change this for different runs!
 [filehead,data] = read_data(filename,'npict',npict);
 
 % Interpolate simulation data to observation data

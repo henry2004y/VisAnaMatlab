@@ -70,6 +70,7 @@ uz = data.file1.w(:,:,:,uz_); uz = permute(uz,[2 1 3]);
 
 %% Velocity space plot
 
+% Assume the cut region is small enough s.t. it can be treated as uniform
 [Bx,By,Bz,limits] = GetMeanField(Dir,fnameParticle,fnameField);
 
 % v_perp .vs. v_par phase space plot
@@ -81,18 +82,17 @@ for i=1:numel(ux)
 end
 
 
-%X = [uPar,uPerp];
 figure
-% hist3(X,'CDataMode','auto','FaceColor','interp',...
-%    'Edges',{linspace(-cLight,cLight,50),linspace(0,cLight,50)})
+%  hist3([uPar,uPerp],'CDataMode','auto','FaceColor','interp',...
+%     'Edges',{linspace(-cLight,cLight,50),linspace(0,cLight,50)})
 % Xedges = [-Inf linspace(-cLight,cLight,50) Inf];
 % Yedges = [-Inf linspace(0,cLight,50) Inf];
 % Xedges = [-Inf linspace(-10,10,50) Inf];
 % Yedges = [-Inf linspace(0,15,50) Inf];
 % h = histogram2(uPar/cAlfven,uPerp/cAlfven,Xedges,Yedges);
 h = histogram2(uPar/cAlfven,uPerp/cAlfven);
-h.XBinLimits = [-5,5];
-h.YBinLimits = [0,5];
+% h.XBinLimits = [-5,5];
+% h.YBinLimits = [0,5];
 h.NumBins = [25 25];
 h.Normalization = 'probability';
 h.FaceColor = 'flat';
@@ -104,5 +104,61 @@ colorbar
 view(2)
 set(gca,'FontSize',16,'LineWidth',1.1)
 
+%% Sample region plot over contour
+[filehead,data] = read_data(fullfile(Dir,fnameField),'verbose',false);
+
+% Choose your cut
+cut = 'y'; PlaneIndex = 64;
+plotrange = [nan nan nan nan];
+
+x = data.file1.x(:,:,:,1);
+y = data.file1.x(:,:,:,2);
+z = data.file1.x(:,:,:,3);
+
+x = permute(x,[2 1 3]);
+y = permute(y,[2 1 3]);
+z = permute(z,[2 1 3]);
+
+func = 'Bx'; 
+func_ = strcmpi(func,filehead.wnames);
+Bx = data.file1.w(:,:,:,func_);
+Bx = permute(Bx,[2 1 3]);
+
+func = 'Uxs1'; 
+func_ = strcmpi(func,filehead.wnames);
+Uix = data.file1.w(:,:,:,func_);
+Uix = permute(Uix,[2 1 3]);
+
+func = 'Bz'; 
+func_ = strcmpi(func,filehead.wnames);
+Bz = data.file1.w(:,:,:,func_);
+Bz = permute(Bz,[2 1 3]);
+
+cut1 = squeeze(x(PlaneIndex,:,:));
+cut2 = squeeze(z(PlaneIndex,:,:));
+Bx    = squeeze(Bx(PlaneIndex,:,:));
+Uix    = squeeze(Uix(PlaneIndex,:,:));
+Bz    = squeeze(Bz(PlaneIndex,:,:));
+[~, ~, Bx] = subsurface(cut1, cut2, Bx, plotrange);
+[~, ~, Uix] = subsurface(cut1, cut2, Uix, plotrange);
+[cut1, cut2, Bz] = subsurface(cut1, cut2, Bz, plotrange);
+
+figure
+contourf(cut1,cut2,Uix,50,'Linestyle','none');
+colorbar; axis equal; 
+xlabel('x [R_G]'); ylabel('z [R_G]');
+title('Uix');
+set(gca,'FontSize',14,'LineWidth',1.2)
+hold on
+% streamline function requires the meshgrid format strictly
+s = streamslice(cut1',cut2',Bx',Bz',1,'linear');
+for is=1:numel(s)
+   s(is).Color = 'w'; % Change streamline color to white
+   s(is).LineWidth = 1.5;
+end
+
+% Plot the picked cut region
+rectangle('Position',[limits(1) limits(5) ...
+   limits(2)-limits(1) limits(6)-limits(5)])
 
 

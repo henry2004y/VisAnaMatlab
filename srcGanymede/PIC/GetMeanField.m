@@ -5,7 +5,7 @@ function [Bx,By,Bz,limits] = GetMeanField(Dir,fnameParticle,fnameField)
 
 %% Obtain the limits
 filename = fullfile(Dir,fnameParticle);
-[~,data] = read_data(filename,'verbose',false);
+[filehead,data] = read_data(filename,'verbose',false);
 
 data = data.file1;
 
@@ -23,7 +23,11 @@ zmax = max(data.x(:,:,:,3));
 % zmin = -0.60;
 % zmax = -0.55;
 
-limits = [xmin,xmax,ymin,ymax,zmin,zmax];
+if strcmpi(filehead.headline(1:2),'SI')
+   limits = [xmin,xmax,ymin,ymax,zmin,zmax]/2634000;
+else % planetary units
+   limits = [xmin,xmax,ymin,ymax,zmin,zmax];
+end
 
 %% Get the average field direction in limited region
 filename= fullfile(Dir,fnameField);

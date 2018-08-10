@@ -58,7 +58,7 @@ Bz = permute(Bz,[2 1 3]);
 [~,~,~,Bx,By,Bz] = subvolume(x,y,z,Bx,By,Bz,limits);
 
 % Average over the selected volume
-Bx = mean(dBx(:)); By = mean(dBy(:)); Bz = mean(dBz(:));
+Bx = mean(Bx(:)); By = mean(By(:)); Bz = mean(Bz(:));
 
 % Unify vector
 Length = norm([Bx By Bz]);

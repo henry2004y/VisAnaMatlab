@@ -1,4 +1,4 @@
-function [Bx,By,Bz,limits] = GetMeanField(Dir,fnameParticle,fnameField)
+function [dBx,dBy,dBz,limits] = GetMeanField(Dir,fnameParticle,fnameField)
 %GetMeanField Get the average field direction in limited region
 %   * Obtain the limits from particle data
 %   * Extract the average field from field data
@@ -58,11 +58,11 @@ Bz = permute(Bz,[2 1 3]);
 [~,~,~,Bx,By,Bz] = subvolume(x,y,z,Bx,By,Bz,limits);
 
 % Average over the selected volume
-Bx = mean(Bx(:)); By = mean(By(:)); Bz = mean(Bz(:));
+Bx = mean(dBx(:)); By = mean(dBy(:)); Bz = mean(dBz(:));
 
 % Unify vector
 Length = norm([Bx By Bz]);
-Bx = Bx/Length; By = By/Length; Bz = Bz/Length;
+dBx = Bx/Length; dBy = By/Length; dBz = Bz/Length;
 
 end
 

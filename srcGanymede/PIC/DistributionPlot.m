@@ -71,14 +71,14 @@ uz = data.file1.w(:,:,:,uz_); uz = permute(uz,[2 1 3]);
 %% Velocity space plot
 
 % Assume the cut region is small enough s.t. it can be treated as uniform
-[Bx,By,Bz,limits] = GetMeanField(Dir,fnameParticle,fnameField);
+[dBx,dBy,dBz,limits] = GetMeanField(Dir,fnameParticle,fnameField);
 
 % v_perp .vs. v_par phase space plot
 % approximation: v_par = v_z, v_perp = sqrt(v_x^2 + v_y^2)
 uPar = Inf(numel(ux),1); uPerp = Inf(numel(ux),1);
 for i=1:numel(ux)
-   uPar(i) = dot([Bx By Bz],[ux(i) uy(i) uz(i)]);
-   uPerp(i)= norm([ux(i) uy(i) uz(i)] - uPar(i)*[Bx By Bz]);
+   uPar(i) = dot([dBx dBy dBz],[ux(i) uy(i) uz(i)]);
+   uPerp(i)= norm([ux(i) uy(i) uz(i)] - uPar(i)*[dBx dBy dBz]);
 end
 
 

@@ -6,8 +6,8 @@ clear; clc; %close all
 %% Read data
 cLight = 4000;
 cAlfven = 253;
-Dir = '~/Documents/research/Ganymede/data/DistPlotTest/';
-fnameParticle = 'cut_particles0_region0_7_t00000040_n00001200.out';
+Dir = '~/Ganymede/MOP2018/runG8_PIC_1200s/Particles/';
+fnameParticle = 'cut_particles1_region0_2_t00000040_n00001200.out';
 fnameField = '3d_fluid_region0_0_t00000040_n00001200.out';
 
 [filehead,data,list] = read_data(fullfile(Dir,fnameParticle));

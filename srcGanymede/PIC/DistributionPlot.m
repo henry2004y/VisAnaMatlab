@@ -7,66 +7,28 @@ clear; clc; %close all
 cLight = 4000;
 cAlfven = 253;
 Dir = '~/Documents/research/Ganymede/data/DistPlotTest';
-fnameParticle = 'cut_particles1_region0_2_t00000040_n00001200.out';
-fnameField = '3d_fluid_region0_0_t00000040_n00001200.out';
+fnameParticle = 'cut_particles0_region0_1_t00000710_n00012900.out';
+fnameField = '3d_fluid_region0_0_t00000710_n00012900.out';
 
 [filehead,data,list] = read_data(fullfile(Dir,fnameParticle));
+data = data.file1;
 
-x = data.file1.x(:,:,:,1);
-y = data.file1.x(:,:,:,2);
-z = data.file1.x(:,:,:,3);
-
-x = permute(x,[2 1 3]);
-y = permute(y,[2 1 3]);
-z = permute(z,[2 1 3]);
+x = squeeze(data.x(:,:,:,1));
+y = squeeze(data.x(:,:,:,2));
+z = squeeze(data.x(:,:,:,3));
 
 ux_ = strcmpi('ux',filehead.wnames);
 uy_ = strcmpi('uy',filehead.wnames);
 uz_ = strcmpi('uz',filehead.wnames);
 
-ux = data.file1.w(:,:,:,ux_); ux = permute(ux,[2 1 3]);
-uy = data.file1.w(:,:,:,uy_); uy = permute(uy,[2 1 3]);
-uz = data.file1.w(:,:,:,uz_); uz = permute(uz,[2 1 3]);
+ux = data.w(:,:,:,ux_);
+uy = data.w(:,:,:,uy_);
+uz = data.w(:,:,:,uz_);
 
+uIndex_ = [find(ux_) find(uy_) find(uz_)];
 
-%% Phase space distribution, Gabor version
-% figure
-% scatter3(x(1:1e2:end),y(1:1e2:end),z(1:1e2:end),'.')
-% xlabel('x'); ylabel('y'); zlabel('z');
-% % 
-% % figure;
-% % scatter(x(1:1e4:end),uz(1:1e4:end),'.')
-% 
-% figure;
-% X = [x',uz'];
-% %hist3(X,'CdataMode','auto')
-% hist3(X,'CDataMode','auto','FaceColor','interp',...
-%    'Edges',{linspace(-2.2,-2.1,50),linspace(-1000,1000,50)})
-% xlabel('x [R_G]')
-% ylabel('uz')
-% colorbar
-% %view(2)
-% set(gca,'FontSize',16,'LineWidth',1.1)
-% 
-% figure;
-% X = [x',ux'];
-% %hist3(X,'CdataMode','auto')
-% hist3(X,[50 50],'CDataMode','auto','FaceColor','interp')
-% xlabel('x [R_G]')
-% ylabel('ux')
-% colorbar
-% %view(2)
-% set(gca,'FontSize',16,'LineWidth',1.1)
-% 
-% figure;
-% X = [x',uy'];
-% %hist3(X,'CdataMode','auto')
-% hist3(X,[50 50],'CDataMode','auto','FaceColor','interp')
-% xlabel('x [R_G]')
-% ylabel('uy')
-% colorbar
-% %view(2)
-% set(gca,'FontSize',16,'LineWidth',1.1)
+uxyz = squeeze(data.w(:,:,:,uIndex_));
+
 
 %% Velocity space plot
 
@@ -78,17 +40,13 @@ uz = data.file1.w(:,:,:,uz_); uz = permute(uz,[2 1 3]);
 
 % v_perp vs. v_par phase space plot
 % approximation: v_par = v_z, v_perp = sqrt(v_x^2 + v_y^2)
-uPar = Inf(numel(ux),1); uPerp1 = Inf(numel(ux),1); uPerp2 = uPerp1;
-dPar = [dBx dBy dBz]; % Parallel direction
-dPerp1 = cross([0 -1 0],dPar); % Perpendicular direction in-plane
+dPar = [dBx; dBy; dBz]; % Parallel direction
+dPerp1 = cross([0 -1 0]',dPar); % Perpendicular direction in-plane
 dPerp2 = cross(dPar,dPerp1); % Perpendicular direction out-of-plane
-for i=1:numel(ux)
-   uPar(i) = dot(dPar,[ux(i) uy(i) uz(i)]);
-   %uPerp(i)= norm([ux(i) uy(i) uz(i)] - uPar(i)*[dBx dBy dBz]);
-   uPerp1(i) = dot(dPerp1,[ux(i) uy(i) uz(i)]);
-   uPerp2(i) = dot(dPerp2,[ux(i) uy(i) uz(i)]);
-end
 
+uPar = uxyz*dPar;
+uPerp1 = uxyz*dPerp1;
+uPerp2 = uxyz*dPerp2;
 
 figure
 %  hist3([uPar,uPerp],'CDataMode','auto','FaceColor','interp',...
@@ -170,3 +128,41 @@ rectangle('Position',[limits(1) limits(5) ...
    limits(2)-limits(1) limits(6)-limits(5)])
 
 
+%% Phase space distribution, Gabor version
+% figure
+% scatter3(x(1:1e2:end),y(1:1e2:end),z(1:1e2:end),'.')
+% xlabel('x'); ylabel('y'); zlabel('z');
+% % 
+% % figure;
+% % scatter(x(1:1e4:end),uz(1:1e4:end),'.')
+% 
+% figure;
+% X = [x',uz'];
+% %hist3(X,'CdataMode','auto')
+% hist3(X,'CDataMode','auto','FaceColor','interp',...
+%    'Edges',{linspace(-2.2,-2.1,50),linspace(-1000,1000,50)})
+% xlabel('x [R_G]')
+% ylabel('uz')
+% colorbar
+% %view(2)
+% set(gca,'FontSize',16,'LineWidth',1.1)
+% 
+% figure;
+% X = [x',ux'];
+% %hist3(X,'CdataMode','auto')
+% hist3(X,[50 50],'CDataMode','auto','FaceColor','interp')
+% xlabel('x [R_G]')
+% ylabel('ux')
+% colorbar
+% %view(2)
+% set(gca,'FontSize',16,'LineWidth',1.1)
+% 
+% figure;
+% X = [x',uy'];
+% %hist3(X,'CdataMode','auto')
+% hist3(X,[50 50],'CDataMode','auto','FaceColor','interp')
+% xlabel('x [R_G]')
+% ylabel('uy')
+% colorbar
+% %view(2)
+% set(gca,'FontSize',16,'LineWidth',1.1)

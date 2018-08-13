@@ -28,12 +28,7 @@ for ipict=1:npict
          'verbose',false);
 
    data = data.file1;
-%    x = data.x(:,:,:,1); x = permute(x,[2 1 3]);
-%    y = data.x(:,:,:,2); y = permute(y,[2 1 3]);
-%    z = data.x(:,:,:,3); z = permute(z,[2 1 3]);
-   ux = data.w(:,:,:,ux_); ux = permute(ux,[2 1 3]);
-   uy = data.w(:,:,:,uy_); uy = permute(uy,[2 1 3]);
-   uz = data.w(:,:,:,uz_); uz = permute(uz,[2 1 3]);
+   uxyz = squeeze(data.w(:,:,:,1:3));
    
    % Velocity space plot
    
@@ -42,18 +37,15 @@ for ipict=1:npict
    
    % v_perp .vs. v_par phase space plot
    % approximation: v_par = v_z, v_perp = sqrt(v_x^2 + v_y^2)
-   uPar = Inf(numel(ux),1); uPerp1 = Inf(numel(ux),1); uPerp2 = uPerp1;
-   dPar = [dBx dBy dBz]; % Parallel direction
-   dPerp1 = cross([0 -1 0],dPar); % Perpendicular direction in-plane
+   dPar = [dBx; dBy; dBz]; % Parallel direction
+   dPerp1 = cross([0 -1 0]',dPar); % Perpendicular direction in-plane
    dPerp2 = cross(dPar,dPerp1); % Perpendicular direction out-of-plane
-   for i=1:numel(ux)
-      uPar(i) = dot(dPar,[ux(i) uy(i) uz(i)]);
-      %uPerp(i)= sqrt(ux(i)*ux(i) + uy(i)*uy(i) + uz(i)*uz(i) - ...
-      %   uPar(i)^2);
-      uPerp1(i) = dot(dPerp1,[ux(i) uy(i) uz(i)]);
-      uPerp2(i) = dot(dPerp2,[ux(i) uy(i) uz(i)]);
-   end
    
+   uPar = uxyz*dPar;
+   uPerp1 = uxyz*dPerp1;
+   uPerp2 = uxyz*dPerp2;
+   
+
    figure(1); subplot(2,2,ipict);
    h = histogram2(uPerp1/cAlfven,uPerp2/cAlfven);
    h.XBinLimits = [-4,4];

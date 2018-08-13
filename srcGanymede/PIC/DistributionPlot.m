@@ -6,7 +6,7 @@ clear; clc; %close all
 %% Read data
 cLight = 4000;
 cAlfven = 253;
-Dir = '~/Ganymede/MOP2018/runG8_PIC_1200s/Particles/';
+Dir = '~/Documents/research/Ganymede/data/DistPlotTest';
 fnameParticle = 'cut_particles1_region0_2_t00000040_n00001200.out';
 fnameField = '3d_fluid_region0_0_t00000040_n00001200.out';
 
@@ -73,12 +73,20 @@ uz = data.file1.w(:,:,:,uz_); uz = permute(uz,[2 1 3]);
 % Assume the cut region is small enough s.t. it can be treated as uniform
 [dBx,dBy,dBz,limits] = GetMeanField(Dir,fnameParticle,fnameField);
 
-% v_perp .vs. v_par phase space plot
+% if not, use interpolation method
+%[dBx,dBy,dBz,limits] = GetInterpField(Dir,fnameParticle,fnameField);
+
+% v_perp vs. v_par phase space plot
 % approximation: v_par = v_z, v_perp = sqrt(v_x^2 + v_y^2)
-uPar = Inf(numel(ux),1); uPerp = Inf(numel(ux),1);
+uPar = Inf(numel(ux),1); uPerp1 = Inf(numel(ux),1); uPerp2 = uPerp1;
+dPar = [dBx dBy dBz]; % Parallel direction
+dPerp1 = cross([0 -1 0],dPar); % Perpendicular direction in-plane
+dPerp2 = cross(dPar,dPerp1); % Perpendicular direction out-of-plane
 for i=1:numel(ux)
-   uPar(i) = dot([dBx dBy dBz],[ux(i) uy(i) uz(i)]);
-   uPerp(i)= norm([ux(i) uy(i) uz(i)] - uPar(i)*[dBx dBy dBz]);
+   uPar(i) = dot(dPar,[ux(i) uy(i) uz(i)]);
+   %uPerp(i)= norm([ux(i) uy(i) uz(i)] - uPar(i)*[dBx dBy dBz]);
+   uPerp1(i) = dot(dPerp1,[ux(i) uy(i) uz(i)]);
+   uPerp2(i) = dot(dPerp2,[ux(i) uy(i) uz(i)]);
 end
 
 
@@ -90,7 +98,7 @@ figure
 % Xedges = [-Inf linspace(-10,10,50) Inf];
 % Yedges = [-Inf linspace(0,15,50) Inf];
 % h = histogram2(uPar/cAlfven,uPerp/cAlfven,Xedges,Yedges);
-h = histogram2(uPar/cAlfven,uPerp/cAlfven);
+h = histogram2(uPar/cAlfven,uPerp1/cAlfven);
 % h.XBinLimits = [-5,5];
 % h.YBinLimits = [0,5];
 h.NumBins = [25 25];

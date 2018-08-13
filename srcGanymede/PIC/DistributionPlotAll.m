@@ -6,11 +6,11 @@ clear;clc;close all
 %% 
 cLight = 4000;
 cAlfven = 253;
-Dir = '~/Ganymede/MOP2018/runG8_PIC_1200s/Particles/';
+Dir = '~/Documents/research/Ganymede/data/DistPlotTest';
 fnameParticle = 'cut_particles0_region0_8_t00000040_n00001200.out';
 fnameField = '3d_fluid_region0_0_t00000040_n00001200.out';
 
-listing = dir(fullfile(Dir,'cut_particles0*'));
+listing = dir(fullfile(Dir,'cut_particles0*t00000040*'));
 npict = numel(listing);
 
 [filehead,~] = read_data(...
@@ -37,20 +37,25 @@ for ipict=1:npict
    
    % Velocity space plot
    
-   [Bx,By,Bz,limits{ipict}] = GetMeanField(Dir,...
+   [dBx,dBy,dBz,limits{ipict}] = GetMeanField(Dir,...
       listing(ipict).name,fnameField);
    
    % v_perp .vs. v_par phase space plot
    % approximation: v_par = v_z, v_perp = sqrt(v_x^2 + v_y^2)
-   uPar = Inf(numel(ux),1); uPerp = Inf(numel(ux),1);
+   uPar = Inf(numel(ux),1); uPerp1 = Inf(numel(ux),1); uPerp2 = uPerp1;
+   dPar = [dBx dBy dBz]; % Parallel direction
+   dPerp1 = cross([0 -1 0],dPar); % Perpendicular direction in-plane
+   dPerp2 = cross(dPar,dPerp1); % Perpendicular direction out-of-plane
    for i=1:numel(ux)
-      uPar(i) = dot([Bx By Bz],[ux(i) uy(i) uz(i)]);
-      uPerp(i)= sqrt(ux(i)*ux(i) + uy(i)*uy(i) + uz(i)*uz(i) - ...
-         uPar(i)^2);
+      uPar(i) = dot(dPar,[ux(i) uy(i) uz(i)]);
+      %uPerp(i)= sqrt(ux(i)*ux(i) + uy(i)*uy(i) + uz(i)*uz(i) - ...
+      %   uPar(i)^2);
+      uPerp1(i) = dot(dPerp1,[ux(i) uy(i) uz(i)]);
+      uPerp2(i) = dot(dPerp2,[ux(i) uy(i) uz(i)]);
    end
    
    figure
-   h = histogram2(uPar/cAlfven,uPerp/cAlfven);
+   h = histogram2(uPar/cAlfven,uPerp1/cAlfven);
    h.XBinLimits = [-5,5];
    h.YBinLimits = [0,5];
    h.NumBins = [25 25];
@@ -87,10 +92,10 @@ func_ = strcmpi(func,filehead.wnames);
 Bx = data.file1.w(:,:,:,func_);
 Bx = permute(Bx,[2 1 3]);
 
-func = 'Uzs0'; 
+func = 'Uxs0'; 
 func_ = strcmpi(func,filehead.wnames);
-Uzx = data.file1.w(:,:,:,func_);
-Uzx = permute(Uzx,[2 1 3]);
+Uex = data.file1.w(:,:,:,func_);
+Uex = permute(Uex,[2 1 3]);
 
 func = 'Bz'; 
 func_ = strcmpi(func,filehead.wnames);
@@ -100,17 +105,17 @@ Bz = permute(Bz,[2 1 3]);
 cut1 = squeeze(x(PlaneIndex,:,:));
 cut2 = squeeze(z(PlaneIndex,:,:));
 Bx    = squeeze(Bx(PlaneIndex,:,:));
-Uzx    = squeeze(Uzx(PlaneIndex,:,:));
+Uex    = squeeze(Uex(PlaneIndex,:,:));
 Bz    = squeeze(Bz(PlaneIndex,:,:));
 [~, ~, Bx] = subsurface(cut1, cut2, Bx, plotrange);
-[~, ~, Uzx] = subsurface(cut1, cut2, Uzx, plotrange);
+[~, ~, Uex] = subsurface(cut1, cut2, Uex, plotrange);
 [cut1, cut2, Bz] = subsurface(cut1, cut2, Bz, plotrange);
 
 figure(npict+1)
-contourf(cut1,cut2,Uzx,50,'Linestyle','none');
+contourf(cut1,cut2,Uex,50,'Linestyle','none');
 colorbar; axis equal; 
 xlabel('x [R_G]'); ylabel('z [R_G]');
-title('Uzx');
+title('Uex');
 set(gca,'FontSize',14,'LineWidth',1.2)
 hold on
 % streamline function requires the meshgrid format strictly

@@ -21,10 +21,6 @@ ux_ = strcmpi('ux',filehead.wnames);
 uy_ = strcmpi('uy',filehead.wnames);
 uz_ = strcmpi('uz',filehead.wnames);
 
-ux = data.w(:,:,:,ux_);
-uy = data.w(:,:,:,uy_);
-uz = data.w(:,:,:,uz_);
-
 uIndex_ = [find(ux_) find(uy_) find(uz_)];
 
 uxyz = squeeze(data.w(:,:,:,uIndex_));

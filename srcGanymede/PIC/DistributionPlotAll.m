@@ -28,9 +28,6 @@ for ipict=1:npict
          'verbose',false);
 
    data = data.file1;
-%    x = data.x(:,:,:,1);
-%    y = data.x(:,:,:,2);
-%    z = data.x(:,:,:,3);
    uxyz = squeeze(data.w(:,:,:,1:3));
    
    % Velocity space plot

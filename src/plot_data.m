@@ -64,6 +64,7 @@ defaultplotrange = [];
 defaultplotinterval = 1;
 defaultmultifigure = 1;
 defaultcut = '';
+defaultstreamdensity = 1;
 
 addRequired(p,'data',@isstruct);
 addRequired(p,'filehead',@isstruct);
@@ -74,6 +75,7 @@ addParameter(p,'plotmode',defaultplotmode,@ischar);
 addParameter(p,'multifigure',defaultmultifigure,@islogical);
 addParameter(p,'cut',defaultcut,@ischar);
 addParameter(p,'CutPlaneIndex',[],@isnumeric);
+addParameter(p,'streamdensity',defaultstreamdensity,@isnumeric);
 
 parse(p,varargin{:});
 
@@ -88,6 +90,7 @@ plotinterval  = p.Results.plotinterval;
 multifigure   = p.Results.multifigure;
 cut           = p.Results.cut; 
 CutPlaneIndex = p.Results.CutPlaneIndex;
+streamdensity = p.Results.streamdensity;
 filehead      = p.Results.filehead;
 data          = p.Results.data;
 x = data.x; w = data.w;
@@ -302,7 +305,7 @@ for ivar = 1:numel(func)
          end
          
          % Modify the density of streamlines if needed
-         s = streamslice(xq,yq,v1,v2,1,'linear');
+         s = streamslice(xq,yq,v1,v2,streamdensity,'linear');
          
          for is=1:numel(s)
             s(is).Color = 'w'; % Change streamline color to white

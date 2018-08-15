@@ -216,9 +216,9 @@ for ivar = 1:numel(func)
             case 'contf'
                contourf(xq,yq,vq,20,'Edgecolor','none');
             case 'contlog'
-               contourf(xq,yq,log(vq),20,'Edgecolor','none');
+               contourf(xq,yq,log10(vq),20,'Edgecolor','none');
             case 'contbarlog'
-               contourf(xq,yq,log(vq),20,'Edgecolor','none');
+               contourf(xq,yq,log10(vq),20,'Edgecolor','none');
                c = colorbar;
                c.Label.String = 'log10';
             case 'meshbar'
@@ -226,7 +226,7 @@ for ivar = 1:numel(func)
             case 'mesh'
                mesh(xq,yq,vq);
             case 'meshbarlog'
-               mesh(xq,yq,log(vq)); c= colorbar;
+               mesh(xq,yq,log10(vq)); c= colorbar;
                c.Label.String = 'log10';
          end       
          

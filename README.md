@@ -1,9 +1,9 @@
 # VisAna
-Scripts and functions for reading, visualizing and analyzing simulation data
+Scripts and functions for reading, visualizing and analyzing simulation data.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+This project contains the reader for all kinds of output data from SWMF. It also contains the series of analysis on Ganymede simulations.
 
 ### Prerequisites
 

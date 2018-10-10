@@ -7,7 +7,7 @@ clear; clc; %close all
 cAlfven = 253;
 PlotVType = 2; % 1: v_par vs. v_perp1 2: v_perp1 vs. v_perp2
 Dir = '~/Ganymede/MOP2018/runG8_PIC_1200s/Particles';
-fnameParticle = 'cut_particles0_region0_1_t00000710_n00012900.out';
+fnameParticle = 'cut_particles1_region0_2_t00000710_n00012900.out';
 fnameField = '3d_fluid_region0_0_t00000710_n00012900.out';
 
 %% Read data
@@ -31,15 +31,15 @@ uz = data.w(:,:,:,uz_);
 
 %% Classify particles based on locations
 Region = cell(4,1);
-% Region{1} = [-2.08 -2.01 -0.05 0.05 0 0.11];
-% Region{2} = [-1.81 -1.72 -0.08 0.08 0 0.11];
-% Region{3} = [-1.95 -1.89 -0.08 0.08 -0.14 -0.04];
-% Region{4} = [-1.86 -1.80 -0.08 0.08 0.36 0.45];
+Region{1} = [-2.08 -2.01 -0.05 0.05 0 0.11];
+Region{2} = [-1.81 -1.72 -0.08 0.08 0 0.11];
+Region{3} = [-1.95 -1.89 -0.08 0.08 -0.14 -0.04];
+Region{4} = [-1.86 -1.80 -0.08 0.08 0.36 0.45];
 
-Region{1} = [-1.78 -1.75 -0.08 0.08 -0.02 0.11];
-Region{2} = [-1.83 -1.75 -0.08 0.08 -0.02 0.11];
-Region{3} = [-1.85 -1.83 -0.08 0.08 -0.02 0.11];
-Region{4} = [-1.90 -1.85 -0.08 0.08 -0.02 0.11];
+% Region{1} = [-1.78 -1.75 -0.08 0.08 -0.02 0.22];
+% Region{2} = [-1.83 -1.75 -0.08 0.08 -0.02 0.22];
+% Region{3} = [-1.85 -1.83 -0.08 0.08 -0.02 0.22];
+% Region{4} = [-1.90 -1.875 -0.08 0.08 -0.15 0.3];
 
 particle = cell(4,1);
 particle{1} = [];
@@ -95,8 +95,8 @@ for ipict=1:4
    else
       error('Unknown PlotVType!')
    end
-   h.XBinLimits = [-3,3];
-   h.YBinLimits = [-3,3];
+   h.XBinLimits = [-2,2];
+   h.YBinLimits = [-2,2];
    h.NumBins = [30 30];
    h.Normalization = 'probability';
    h.FaceColor = 'flat';
@@ -136,10 +136,10 @@ func_ = strcmpi(func,filehead.wnames);
 Bx = data.file1.w(:,:,:,func_);
 Bx = permute(Bx,[2 1 3]);
 
-func = 'Ex'; 
+func = 'Ey'; 
 func_ = strcmpi(func,filehead.wnames);
-Ex = data.file1.w(:,:,:,func_);
-Ex = permute(Ex,[2 1 3]);
+Ey = data.file1.w(:,:,:,func_);
+Ey = permute(Ey,[2 1 3]);
 
 func = 'Bz'; 
 func_ = strcmpi(func,filehead.wnames);
@@ -149,21 +149,21 @@ Bz = permute(Bz,[2 1 3]);
 cut1 = squeeze(x(PlaneIndex,:,:));
 cut2 = squeeze(z(PlaneIndex,:,:));
 Bx    = squeeze(Bx(PlaneIndex,:,:));
-Ex    = squeeze(Ex(PlaneIndex,:,:));
+Ey    = squeeze(Ey(PlaneIndex,:,:));
 Bz    = squeeze(Bz(PlaneIndex,:,:));
 [~, ~, Bx] = subsurface(cut1, cut2, Bx, plotrange);
-[~, ~, Ex] = subsurface(cut1, cut2, Ex, plotrange);
+[~, ~, Ey] = subsurface(cut1, cut2, Ey, plotrange);
 [cut1, cut2, Bz] = subsurface(cut1, cut2, Bz, plotrange);
 
 figure(2)
-contourf(cut1,cut2,Ex,50,'Linestyle','none');
+contourf(cut1,cut2,Ey,50,'Linestyle','none');
 colorbar; axis equal; 
 xlabel('x [R_G]'); ylabel('z [R_G]');
 title('Ex');
 set(gca,'FontSize',14,'LineWidth',1.2)
 hold on
 % streamline function requires the meshgrid format strictly
-s = streamslice(cut1',cut2',Bx',Bz',2,'linear');
+s = streamslice(cut1',cut2',Bx',Bz',5,'linear');
 for is=1:numel(s)
    s(is).Color = 'w'; % Change streamline color to white
    s(is).LineWidth = 1.5;

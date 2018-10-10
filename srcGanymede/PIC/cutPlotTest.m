@@ -3,7 +3,7 @@
 %
 % Hongyang Zhou, hyzhou@umich.edu 03/21/2018
 
-clear;clc; close all
+%clear;clc; close all
 %% Example using plot_data
 % The cut plot is now incorporated into the plot_data function:
 % filename='~/Documents/research/Ganymede/data/3d_fluid.out';
@@ -16,7 +16,7 @@ clear;clc; close all
 
 %filename='~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
 %ipict = 132;
-filename='~/Documents/research/Ganymede/data/3d_fluid.out';
+filename='~/Ganymede/MOP2018/runG8_PIC_1200s/PC/3d_var_region0_0_t00000429_n00008099.out';
 ipict = 1;
 
 % Estimation of Alfven velocity
@@ -26,8 +26,8 @@ VA = 253; %[km/s]
 
 % Choose your cut
 cut = 'y'; PlaneIndex = 64;
-plotrange = [-2.1 -1.7 -1. 1.];
-%plotrange = [nan nan nan nan];
+%plotrange = [-2.1 -1.7 -1. 1.];
+plotrange = [nan nan nan nan];
 
 x = data.file1.x(:,:,:,1);
 y = data.file1.x(:,:,:,2);
@@ -45,10 +45,10 @@ func_ = strcmpi(func,filehead.wnames);
 Bx = data.file1.w(:,:,:,func_);
 Bx = permute(Bx,[2 1 3]);
 
-func = 'By'; 
+func = 'Ex'; 
 func_ = strcmpi(func,filehead.wnames);
-By = data.file1.w(:,:,:,func_);
-By = permute(By,[2 1 3]);
+Ex = data.file1.w(:,:,:,func_);
+Ex = permute(Ex,[2 1 3]);
 
 func = 'Bz'; 
 func_ = strcmpi(func,filehead.wnames);
@@ -58,27 +58,31 @@ Bz = permute(Bz,[2 1 3]);
 cut1 = squeeze(x(PlaneIndex,:,:));
 cut2 = squeeze(z(PlaneIndex,:,:));
 Bx    = squeeze(Bx(PlaneIndex,:,:));
-By    = squeeze(By(PlaneIndex,:,:));
+Ex    = squeeze(Ex(PlaneIndex,:,:));
 Bz    = squeeze(Bz(PlaneIndex,:,:));
 [~, ~, Bx] = subsurface(cut1, cut2, Bx, plotrange);
-[~, ~, By] = subsurface(cut1, cut2, By, plotrange);
+[~, ~, Ex] = subsurface(cut1, cut2, Ex, plotrange);
 [cut1, cut2, Bz] = subsurface(cut1, cut2, Bz, plotrange);
 
 figure;
-contourf(cut1,cut2,By,50,'Linestyle','none');
+contourf(cut1,cut2,Ex,50,'Linestyle','none');
 colorbar; axis equal; 
 xlabel('x [R_G]'); ylabel('z [R_G]');
-title('By [nT]');
-set(gca,'FontSize',14,'LineWidth',1.2)
+title('Ex [$\mu V/m$]','Interpreter','latex');
+set(gca,'FontSize',16,'LineWidth',1.1)
+set(gcf,'Position',[1 1 430 800]); caxis([-6.754e4 4.44e4])
 hold on
 % streamline function requires the meshgrid format strictly
-s = streamslice(cut1',cut2',Bx',Bz',1,'linear');
+s = streamslice(cut1',cut2',Bx',Bz',2,'linear');
 for is=1:numel(s)
    s(is).Color = 'w'; % Change streamline color to white
    s(is).LineWidth = 1.5;
 end
-%quiver(cut1,cut2,Bx,Bz)
-%streamline(cut1,cut2,Bx,Bz,-2,2)
+
+% rectangle('Position',[limits(1) limits(5) ...
+%    limits(2)-limits(1) limits(6)-limits(5)])
+
+
 %%
 
 func = 'Bx'; 
@@ -88,8 +92,8 @@ Bx = permute(Bx,[2 1 3]);
 
 func = 'By'; 
 func_ = strcmpi(func,filehead.wnames);
-By = data.file1.w(:,:,:,func_);
-By = permute(By,[2 1 3]);
+Ex = data.file1.w(:,:,:,func_);
+Ex = permute(Ex,[2 1 3]);
 
 func = 'Bz'; 
 func_ = strcmpi(func,filehead.wnames);
@@ -98,14 +102,14 @@ Bz = permute(Bz,[2 1 3]);
    
 figure;
 hold on
-s = streamslice(x,y,z,Bx,By,Bz,[],0,[]);
+s = streamslice(x,y,z,Bx,Ex,Bz,[],0,[]);
 for is=1:numel(s)
    s(is).Color = 'k'; % Change streamline color to white
    s(is).LineWidth = 1.5;
 end
 view(3); axis equal
 
-c = contourslice(x,y,z,By,[],0,[]);
+c = contourslice(x,y,z,Ex,[],0,[]);
 colorbar
 
 % Modify the density of streamlines if needed

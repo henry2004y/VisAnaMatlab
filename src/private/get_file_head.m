@@ -89,15 +89,15 @@ switch ftype
       fseek(fileID,8,'cof'); % skip record end/start tags.
       if head.neqpar > 0
          head.eqpar = fread(fileID,head.neqpar,'*float');
+         fseek(fileID,8,'cof'); % skip record end/start tags.
       end
-      fseek(fileID,8,'cof'); % skip record end/start tags.
       varname = fread(fileID,lenstr,'*char')';
       fseek(fileID,4,'cof'); % skip record end tag.
 end
 
 %Header length
 pointer1 = ftell(fileID);
-headlen = pointer1-pointer0;
+headlen = pointer1 - pointer0;
 
 % Calculate the snapshot size = header + data + recordmarks
 nxs = prod(head.nx);
@@ -108,7 +108,7 @@ switch ftype
    case 'ascii'
       pictsize = headlen + (18*(head.ndim+head.nw)+1)*nxs;
    case 'binary'
-      pictsize = headlen + 8*(1+head.nw)+8*(head.ndim+head.nw)*nxs;
+      pictsize = headlen + 8*(1+head.nw) + 8*(head.ndim+head.nw)*nxs;
    case 'real4'
       pictsize = headlen + 8*(1+head.nw) + 4*(head.ndim+head.nw)*nxs;
 end
@@ -118,7 +118,7 @@ if nargout>1
    %head.variables = strsplit(varname); % returns a cell array
    head.variables = split(varname);     % returns a string array
       
-   if ftype == 'real4' | ftype == 'binary'
+   if ftype == 'real4' || ftype == 'binary'
       % remove the last null string
       head.variables = head.variables(1:end-1);
    end

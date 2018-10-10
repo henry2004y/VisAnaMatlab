@@ -1,6 +1,6 @@
 % Pitch angle calculation
 %
-% Hongyang Zhou, hyzhou@umich.edu 07/27/2018
+% Hongyang Zhou, hyzhou@umich.edu 10/10/2018
 
 clear; clc; %close all
 %% Read data
@@ -10,12 +10,13 @@ Dir = '~/Ganymede/MOP2018/runG8_PIC_1200s/EnergeticFlux';
 fnameParticle = 'cut_particles0_region0_1_t00000557_n00010710.out';
 fnameField = '3d_fluid_region0_0_t00000557_n00010710.out';
 
-[filehead,data,list] = read_data(fullfile(Dir,fnameParticle));
+% Particle data
+[filehead,data] = read_data(fullfile(Dir,fnameParticle));
 data = data.file1;
 
-x = squeeze(data.x(:,:,:,1));
-y = squeeze(data.x(:,:,:,2));
-z = squeeze(data.x(:,:,:,3));
+xP = squeeze(data.x(:,:,:,1));
+yP = squeeze(data.x(:,:,:,2));
+zP = squeeze(data.x(:,:,:,3));
 
 ux_ = strcmpi('ux',filehead.wnames);
 uy_ = strcmpi('uy',filehead.wnames);
@@ -31,19 +32,124 @@ uz = data.w(:,:,:,uz_);
 
 weight = squeeze(data.w(:,:,:,w_));
 
+% Field data
+[filehead,data] = read_data(fullfile(Dir,fnameField));
+
+data = data.file1;
+
+ne_ = strcmpi('ns0',filehead.wnames);
+ni_ = strcmpi('ni0',filehead.wnames);
+bx_ = strcmpi('bx',filehead.wnames);
+by_ = strcmpi('by',filehead.wnames);
+bz_ = strcmpi('bz',filehead.wnames);
+
+
+
+xF = data.x(:,:,:,1);       % [Rg]
+yF = data.x(:,:,:,2);       % [Rg]
+zF = data.x(:,:,:,3);       % [Rg]
+ne = data.w(:,:,:,ne_)*1e6;    % [#/m^3]
+ni = data.w(:,:,:,ni_)*1e6/14; % [#/m^3] 
+Bx = data.w(:,:,:,bx_);      % [nT]
+By = data.w(:,:,:,by_);
+Bz = data.w(:,:,:,bz_);
+% Ex = data.w(:,:,:,6)*1e-3; % [mV/m]
+% Ey = data.w(:,:,:,7)*1e-3; % [mV/m]
+% Ez = data.w(:,:,:,8)*1e-3; % [mV/m]
+
+% The original data is saved in ndgrid format. For streamline and
+% isonormals functions, the input should be in meshgrid format.
+% xF  = permute(x,[2 1 3]);
+
 %% Pitch angle calculation
 
-Region = [-1.2 -1 -2 2 1 2];
-particle = [];
+[nP,angle,B_P] = get_pitch_angle(xP,yP,zP,xF,yF,zF,Bx,By,Bz);
 
-for ipar=1:numel(x)
-   if x(ipar)>=Region(1) && x(ipar)<=Region(2) && ...
-      y(ipar)>=Region(3) && y(ipar)<=Region(4) && ...
-      z(ipar)>=Region(5) && z(ipar)<=Region(6)
-      particle = [particle; ux(ipar) uy(ipar) uz(ipar)];
+Region = [-1.2 -1.125 -2 2 1 2];
+ncountmax = 1071080;
+particle = Inf(6,ncountmax);
+
+nP = 0;
+for iP=1:numel(xP)
+   if xP(iP) >= Region(1) && xP(iP) <= Region(2) && ...
+      yP(iP) >= Region(3) && yP(iP) <= Region(4) && ...
+      zP(iP) >= Region(5) && zP(iP) <= Region(6)
+      %particle = [particle; ux(ipar) uy(ipar) uz(ipar)];
+      nP = nP + 1;
+      particle(:,nP) = [xP(iP) yP(iP) zP(iP) ...
+         ux(iP) uy(iP) uz(iP)]';
    end
 end
 
+angle = Inf(nP,1);
+
+% Get pitch angle for each particle 
+Fx = griddedInterpolant(xF,yF,zF,Bx);
+Fy = griddedInterpolant(xF,yF,zF,By);
+Fz = griddedInterpolant(xF,yF,zF,Bz);
+
+Bx_P = Inf(nP,1); By_P = Inf(nP,1); Bz_P = Inf(nP,1);
+for iP=1:nP
+   Bx_P(iP) = Fx(particle(1,iP),particle(2,iP),particle(3,iP));
+   By_P(iP) = Fy(particle(1,iP),particle(2,iP),particle(3,iP));
+   Bz_P(iP) = Fz(particle(1,iP),particle(2,iP),particle(3,iP));
+   
+   B = [Bx_P(iP) By_P(iP) Bz_P(iP)]; 
+   U = [particle(4,iP) particle(5,iP) particle(6,iP)];
+   
+   angle(iP) = atan2d(norm(cross(B,U)),dot(B,U));   
+end
+
+% B Strength at particle positions
+B_P = sqrt(Bx_P.^2 + By_P.^2 + Bz_P.^2);
+
+%% Loss cone 
+
+fnameGM = 'box_var_2_t00000557_n00250489.out';
+% Particle data
+[filehead,data] = read_data(fullfile(Dir,fnameGM));
+data = data.file1;
+
+status_ = strcmpi('status',filehead.wnames);
+theta1_ = strcmpi('theta1',filehead.wnames);
+phi1_ = strcmpi('phi1',filehead.wnames);
+theta2_ = strcmpi('theta2',filehead.wnames);
+phi2_ = strcmpi('phi2',filehead.wnames);
+
+xGM = data.x(:,:,:,1);       % [Rg]
+yGM = data.x(:,:,:,2);       % [Rg]
+zGM = data.x(:,:,:,3);       % [Rg]
+
+theta1 = data.w(:,:,:,theta1_);
+phi1 = data.w(:,:,:,phi1_);
+
+Ftheta1 = griddedInterpolant(xGM,yGM,zGM,theta1);
+Fphi1 = griddedInterpolant(xGM,yGM,zGM,phi1);
+
+
+[FBxSurf,FBySurf,FBzSurf] = get_Bsurface(true);
+
+BxSurf = Inf(nP,1); BySurf = Inf(nP,1); BzSurf = Inf(nP,1);
+% Find Bsurface for each particle position that the field connects to
+for iP=1:nP
+   % Find theta1, phi1 for each particle
+   theta1_p = Ftheta1(particle(1,iP),particle(2,iP),particle(3,iP));
+   phi1_p = Fphi1(particle(1,iP),particle(2,iP),particle(3,iP));
+   
+   BxSurf(iP) = FBxSurf(phi1_p,theta1_p);
+   BySurf(iP) = FBySurf(phi1_p,theta1_p);
+   BzSurf(iP) = FBzSurf(phi1_p,theta1_p);
+end
+
+return
+% Find B at the particle positions
+
+
+
+% Mirror ratios
+r_mirror = Bsurface / Bpar;
+
+theta_loss = asin(1./sqrt(r_mirror));
 
 
 return

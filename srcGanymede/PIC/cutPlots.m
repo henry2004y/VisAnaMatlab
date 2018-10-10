@@ -241,6 +241,35 @@ xlabel('x [R_G]'); ylabel('z [R_G]');
 title('(c) P_{i} [nPa]');
 set(gca,'FontSize',14,'LineWidth',1.2)
 
+%%
+func = 'Bz'; 
+func_ = strcmpi(func,filehead.wnames);
+
+w = data.file1.w(:,:,:,func_);
+w = permute(w,[2 1 3]);
+
+switch cut
+   case 'x'
+      cut1 = squeeze(y(:,PlaneIndex,:));
+      cut2 = squeeze(z(:,PlaneIndex,:));
+      w    = squeeze(w(:,PlaneIndex,:));      
+   case 'y'
+      cut1 = squeeze(x(PlaneIndex,:,:));
+      cut2 = squeeze(z(PlaneIndex,:,:));
+      w    = squeeze(w(PlaneIndex,:,:));
+      [cut1, cut2, w] = subsurface(cut1, cut2, w, plotrange);
+   case 'z'
+      cut1 = squeeze(x(:,:,PlaneIndex));
+      cut2 = squeeze(y(:,:,PlaneIndex));
+      w    = squeeze(w(:,:,PlaneIndex));      
+end
+
+figure;
+contourf(cut1,cut2,w,50,'Linestyle','none');
+colorbar; axis equal; 
+xlabel('x [R_G]'); ylabel('z [R_G]');
+title('Bz');
+set(gca,'FontSize',14,'LineWidth',1.2)
 
 %%
 

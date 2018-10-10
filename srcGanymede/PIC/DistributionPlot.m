@@ -6,7 +6,7 @@ clear; clc; %close all
 %% Read data
 cLight = 4000;
 cAlfven = 253;
-Dir = '~/Documents/research/Ganymede/data/DistPlotTest';
+Dir = '~/Ganymede/MOP2018/runG8_PIC_1200s/Particles';
 fnameParticle = 'cut_particles0_region0_1_t00000710_n00012900.out';
 fnameField = '3d_fluid_region0_0_t00000710_n00012900.out';
 
@@ -87,8 +87,20 @@ Bx = permute(Bx,[2 1 3]);
 
 func = 'Uxs1'; 
 func_ = strcmpi(func,filehead.wnames);
-Uix = data.file1.w(:,:,:,func_);
-Uix = permute(Uix,[2 1 3]);
+uxs1 = data.file1.w(:,:,:,func_);
+uxs1 = permute(uxs1,[2 1 3]);
+
+func = 'Uys1'; 
+func_ = strcmpi(func,filehead.wnames);
+uys1 = data.file1.w(:,:,:,func_);
+uys1 = permute(uys1,[2 1 3]);
+
+func = 'Uzs1'; 
+func_ = strcmpi(func,filehead.wnames);
+uzs1 = data.file1.w(:,:,:,func_);
+uzs1 = permute(uzs1,[2 1 3]);
+
+us1 = sqrt(uxs1.^2 + uys1.^2 + uzs1.^2);
 
 func = 'Bz'; 
 func_ = strcmpi(func,filehead.wnames);
@@ -98,21 +110,23 @@ Bz = permute(Bz,[2 1 3]);
 cut1 = squeeze(x(PlaneIndex,:,:));
 cut2 = squeeze(z(PlaneIndex,:,:));
 Bx    = squeeze(Bx(PlaneIndex,:,:));
-Uix    = squeeze(Uix(PlaneIndex,:,:));
+%uxs1    = squeeze(uxs1(PlaneIndex,:,:));
+us1    = squeeze(us1(PlaneIndex,:,:));
 Bz    = squeeze(Bz(PlaneIndex,:,:));
 [~, ~, Bx] = subsurface(cut1, cut2, Bx, plotrange);
-[~, ~, Uix] = subsurface(cut1, cut2, Uix, plotrange);
+%[~, ~, uxs1] = subsurface(cut1, cut2, uxs1, plotrange);
+[~, ~, us1] = subsurface(cut1, cut2, us1, plotrange);
 [cut1, cut2, Bz] = subsurface(cut1, cut2, Bz, plotrange);
 
 figure
-contourf(cut1,cut2,Uix,50,'Linestyle','none');
+contourf(cut1,cut2,us1,50,'Linestyle','none');
 colorbar; axis equal; 
 xlabel('x [R_G]'); ylabel('z [R_G]');
-title('Uix');
+title('Ui');
 set(gca,'FontSize',14,'LineWidth',1.2)
 hold on
 % streamline function requires the meshgrid format strictly
-s = streamslice(cut1',cut2',Bx',Bz',1,'linear');
+s = streamslice(cut1',cut2',Bx',Bz',2,'linear');
 for is=1:numel(s)
    s(is).Color = 'w'; % Change streamline color to white
    s(is).LineWidth = 1.5;

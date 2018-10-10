@@ -84,10 +84,10 @@ func_ = strcmpi(func,filehead.wnames);
 Bx = data.file1.w(:,:,:,func_);
 Bx = permute(Bx,[2 1 3]);
 
-func = 'Uxs0'; 
+func = 'Uzs0'; 
 func_ = strcmpi(func,filehead.wnames);
-Uex = data.file1.w(:,:,:,func_);
-Uex = permute(Uex,[2 1 3]);
+Uez = data.file1.w(:,:,:,func_);
+Uez = permute(Uez,[2 1 3]);
 
 func = 'Bz'; 
 func_ = strcmpi(func,filehead.wnames);
@@ -97,21 +97,21 @@ Bz = permute(Bz,[2 1 3]);
 cut1 = squeeze(x(PlaneIndex,:,:));
 cut2 = squeeze(z(PlaneIndex,:,:));
 Bx    = squeeze(Bx(PlaneIndex,:,:));
-Uex    = squeeze(Uex(PlaneIndex,:,:));
+Uez    = squeeze(Uez(PlaneIndex,:,:));
 Bz    = squeeze(Bz(PlaneIndex,:,:));
 [~, ~, Bx] = subsurface(cut1, cut2, Bx, plotrange);
-[~, ~, Uex] = subsurface(cut1, cut2, Uex, plotrange);
+[~, ~, Uez] = subsurface(cut1, cut2, Uez, plotrange);
 [cut1, cut2, Bz] = subsurface(cut1, cut2, Bz, plotrange);
 
 figure(npict+1)
-contourf(cut1,cut2,Uex,50,'Linestyle','none');
+contourf(cut1,cut2,Uez,50,'Linestyle','none');
 colorbar; axis equal; 
 xlabel('x [R_G]'); ylabel('z [R_G]');
-title('Uex');
+title('Uez');
 set(gca,'FontSize',14,'LineWidth',1.2)
 hold on
 % streamline function requires the meshgrid format strictly
-s = streamslice(cut1',cut2',Bx',Bz',1,'linear');
+s = streamslice(cut1',cut2',Bx',Bz',2,'linear');
 for is=1:numel(s)
    s(is).Color = 'w'; % Change streamline color to white
    s(is).LineWidth = 1.5;

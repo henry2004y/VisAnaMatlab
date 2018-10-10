@@ -91,10 +91,8 @@ switch ftype
          head.eqpar = fread(fileID,head.neqpar,'*float');
          fseek(fileID,8,'cof'); % skip record end/start tags.
       end
-      ftell(fileID)
       varname = fread(fileID,lenstr,'*char')';
       fseek(fileID,4,'cof'); % skip record end tag.
-      ftell(fileID)
 end
 
 %Header length

@@ -8,10 +8,10 @@ function [Fx,Fy,Fz] = get_Bsurface(DoPlot)
 % Fx,Fy,Fz: griddedinterpolant of B field on the 2D surface
 
 
-Dir = '~/Ganymede/MOP2018/runG8_PIC_1200s/EnergeticFlux';
+Dir = '~/Documents/research/Ganymede/data/EnergeticFlux';
 fname = 'shl_var_1_t00000557_n00250489.out';
 
-[filehead,data] = read_data(fullfile(Dir,fname));
+[filehead,data] = read_data(fullfile(Dir,fname),'verbose',false);
 data = data.file1;
 
 r = data.x(2,1,1,1); % cut radius [Rg]

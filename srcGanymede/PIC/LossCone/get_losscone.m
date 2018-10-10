@@ -7,10 +7,10 @@ function [particle] = get_losscone(particle,angle,B_P,nP)
 %OUTPUTS
 %
 
-Dir = '~/Ganymede/MOP2018/runG8_PIC_1200s/EnergeticFlux';
+Dir = '~/Documents/research/Ganymede/data/EnergeticFlux';
 fnameGM = 'box_var_2_t00000557_n00250489.out';
 % Particle data
-[filehead,data] = read_data(fullfile(Dir,fnameGM));
+[filehead,data] = read_data(fullfile(Dir,fnameGM),'verbose',false);
 data = data.file1;
 
 status_ = strcmpi('status',filehead.wnames);
@@ -49,7 +49,15 @@ Bsurf = sqrt(BxSurf.^2 + BySurf.^2 + BzSurf.^2);
 % Mirror ratios
 r_mirror = Bsurf ./ B_P;
 
+% loss cone angle
 theta_loss = asind(1./sqrt(r_mirror));
 
+% Particles inside the loss cone
+particle = particle(:,angle<theta_loss);
+
+figure
+histogram(theta_loss)
+xlabel('Loss cone angle [degree]'); ylabel('#');
+set(gca,'FontSize',14);
 
 end

@@ -2,14 +2,16 @@ function [xP,yP,zP,ux,uy,uz,weight] = get_particle
 %GET_PARTICLE Summary of this function goes here
 %   Detailed explanation goes here
 
-cLight = 4000;
-cAlfven = 253;
-Dir = '~/Ganymede/MOP2018/runG8_PIC_1200s/EnergeticFlux';
-fnameParticle = 'cut_particles0_region0_1_t00000557_n00010710.out';
-fnameField = '3d_fluid_region0_0_t00000557_n00010710.out';
+% cLight = 4000;
+% cAlfven = 253;
+Dir = '~/Documents/research/Ganymede/data/EnergeticFlux';
+% Electron
+%fnameParticle = 'cut_particles0_region0_1_t00000557_n00010710.out';
+% Ion
+fnameParticle = 'cut_particles1_region0_2_t00000557_n00010710.out';
 
 % Particle data
-[filehead,data] = read_data(fullfile(Dir,fnameParticle));
+[filehead,data] = read_data(fullfile(Dir,fnameParticle),'verbose',false);
 data = data.file1;
 
 xP = squeeze(data.x(:,:,:,1));

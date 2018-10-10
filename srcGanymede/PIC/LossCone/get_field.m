@@ -2,12 +2,12 @@ function [xF,yF,zF,Bx,By,Bz] = get_field
 %GET_PARTICLE Summary of this function goes here
 %   Detailed explanation goes here
 
-Dir = '~/Ganymede/MOP2018/runG8_PIC_1200s/EnergeticFlux';
+Dir = '~/Documents/research/Ganymede/data/EnergeticFlux';
 
 fnameField = '3d_fluid_region0_0_t00000557_n00010710.out';
 
 % Field data
-[filehead,data] = read_data(fullfile(Dir,fnameField));
+[filehead,data] = read_data(fullfile(Dir,fnameField),'verbose',false);
 
 data = data.file1;
 

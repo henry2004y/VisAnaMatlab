@@ -47,5 +47,9 @@ end
 % B Strength at particle positions
 B_P = sqrt(Bx_P.^2 + By_P.^2 + Bz_P.^2);
 
+% Plot
+figure
+histogram(angle)
+
 
 end

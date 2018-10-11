@@ -7,9 +7,10 @@ function [Fx,Fy,Fz] = get_Bsurface(DoPlot)
 %OUTPUTS
 % Fx,Fy,Fz: griddedinterpolant of B field on the 2D surface
 
+% Set parameters
+Dir = Parameters.Dir;
+fname = Parameters.fnameSurf;
 
-Dir = '~/Documents/research/Ganymede/data/EnergeticFlux';
-fname = 'shl_var_1_t00000557_n00250489.out';
 
 [filehead,data] = read_data(fullfile(Dir,fname),'verbose',false);
 data = data.file1;

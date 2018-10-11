@@ -1,15 +1,17 @@
-function [particle] = get_losscone(particle,angle,B_P,nP)
-%GET_LOSSCONE
+function [particle] = get_losscone(particle,angle,B_P)
+%GET_LOSSCONE Select the particles inside the loss cone
 %
 %INPUTS
-%
+% particle: particle info inside the picked region
+% angle: pitch angles
+% B_P: B field strength at particle locations
 %
 %OUTPUTS
-%
+% particle: particle info inside the loss cone
 
-Dir = '~/Documents/research/Ganymede/data/EnergeticFlux';
-fnameGM = 'box_var_2_t00000557_n00250489.out';
-% Particle data
+Dir = Parameters.Dir;
+fnameGM = Parameters.fnameGM;
+
 [filehead,data] = read_data(fullfile(Dir,fnameGM),'verbose',false);
 data = data.file1;
 
@@ -31,6 +33,7 @@ Fphi1 = griddedInterpolant(xGM,yGM,zGM,phi1);
 
 [FBxSurf,FBySurf,FBzSurf] = get_Bsurface(true);
 
+nP = size(particle,2);
 BxSurf = Inf(nP,1); BySurf = Inf(nP,1); BzSurf = Inf(nP,1);
 % Find Bsurface for each particle position that the field connects to
 for iP=1:nP

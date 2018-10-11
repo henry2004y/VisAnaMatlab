@@ -10,8 +10,9 @@
 % 8. Compute the surface B field strength for each particle
 % 9. Get mirror ratio and loss cone angle for each particle
 % 10.Select particles inside the loss cone.
+% 11.Collect particles in sets of field lines.
 %
-% 11.flux? pressure, bulk velocity
+% 11.Calculate flux from bulk velocity and pressure.
 %
 %
 % Hongyang Zhou, hyzhou@umich.edu 10/10/2018
@@ -19,14 +20,14 @@
 clear; clc; close all
 %%
 
-[xP,yP,zP,ux,uy,uz,weight] = get_particle;
+% Get pitch angles for all particles
+[angle,B_P,particle,weight] = get_pitch_angle;
 
-[xF,yF,zF,Bx,By,Bz] = get_field;
+% Get particles inside the loss cone
+[particle] = get_losscone(particle,angle,B_P);
 
-[nP,angle,B_P,particle] = ...
-   get_pitch_angle(xP,yP,zP,ux,uy,uz,xF,yF,zF,Bx,By,Bz);
-
-[particle] = get_losscone(particle,angle,B_P,nP);
+% Get bulk velocity and pressure
+p =  get_pressure(particle,weight);
 
 %%
 figure

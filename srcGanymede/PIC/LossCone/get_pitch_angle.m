@@ -1,16 +1,20 @@
-function [nP,angle,B_P,particle] = get_pitch_angle(xP,yP,zP,ux,uy,uz,...
-   xF,yF,zF,Bx,By,Bz)
+function [angle,B_P,particle,weight] = get_pitch_angle
 %GET_PITCH_ANGLE
 %
 %INPUTS
 %
 %
 %OUTPUTS
-%
+% angle: pitch angle for each particle
+% B_P: surface B field strength for each particle
+% particle: particle info inside the selected region
+% weight: particle weights 
 
+[xP,yP,zP,ux,uy,uz,weight] = get_particle('ion');
+[xF,yF,zF,Bx,By,Bz] = get_field;
 
-Region = [-1.2 -1.125 -2 2 1 2];
-ncountmax = 1071080;
+Region = Parameters.Region;
+ncountmax = Parameters.ncountmax;
 particle = Inf(6,ncountmax);
 
 nP = 0;
@@ -25,6 +29,7 @@ for iP=1:numel(xP)
    end
 end
 
+particle = particle(:,1:nP);
 angle = Inf(nP,1);
 
 % Get pitch angle for each particle 

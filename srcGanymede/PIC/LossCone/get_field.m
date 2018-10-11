@@ -1,10 +1,15 @@
 function [xF,yF,zF,Bx,By,Bz] = get_field
-%GET_PARTICLE Summary of this function goes here
-%   Detailed explanation goes here
+%GET_FIELD Read B field info from PIC output
+%   
+%INPUT
+%
+%OUTPUT:
+% xF,yF,zF: grid locations
+% Bx,By,Bz: B fields
 
-Dir = '~/Documents/research/Ganymede/data/EnergeticFlux';
-
-fnameField = '3d_fluid_region0_0_t00000557_n00010710.out';
+% Set parameters
+Dir = Parameters.Dir;
+fnameField = Parameters.fnameField;
 
 % Field data
 [filehead,data] = read_data(fullfile(Dir,fnameField),'verbose',false);

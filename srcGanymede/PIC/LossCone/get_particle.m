@@ -1,17 +1,31 @@
-function [xP,yP,zP,ux,uy,uz,weight] = get_particle
-%GET_PARTICLE Summary of this function goes here
-%   Detailed explanation goes here
+function [xP,yP,zP,ux,uy,uz,weight] = get_particle(TypeParticle)
+%GET_PARTICLE Read particle info from PIC output
+%
+%INPUT
+% TypeParticle: character, {'electron','ion'}
+%
+%OUTPUTS:
+% xP,yP,zP: particle positions
+% ux,uy,uz: particle velocities
+% weight  : particle weights
 
-% cLight = 4000;
-% cAlfven = 253;
+
 Dir = '~/Documents/research/Ganymede/data/EnergeticFlux';
-% Electron
-%fnameParticle = 'cut_particles0_region0_1_t00000557_n00010710.out';
-% Ion
-fnameParticle = 'cut_particles1_region0_2_t00000557_n00010710.out';
+switch TypeParticle
+   case 'electron'
+      % Electron
+%       fnameParticle = 'cut_particles0_region0_1_t00000557_n00010710.out';
+      fnameP = Parameters.fnameE;
+   case 'ion'
+      % Ion
+      %fnameParticle = 'cut_particles1_region0_2_t00000557_n00010710.out';
+      fnameP = Parameters.fnameI;
+   otherwise
+      error('unknown particle type!')
+end
 
 % Particle data
-[filehead,data] = read_data(fullfile(Dir,fnameParticle),'verbose',false);
+[filehead,data] = read_data(fullfile(Dir,fnameP),'verbose',false);
 data = data.file1;
 
 xP = squeeze(data.x(:,:,:,1));
@@ -26,9 +40,6 @@ w_  = strcmpi('weight',filehead.wnames);
 ux = data.w(:,:,:,ux_);
 uy = data.w(:,:,:,uy_);
 uz = data.w(:,:,:,uz_);
-
-% uIndex_ = [find(ux_) find(uy_) find(uz_)];
-% uxyz = squeeze(data.w(:,:,:,uIndex_));
 
 weight = squeeze(data.w(:,:,:,w_));
 

@@ -15,7 +15,9 @@ fname = Parameters.fnameSurf;
 [filehead,data] = read_data(fullfile(Dir,fname),'verbose',false);
 data = data.file1;
 
-r = data.x(2,1,1,1); % cut radius [Rg]
+rIndex_ = 1;
+
+r = data.x(rIndex_,1,1,1); % cut radius [Rg]
 lon = data.x(:,:,:,2);
 lat = data.x(:,:,:,3);
 
@@ -30,9 +32,9 @@ Bx = data.w(:,:,:,bx_);      % [nT]
 By = data.w(:,:,:,by_);
 Bz = data.w(:,:,:,bz_);
 
-Bx = squeeze(Bx(2,:,:));
-By = squeeze(By(2,:,:));
-Bz = squeeze(Bz(2,:,:));
+Bx = squeeze(Bx(rIndex_,:,:));
+By = squeeze(By(rIndex_,:,:));
+Bz = squeeze(Bz(rIndex_,:,:));
 
 Fx = griddedInterpolant(lon,lat,Bx);
 Fy = griddedInterpolant(lon,lat,By);

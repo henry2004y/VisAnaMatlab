@@ -4,7 +4,7 @@ classdef Parameters
    % Physical constants
    properties (Constant)
       kb = 1.38064852e-23;
-      m  = 10; % mass
+      m  = 1; % mass
       q  = 1;  % charge
    end
    

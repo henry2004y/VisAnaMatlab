@@ -1,21 +1,22 @@
-function [angle,B_P,particle,weight] = get_pitch_angle
+function [angle,Bx_P,By_P,Bz_P,B_P,particle,weight] = get_pitch_angle
 %GET_PITCH_ANGLE
 %
 %INPUTS
 %
 %
 %OUTPUTS
-% angle: pitch angle for each particle
-% B_P: surface B field strength for each particle
-% particle: particle info inside the selected region
-% weight: particle weights 
+% angle:    pitch angle for each particle, [nP,1]
+% Bx_P,By_P,Bz_P: B field at particle locations, [nP,1]
+% B_P:      B field strength at particle locations, [nP,1]
+% particle: particle info inside the selected region [6,nP]
+% weight:   particle weights,  [nP,1]
 
-[xP,yP,zP,ux,uy,uz,weight] = get_particle('ion');
+[xP,yP,zP,ux,uy,uz,weightP] = get_particle('ion');
 [xF,yF,zF,Bx,By,Bz] = get_field;
 
 Region = Parameters.Region;
 ncountmax = Parameters.ncountmax;
-particle = Inf(6,ncountmax);
+particle = Inf(6,ncountmax); weight = Inf(ncountmax,1);
 
 nP = 0;
 for iP=1:numel(xP)
@@ -26,35 +27,35 @@ for iP=1:numel(xP)
       nP = nP + 1;
       particle(:,nP) = [xP(iP) yP(iP) zP(iP) ...
          ux(iP) uy(iP) uz(iP)]';
+      weight(nP) = weightP(iP);
    end
 end
 
-particle = particle(:,1:nP);
-angle = Inf(nP,1);
+% Cut-off the unused trails
+particle = particle(:,1:nP); 
+weight = weight(1:nP);
 
 % Get pitch angle for each particle 
 Fx = griddedInterpolant(xF,yF,zF,Bx);
 Fy = griddedInterpolant(xF,yF,zF,By);
 Fz = griddedInterpolant(xF,yF,zF,Bz);
 
-Bx_P = Inf(nP,1); By_P = Inf(nP,1); Bz_P = Inf(nP,1);
-for iP=1:nP
-   Bx_P(iP) = Fx(particle(1,iP),particle(2,iP),particle(3,iP));
-   By_P(iP) = Fy(particle(1,iP),particle(2,iP),particle(3,iP));
-   Bz_P(iP) = Fz(particle(1,iP),particle(2,iP),particle(3,iP));
+Bx_P = Fx(particle(1,:),particle(2,:),particle(3,:))';
+By_P = Fy(particle(1,:),particle(2,:),particle(3,:))';
+Bz_P = Fz(particle(1,:),particle(2,:),particle(3,:))';
+
+B = [Bx_P By_P Bz_P];
+U = particle(4:6,:)';
    
-   B = [Bx_P(iP) By_P(iP) Bz_P(iP)]; 
-   U = [particle(4,iP) particle(5,iP) particle(6,iP)];
-   
-   angle(iP) = atan2d(norm(cross(B,U)),dot(B,U));   
-end
+angle = atan2d(vecnorm(cross(B,U),2,2),dot(B,U,2));
 
 % B Strength at particle positions
 B_P = sqrt(Bx_P.^2 + By_P.^2 + Bz_P.^2);
 
-% Plot
+% Plot pitch angles (weights included)
+[histw] = histwv(angle,weight,0,180,50);
 figure
-histogram(angle)
-
+bar(linspace(0,180,50),histw)
+% histogram(histw)
 
 end

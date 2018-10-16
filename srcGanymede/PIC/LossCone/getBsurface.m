@@ -1,5 +1,5 @@
-function [Fx,Fy,Fz] = get_Bsurface(DoPlot)
-%GET_BSURFACE
+function [Fx,Fy,Fz] = getBsurface(DoPlot)
+%GETBSURFACE
 %
 %INPUTS
 % DoPlot: Plot the surface B field

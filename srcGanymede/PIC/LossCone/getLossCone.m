@@ -1,6 +1,6 @@
 function [particle,angle,Bsurf,Bx_P,By_P,Bz_P,B_P,theta1_P,phi1_P] = ...
-   get_losscone(particle,angle,Bx_P,By_P,Bz_P,B_P,weight)
-%GET_LOSSCONE Select the particles inside the loss cone
+   getLossCone(particle,angle,Bx_P,By_P,Bz_P,B_P,weight)
+%GETLOSSCONE Select the particles inside the loss cone
 %
 %INPUTS
 % particle: particle info inside the picked region, [6,nP]
@@ -38,7 +38,7 @@ phi1 = data.w(:,:,:,phi1_);
 Ftheta1 = griddedInterpolant(xGM,yGM,zGM,theta1);
 Fphi1 = griddedInterpolant(xGM,yGM,zGM,phi1);
 
-[FBxSurf,FBySurf,FBzSurf] = get_Bsurface(true);
+[FBxSurf,FBySurf,FBzSurf] = getBsurface(true);
 
 % Find Bsurface for each particle position that the field connects to
 theta1_P = Ftheta1(particle(1,:),particle(2,:),particle(3,:))';
@@ -57,7 +57,7 @@ r_mirror = Bsurf ./ B_P;
 theta_loss = asind(1./sqrt(r_mirror));
 
 % Particles inside the loss cone
-PSelect = angle<theta_loss;
+PSelect = angle < theta_loss;
 particle = [particle(:,PSelect) ; weight(PSelect)'];
 Bsurf  = Bsurf(PSelect);
 % BxSurf = BxSurf(PSelect);
@@ -72,9 +72,11 @@ phi1_P = phi1_P(PSelect);
 angle  = angle(PSelect); 
 
 % Plot loss cone angle (weight included)
-[histw] = histwv(theta_loss,weight,0,30,31);
+max_theta_loss = ceil(max(theta_loss));
+nbins = max_theta_loss + 1;
+[histw] = histwv(theta_loss,weight,0,max_theta_loss,nbins);
 figure
-bar(linspace(0,30,31),histw);
+bar(linspace(0,max_theta_loss,nbins),histw);
 xlabel('Loss cone angle [degree]'); ylabel('#');
 set(gca,'FontSize',14);
 

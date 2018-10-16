@@ -6,6 +6,8 @@ function mapping_particle(particle,angle,phi1,theta1,Bsurf,B_P)
 % angle: pitch angle
 % phi1:
 % theta1:
+% Bsurf:
+% B_P
 %
 
 % Mapping particles to the surface

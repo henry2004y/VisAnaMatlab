@@ -1,5 +1,5 @@
-function [angle,Bx_P,By_P,Bz_P,B_P,particle,weight] = get_pitch_angle
-%GET_PITCH_ANGLE
+function [angle,Bx_P,By_P,Bz_P,B_P,particle,weight] = getPitchAngle
+%GETPITCHANGLE
 %
 %INPUTS
 %
@@ -11,8 +11,8 @@ function [angle,Bx_P,By_P,Bz_P,B_P,particle,weight] = get_pitch_angle
 % particle: particle info inside the selected region [6,nP]
 % weight:   particle weights,  [nP,1]
 
-[xP,yP,zP,ux,uy,uz,weightP] = get_particle('ion');
-[xF,yF,zF,Bx,By,Bz] = get_field;
+[xP,yP,zP,ux,uy,uz,weightP] = getParticle('ion');
+[xF,yF,zF,Bx,By,Bz] = getField;
 
 Region = Parameters.Region;
 ncountmax = Parameters.ncountmax;
@@ -23,7 +23,6 @@ for iP=1:numel(xP)
    if xP(iP) >= Region(1) && xP(iP) <= Region(2) && ...
       yP(iP) >= Region(3) && yP(iP) <= Region(4) && ...
       zP(iP) >= Region(5) && zP(iP) <= Region(6)
-      %particle = [particle; ux(ipar) uy(ipar) uz(ipar)];
       nP = nP + 1;
       particle(:,nP) = [xP(iP) yP(iP) zP(iP) ...
          ux(iP) uy(iP) uz(iP)]';

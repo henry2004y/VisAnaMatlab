@@ -24,7 +24,7 @@ classdef Parameters
       fnameGM    char = 'box_var_2_t00000557_n00250489.out'
       
       % Region of interest
-      Region     = [-1.2 -1.125 -2 2 1 2];
+      Region     = [-1.2 -1.125 -2 2 0.5 2];
       % Preallocation size for particles
       ncountmax  double {mustBeInteger} = 1071080
    end

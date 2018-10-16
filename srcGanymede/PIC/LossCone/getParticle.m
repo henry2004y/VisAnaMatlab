@@ -1,5 +1,5 @@
-function [xP,yP,zP,ux,uy,uz,weight] = get_particle(TypeParticle)
-%GET_PARTICLE Read particle info from PIC output
+function [xP,yP,zP,ux,uy,uz,weight] = getParticle(TypeParticle)
+%GETPARTICLE Read particle info from PIC output
 %
 %INPUT
 % TypeParticle: character, {'electron','ion'}

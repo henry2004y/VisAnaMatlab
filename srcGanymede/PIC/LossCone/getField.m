@@ -1,5 +1,5 @@
-function [xF,yF,zF,Bx,By,Bz] = get_field
-%GET_FIELD Read B field info from PIC output
+function [xF,yF,zF,Bx,By,Bz] = getField
+%GETFIELD Read B field info from PIC output
 %   
 %INPUT
 %

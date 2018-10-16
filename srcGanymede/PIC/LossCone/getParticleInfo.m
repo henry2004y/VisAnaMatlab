@@ -1,7 +1,5 @@
-function [angle,Bx_P,By_P,Bz_P,B_P,particle,weight] = getPitchAngle
-%GETPITCHANGLE
-%
-%INPUTS
+function [angle,Bx_P,By_P,Bz_P,B_P,particle,weight] = getParticleInfo
+%GETPARTICLEINFO Calculate the derived particle information 
 %
 %
 %OUTPUTS
@@ -11,7 +9,9 @@ function [angle,Bx_P,By_P,Bz_P,B_P,particle,weight] = getPitchAngle
 % particle: particle info inside the selected region [6,nP]
 % weight:   particle weights,  [nP,1]
 
-[xP,yP,zP,ux,uy,uz,weightP] = getParticle('ion');
+Species = Parameters.Species;
+
+[xP,yP,zP,ux,uy,uz,weightP] = getParticle(Species);
 [xF,yF,zF,Bx,By,Bz] = getField;
 
 Region = Parameters.Region;
@@ -52,7 +52,7 @@ angle = atan2d(vecnorm(cross(B,U),2,2),dot(B,U,2));
 B_P = sqrt(Bx_P.^2 + By_P.^2 + Bz_P.^2);
 
 % Plot pitch angles (weights included)
-[histw] = histwv(angle,weight,0,180,50);
+[histw] = histwv(angle,abs(weight),0,180,50);
 figure
 bar(linspace(0,180,50),histw)
 % histogram(histw)

@@ -13,7 +13,11 @@ function CalcEnergyFlux2(particle,angle,phi1,theta1,Bsurf,B_P)
 % B_P
 %
 
-m = Parameters.m;
+if strcmp(Parameters.Species,'ion')
+   m = Parameters.mi * Parameters.mp;
+else
+   m = Parameters.me;
+end
 
 % Perpendicular velocities at the current location
 vPerp = sqrt(sum(particle(4:6,:).^2,1)') .* sind(angle);
@@ -40,7 +44,7 @@ phi = phiMin:dPhi:phiMax;
 flux = accumarray(subs,(0.5*m*(vPar.^2 + vPerp.^2).*vPar.*particle(7,:)'));
 
 % Get the flux normal to the surface
-[FBxSurf,FBySurf,FBzSurf] = get_Bsurface(false);
+[FBxSurf,FBySurf,FBzSurf] = getBsurface(false);
 BxSurf = FBxSurf(Phi',Theta');
 BySurf = FBySurf(Phi',Theta');
 BzSurf = FBzSurf(Phi',Theta');

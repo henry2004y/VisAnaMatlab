@@ -1,5 +1,5 @@
-function mapping_particle(particle,angle,phi1,theta1,Bsurf,B_P)
-%MAPPING_PARTICLE Summary of this function goes here
+function mappingParticle(particle,angle,phi1,theta1,Bsurf,B_P)
+%MAPPINGPARTICLE Test of plotting on a sphere without Mapping ToolBox.
 %
 %INPUTS:
 % particle: positions, velocities and weights, [7,nP]
@@ -48,8 +48,8 @@ dPhi = (phiMax - phiMin)/(bins - 1);
 dTheta = (thetaMax - thetaMin)/(bins - 1);
 subs = [round((phi1-phiMin)/dPhi)+1 round((theta1-thetaMin)/dTheta)+1]; 
 
-vParAll = accumarray(subs,vPar.*particle(7,:)') ./ ...
-   accumarray(subs,particle(7,:)'); 
+% vParAll = accumarray(subs,vPar.*particle(7,:)') ./ ...
+%    accumarray(subs,particle(7,:)');
 
 
 % Generate a sphere with lines
@@ -90,10 +90,6 @@ surf(X,Y,Z,n','EdgeColor','none')
 
 % figure;
 % contourf(thetaMin:dTheta:thetaMax,phiMin:dPhi:phiMax,vParAll); colorbar
-
-% Can I map the flux onto a spherical surface?
-% warp
-
 
 end
 

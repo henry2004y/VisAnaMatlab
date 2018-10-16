@@ -5,7 +5,11 @@ classdef Parameters
    properties (Constant)
       kb = 1.38064852e-23;
       m  = 1; % mass
-      q  = 1;  % charge
+      me = 9.10938356e-31; % electron mass, [kg]
+      mp = 1.6726219e-27;  % proton mass, [kg]
+      mi  = 14; % average ion mass [amu]
+      q  = 1; % charge
+      Rg = 2634*1e3; % radius of Ganymede, [m]
    end
    
    % 
@@ -22,6 +26,8 @@ classdef Parameters
       fnameI     char = 'cut_particles1_region0_2_t00000557_n00010710.out'
       % Topology info from MHD
       fnameGM    char = 'box_var_2_t00000557_n00250489.out'
+      % Particle Species
+      Species    char{mustBeMember(Species,{'electron','ion'})}= 'ion' 
       
       % Region of interest
       Region     = [-1.2 -1.125 -2 2 0.5 2];

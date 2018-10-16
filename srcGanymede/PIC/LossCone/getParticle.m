@@ -14,11 +14,9 @@ Dir = '~/Documents/research/Ganymede/data/EnergeticFlux';
 switch TypeParticle
    case 'electron'
       % Electron
-%       fnameParticle = 'cut_particles0_region0_1_t00000557_n00010710.out';
       fnameP = Parameters.fnameE;
    case 'ion'
       % Ion
-      %fnameParticle = 'cut_particles1_region0_2_t00000557_n00010710.out';
       fnameP = Parameters.fnameI;
    otherwise
       error('unknown particle type!')
@@ -37,9 +35,9 @@ uy_ = strcmpi('uy',filehead.wnames);
 uz_ = strcmpi('uz',filehead.wnames);
 w_  = strcmpi('weight',filehead.wnames);
 
-ux = data.w(:,:,:,ux_);
-uy = data.w(:,:,:,uy_);
-uz = data.w(:,:,:,uz_);
+ux = data.w(:,:,:,ux_)*1e3; % [m/s]
+uy = data.w(:,:,:,uy_)*1e3; % [m/s]
+uz = data.w(:,:,:,uz_)*1e3; % [m/s]
 
 weight = squeeze(data.w(:,:,:,w_));
 

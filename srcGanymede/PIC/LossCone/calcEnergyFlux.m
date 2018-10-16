@@ -30,7 +30,11 @@ Fphi1 = griddedInterpolant(xGM,yGM,zGM,phi1);
 clearvars Dir fnameGM theta1_ phi1_ data xGM yGM zGM theta1 phi1
 
 %% Calculate flux at the original locations
-m = Parameters.m;
+if strcmp(Parameters.Species,'ion')
+   m = Parameters.mi * Parameters.mp;
+else
+   m = Parameters.me;
+end
 
 xMin = min(particle(1,:)); xMax = max(particle(1,:));
 yMin = min(particle(2,:)); yMax = max(particle(2,:));
@@ -47,9 +51,10 @@ subs = [round((particle(2,:)'-yMin)/dy)+1 ...
         round((particle(3,:)'-zMin)/dz)+1];
 
 vPar = sqrt(sum(particle(4:6,:).^2,1)') .* cosd(angle);
-% Volume
-Vol = (xMax - xMin)*dy*dz;
-     
+% Volume, [m^3]
+Vol = (xMax - xMin)*dy*dz * Parameters.Rg^3;
+
+% energy flux, [J/(m^2*s)]
 flux = accumarray(subs,...
    (0.5*m*sum(particle(4:6,:).^2,1)'.*vPar.*particle(7,:)')) ./ Vol;
 
@@ -62,7 +67,7 @@ theta1 = Ftheta1(X,Y,Z);
 phi1   = Fphi1(X,Y,Z);
 
 % Get B field at the orginal locations
-[xF,yF,zF,Bx,By,Bz] = get_field;
+[xF,yF,zF,Bx,By,Bz] = getField;
 Fx = griddedInterpolant(xF,yF,zF,Bx);
 Fy = griddedInterpolant(xF,yF,zF,By);
 Fz = griddedInterpolant(xF,yF,zF,Bz);
@@ -70,7 +75,7 @@ Fz = griddedInterpolant(xF,yF,zF,Bz);
 Bx = Fx(X,Y,Z); By = Fy(X,Y,Z); Bz = Fz(X,Y,Z);
 B  = sqrt(Bx.^2 + By.^2 + Bz.^2);
 
-[FBxSurf,FBySurf,FBzSurf] = get_Bsurface(false);
+[FBxSurf,FBySurf,FBzSurf] = getBsurface(false);
 BxSurf = FBxSurf(phi1,theta1);
 BySurf = FBySurf(phi1,theta1);
 BzSurf = FBzSurf(phi1,theta1);
@@ -96,6 +101,6 @@ mlabel('equator')
 setm(gca,'Origin',[0 180 0])
 plabel(120); 
 plabel('fontweight','bold')
-h1 = surfm(theta1,phi1,flux); %colorbar
+h1 = surfm(theta1,phi1,flux); colorbar
 
 end

@@ -7,14 +7,17 @@ function [particle,angle,Bsurf,Bx_P,By_P,Bz_P,B_P,theta1_P,phi1_P] = ...
 % angle: pitch angles, [1,nP]
 % Bx_P,By_P,Bz_P:
 % B_P: B field strength at particle locations, [1,nP]
-% weight: particle weights, [1,nP]
+% weight: particle weights, [1,nP] 
+%         (note that the raw output contains sign info)
 %
 %OUTPUTS
-% Particle: particle info inside the loss cone, [7,nP]
+% Particle: particle info inside the loss cone, [7,nPLoss]
 % vPerp: perpendicular velocities of particles inside the loss cone
 % vPar : parallel velocities of particles inside the loss cone
-% phi1_P:
-% theta1_P:
+% Bsurf: B field strength at the surface for each particle
+% Bx_P,By_P,Bz_P,B_P: B field at particle locations
+% phi1_P: footprint phi
+% theta1_P: foorprint theta
 
 Dir = Parameters.Dir;
 fnameGM = Parameters.fnameGM;
@@ -58,7 +61,7 @@ theta_loss = asind(1./sqrt(r_mirror));
 
 % Particles inside the loss cone
 PSelect = angle < theta_loss;
-particle = [particle(:,PSelect) ; weight(PSelect)'];
+particle = [particle(:,PSelect) ; abs(weight(PSelect)')];
 Bsurf  = Bsurf(PSelect);
 % BxSurf = BxSurf(PSelect);
 % BySurf = BySurf(PSelect);
@@ -74,7 +77,7 @@ angle  = angle(PSelect);
 % Plot loss cone angle (weight included)
 max_theta_loss = ceil(max(theta_loss));
 nbins = max_theta_loss + 1;
-[histw] = histwv(theta_loss,weight,0,max_theta_loss,nbins);
+[histw] = histwv(theta_loss,abs(weight),0,max_theta_loss,nbins);
 figure
 bar(linspace(0,max_theta_loss,nbins),histw);
 xlabel('Loss cone angle [degree]'); ylabel('#');

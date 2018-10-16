@@ -1,5 +1,8 @@
 % Loss cone particle analysis
 %
+% This script is used for analyzing particle information from MHD-EPIC
+% simulations.
+%
 % 1. Read particle info from PIC
 % 2. Read field info from PIC
 % 3. Select particles in a given region; get B field at particle positions
@@ -10,9 +13,8 @@
 % 8. Compute the surface B field strength for each particle
 % 9. Get mirror ratio and loss cone angle for each particle
 % 10.Select particles inside the loss cone.
-% 11.Mapping particles onto the surface.
-%
-% 12.Calculate flux from bulk velocity and pressure.
+% 11.Calculate energy flux along the field line at the original locations
+% 12.Mapping the fluxes onto the surface.
 %
 %
 % Hongyang Zhou, hyzhou@umich.edu 10/10/2018
@@ -21,7 +23,7 @@ clear; clc; close all
 %%
 
 % Get pitch angles for all particles
-[angle,Bx_P,By_P,Bz_P,B_P,particle,weight] = getPitchAngle;
+[angle,Bx_P,By_P,Bz_P,B_P,particle,weight] = getParticleInfo;
 
 % Get particles inside the loss cone
 [particle,angle,Bsurf,Bx_P,By_P,Bz_P,B_P,theta1,phi1] = ...
@@ -30,14 +32,11 @@ clear; clc; close all
 clearvars weight
 
 %%
-calc_energy_flux(particle,angle);
+% Method 1
+calcEnergyFlux(particle,angle);
+% Method 2 (potentially wrong)
+%calcEnergyFlux2(particle,angle,phi1,theta1,Bsurf,B_P);
 
-% Mapping particles onto the surface
-%mapping_particle(particle,angle,phi1,theta1,Bsurf,B_P);
-%mapping_particle2(particle,angle,phi1,theta1,Bsurf,B_P);
-
-% Get bulk velocity and pressure
-%p = get_pressure(particle,weight);
-
-%%
+% Test of mapping particles onto the surface
+%mappingParticle(particle,angle,phi1,theta1,Bsurf,B_P);
 

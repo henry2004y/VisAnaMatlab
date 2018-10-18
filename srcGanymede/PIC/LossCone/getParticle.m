@@ -7,17 +7,18 @@ function [xP,yP,zP,ux,uy,uz,weight] = getParticle(TypeParticle)
 %OUTPUTS:
 % xP,yP,zP: particle positions
 % ux,uy,uz: particle velocities
-% weight  : particle weights
-
+% weight  : particle weights in normalized units
 
 Dir = '~/Documents/research/Ganymede/data/EnergeticFlux';
 switch TypeParticle
    case 'electron'
       % Electron
       fnameP = Parameters.fnameE;
+      mSpecies = 'ms0';
    case 'ion'
       % Ion
       fnameP = Parameters.fnameI;
+      mSpecies = 'ms1';
    otherwise
       error('unknown particle type!')
 end
@@ -39,7 +40,11 @@ ux = data.w(:,:,:,ux_)*1e3; % [m/s]
 uy = data.w(:,:,:,uy_)*1e3; % [m/s]
 uz = data.w(:,:,:,uz_)*1e3; % [m/s]
 
-weight = squeeze(data.w(:,:,:,w_));
+% Obtain the ratio of simulated particle mass to proton mass
+ms_ = strcmpi(mSpecies,filehead.variables);
+ms_ = circshift(ms_,-numel(filehead.wnames)-filehead.ndim);
+
+weight = squeeze(data.w(:,:,:,w_))*filehead.eqpar(ms_);
 
 end
 

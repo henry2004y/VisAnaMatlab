@@ -78,6 +78,7 @@ angle  = angle(PSelect);
 max_theta_loss = ceil(max(theta_loss));
 nbins = max_theta_loss + 1;
 [histw] = histwv(theta_loss,abs(weight),0,max_theta_loss,nbins);
+
 figure
 bar(linspace(0,max_theta_loss,nbins),histw);
 xlabel('Loss cone angle [degree]'); ylabel('#');

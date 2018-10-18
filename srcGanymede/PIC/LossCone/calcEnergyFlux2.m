@@ -1,8 +1,10 @@
-function CalcEnergyFlux2(particle,angle,phi1,theta1,Bsurf,B_P)
-%CALCENERGYFLUX2 Calc energetic fluxes at the surface
+function calcEnergyFlux2(particle,angle,phi1,theta1,Bsurf,B_P)
+%CalcEnergyFlux2 Calc energetic fluxes at the surface
 % Calculate particle velocities on the surface, and then compute the
 % moments and fluxes.
-% The problem is: how can I get the density at the surface?
+% The problem is: how can I get the density at the surface? Or, in the
+% other way, I cannot distinguish the particles that arrive early from
+% those that come late!
 %
 %INPUTS:
 % particle: positions, velocities and weights, [7,nP]

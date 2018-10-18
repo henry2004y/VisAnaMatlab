@@ -3,13 +3,12 @@ classdef Parameters
    
    % Physical constants
    properties (Constant)
-      kb = 1.38064852e-23;
-      m  = 1; % mass
-      me = 9.10938356e-31; % electron mass, [kg]
-      mp = 1.6726219e-27;  % proton mass, [kg]
-      mi  = 14; % average ion mass [amu]
-      q  = 1; % charge
-      Rg = 2634*1e3; % radius of Ganymede, [m]
+      kb = 1.38064852e-23
+      me = 9.10938356e-31 % electron mass, [kg]
+      mp = 1.6726219e-27  % proton mass, [kg]
+      mi = 14             % average ion mass [amu]
+      q  = 1              % charge
+      Rg = 2634*1e3       % radius of Ganymede, [m]
    end
    
    % 
@@ -33,7 +32,23 @@ classdef Parameters
       Region     = [-1.2 -1.125 -2 2 0.5 2];
       % Preallocation size for particles
       ncountmax  double {mustBeInteger} = 1071080
+      % Number of bins
+      bins       double {mustBeInteger,mustBePositive} = 30 
    end
 
+   % Unit conversion factors from runlog
+   properties (Constant)
+      Si2NoRho = 917591263.419815
+      Si2NoV   = 2.5e-07
+      Si2NoB   = 23.947746024154
+      Si2NoE   = 5.9869365060385e-06
+      Si2NoP   = 5.73494539637384e-05
+      Si2NoJ   = 2.3947746024154e-06
+      Si2NoL   = 1
+      
+      % Normalized to SI mass conversion
+      No2SiMass = 1/(Parameters.Si2NoRho*Parameters.Si2NoL^3)
+   end
+   
    
 end

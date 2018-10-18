@@ -1,11 +1,14 @@
-function calc_energy_flux(particle,angle)
-%CALC_ENERGY_FLUX Calculate the energetic fluxes at the surface
+function calcEnergyFlux(particle,angle,Debug)
+%CalcEnergyFlux Calculate the energetic fluxes at the surface
 % First calculate the energetic fluxes along the field line at the original
 % locations, and then mapping to the surface.
 %
 %INPUTS:
 % particle: particle positions, velocities and weights, [7,nP]
 % angle: pitch angles, [nP,1]
+% Debug: output intermediate plotting
+
+if nargin < 3, Debug = false; end 
 
 %% Obtain topology for the mesh
 Dir = Parameters.Dir;
@@ -30,17 +33,17 @@ Fphi1 = griddedInterpolant(xGM,yGM,zGM,phi1);
 clearvars Dir fnameGM theta1_ phi1_ data xGM yGM zGM theta1 phi1
 
 %% Calculate flux at the original locations
-if strcmp(Parameters.Species,'ion')
-   m = Parameters.mi * Parameters.mp;
-else
-   m = Parameters.me;
-end
+% if strcmp(Parameters.Species,'ion')
+%    m = Parameters.mi * Parameters.mp;
+% else
+%    m = Parameters.me;
+% end
 
 xMin = min(particle(1,:)); xMax = max(particle(1,:));
 yMin = min(particle(2,:)); yMax = max(particle(2,:));
 zMin = min(particle(3,:)); zMax = max(particle(3,:));
 
-bins = 30;
+bins = Parameters.bins;
 
 y = linspace(yMin,yMax,bins);
 z = linspace(zMin,zMax,bins);
@@ -50,16 +53,47 @@ dz = (zMax - zMin)/(bins - 1);
 subs = [round((particle(2,:)'-yMin)/dy)+1 ...
         round((particle(3,:)'-zMin)/dz)+1];
 
-vPar = sqrt(sum(particle(4:6,:).^2,1)') .* cosd(angle);
+vPar = sqrt(sum(particle(4:6,:).^2,1)') .* cosd(angle);     
+     
 % Volume, [m^3]
-Vol = (xMax - xMin)*dy*dz * Parameters.Rg^3;
+Volume = (xMax - xMin)*dy*dz * Parameters.Rg^3;
+
+particleCounts = accumarray(subs,particle(7,:)');
+% ux = accumarray(subs,particle(4,:)'.*particle(7,:)') ./ particleCounts;
+% uy = accumarray(subs,particle(5,:)'.*particle(7,:)') ./ particleCounts;
+% uz = accumarray(subs,particle(6,:)'.*particle(7,:)') ./ particleCounts;
+
+No2SiMass = Parameters.No2SiMass;
 
 % energy flux, [J/(m^2*s)]
+% Question: kinetic pressure + thermal pressure?
 flux = accumarray(subs,...
-   (0.5*m*sum(particle(4:6,:).^2,1)'.*vPar.*particle(7,:)')) ./ Vol;
+   (0.5*sum(particle(4:6,:).^2,1)'.*vPar.*particle(7,:)')) ...
+   .* No2SiMass ./ Volume;
 
-% figure
-% surf(Y',Z',flux')
+% Thermal pressure
+% LinearIndex = sub2ind(size(ux),subs(:,1),subs(:,2));
+% 
+% flux = accumarray(subs,...
+%    (0.5*m*( (particle(4,:)' - ux(LinearIndex)).^2 + ...
+%    (particle(5,:)' - uy(LinearIndex)).^2 + ...
+%    (particle(6,:)' - uz(LinearIndex)).^2) ...
+%    .*vPar.*particle(7,:)')) ./ Volume;
+
+if Debug
+   figure
+   histogram(vPar/1e3)
+   xlabel('$v_\parallel$, [km/s]','Interpreter','latex'); ylabel('counts')
+   
+   figure
+   contourf(particleCounts' / Volume); colorbar
+   title('number density')
+   
+   figure
+   surf(Y,Z,flux)
+   xlabel('y [R_G]'); ylabel('z [R_G]')
+   set(gca,'Xdir','reverse')
+end
 
 %% Mapping onto the surface
 X = mean(particle(1,:)) * ones(size(Y));
@@ -88,10 +122,12 @@ Br = BxSurf .* cosd(phi1) .* cosd(theta1) + ...
      BySurf .* sind(phi1) .* cosd(theta1) + ...
      BzSurf .* sind(theta1);
 flux = flux .* abs(Br) ./ Bsurf;
-   
-% figure
-% surf(phi1,theta1,flux)
-     
+
+if Debug
+   figure
+   surf(phi1,theta1,flux)
+end
+
 figure
 axesm('ortho','origin',[45 45]); 
 axis off;
@@ -101,6 +137,7 @@ mlabel('equator')
 setm(gca,'Origin',[0 180 0])
 plabel(120); 
 plabel('fontweight','bold')
-h1 = surfm(theta1,phi1,flux); colorbar
+h1 = surfm(theta1,phi1,flux); c = colorbar;
+ylabel(c,'[W/m^2]')
 
 end

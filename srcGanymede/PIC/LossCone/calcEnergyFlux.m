@@ -58,7 +58,6 @@ vPar = sqrt(sum(particle(4:6,:).^2,1)') .* cosd(angle);
 % Volume, [m^3]
 Volume = (xMax - xMin)*dy*dz * Parameters.Rg^3;
 
-particleCounts = accumarray(subs,particle(7,:)');
 % ux = accumarray(subs,particle(4,:)'.*particle(7,:)') ./ particleCounts;
 % uy = accumarray(subs,particle(5,:)'.*particle(7,:)') ./ particleCounts;
 % uz = accumarray(subs,particle(6,:)'.*particle(7,:)') ./ particleCounts;
@@ -84,6 +83,8 @@ if Debug
    figure
    histogram(vPar/1e3)
    xlabel('$v_\parallel$, [km/s]','Interpreter','latex'); ylabel('counts')
+   
+   particleCounts = accumarray(subs,particle(7,:)');
    
    figure
    contourf(particleCounts' / Volume); colorbar

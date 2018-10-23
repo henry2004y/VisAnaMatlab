@@ -16,11 +16,6 @@
 % 11.Calculate energy flux along the field line at the original locations
 % 12.Mapping the fluxes onto the surface.
 %
-% Do verification with uniform flux at the orginal locations!
-% 1. Set the energy flux density for the original mesh to be uniform;
-% 2. Map the flux onto the surface;
-% 3. Check the conservation of total energy.
-%
 %
 % Hongyang Zhou, hyzhou@umich.edu 10/10/2018
 

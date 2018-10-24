@@ -29,7 +29,7 @@ classdef Parameters
       Species    char{mustBeMember(Species,{'electron','ion'})}= 'ion' 
       
       % Region of interest
-      Region     = [-1.2 -1.125 -2 2 0.5 2];
+      Region     = [-1.2 -1.125 -2 2 0.5 1.6];
       % Preallocation size for particles
       ncountmax  double {mustBeInteger} = 1071080
       % Number of bins

@@ -166,8 +166,8 @@ ylabel(c,'[W/m^2]')
 % surf(theta1C,phi1C,flux); c = colorbar;
 
 %%
-fprintf('magFlux1 = %f\n',magFlux1);
-fprintf('magFlux2 = %f\n',magFlux2);
+fprintf('magFlux at the cut = %f\n',magFlux1);
+fprintf('magFlux at the surface = %f\n',magFlux2);
 fprintf('conservation error = %f%%\n',abs(magFlux1-magFlux2)/magFlux1*100);
 
 end

@@ -58,10 +58,6 @@ vPar = sqrt(sum(particle(4:6,:).^2,1)') .* cosd(angle);
 % Volume, [m^3]
 Volume = (xMax - xMin)*dy*dz * Parameters.Rg^3;
 
-% ux = accumarray(subs,particle(4,:)'.*particle(7,:)') ./ particleCounts;
-% uy = accumarray(subs,particle(5,:)'.*particle(7,:)') ./ particleCounts;
-% uz = accumarray(subs,particle(6,:)'.*particle(7,:)') ./ particleCounts;
-
 No2SiMass = Parameters.No2SiMass;
 
 % energy flux, [J/(m^2*s)]
@@ -71,20 +67,23 @@ flux = accumarray(subs,...
    .* No2SiMass ./ Volume;
 
 % Thermal pressure
+% particleCounts = accumarray(subs,particle(7,:)');
+% ux = accumarray(subs,particle(4,:)'.*particle(7,:)') ./ particleCounts;
+% uy = accumarray(subs,particle(5,:)'.*particle(7,:)') ./ particleCounts;
+% uz = accumarray(subs,particle(6,:)'.*particle(7,:)') ./ particleCounts;
+% 
 % LinearIndex = sub2ind(size(ux),subs(:,1),subs(:,2));
 % 
 % flux = accumarray(subs,...
-%    (0.5*m*( (particle(4,:)' - ux(LinearIndex)).^2 + ...
+%    (0.5*( (particle(4,:)' - ux(LinearIndex)).^2 + ...
 %    (particle(5,:)' - uy(LinearIndex)).^2 + ...
 %    (particle(6,:)' - uz(LinearIndex)).^2) ...
-%    .*vPar.*particle(7,:)')) ./ Volume;
+%    .*vPar.*particle(7,:)')) .* No2SiMass ./ Volume;
 
 if Debug
    figure
    histogram(vPar/1e3)
    xlabel('$v_\parallel$, [km/s]','Interpreter','latex'); ylabel('counts')
-   
-   particleCounts = accumarray(subs,particle(7,:)');
    
    figure
    contourf(particleCounts' / Volume); colorbar

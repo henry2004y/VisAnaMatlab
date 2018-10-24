@@ -9,7 +9,7 @@ function [xP,yP,zP,ux,uy,uz,weight] = getParticle(TypeParticle)
 % ux,uy,uz: particle velocities
 % weight  : particle weights in normalized units
 
-Dir = '~/Documents/research/Ganymede/data/EnergeticFlux';
+Dir = Parameters.Dir;
 switch TypeParticle
    case 'electron'
       % Electron

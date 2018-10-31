@@ -26,17 +26,20 @@ fnameGM = Parameters.fnameGM;
 data = data.file1;
 
 status_ = strcmpi('status',filehead.wnames);
-theta1_ = strcmpi('theta1',filehead.wnames);
-phi1_ = strcmpi('phi1',filehead.wnames);
-theta2_ = strcmpi('theta2',filehead.wnames);
-phi2_ = strcmpi('phi2',filehead.wnames);
+if strcmp(Parameters.Hemisphere,'north')
+   theta_ = strcmpi('theta1',filehead.wnames);
+   phi_ = strcmpi('phi1',filehead.wnames);
+else
+   theta_ = strcmpi('theta2',filehead.wnames);
+   phi_ = strcmpi('phi2',filehead.wnames);
+end
 
 xGM = data.x(:,:,:,1);       % [Rg]
 yGM = data.x(:,:,:,2);       % [Rg]
 zGM = data.x(:,:,:,3);       % [Rg]
 
-theta1 = data.w(:,:,:,theta1_);
-phi1 = data.w(:,:,:,phi1_);
+theta1 = data.w(:,:,:,theta_);
+phi1 = data.w(:,:,:,phi_);
 
 Ftheta1 = griddedInterpolant(xGM,yGM,zGM,theta1);
 Fphi1 = griddedInterpolant(xGM,yGM,zGM,phi1);

@@ -17,27 +17,27 @@ fnameGM = Parameters.fnameGM;
 [filehead,data] = read_data(fullfile(Dir,fnameGM),'verbose',false);
 data = data.file1;
 
-theta1_ = strcmpi('theta1',filehead.wnames);
-phi1_ = strcmpi('phi1',filehead.wnames);
+if strcmp(Parameters.Hemisphere,'north')
+   theta_ = strcmpi('theta1',filehead.wnames);
+   phi_ = strcmpi('phi1',filehead.wnames);
+else
+   theta_ = strcmpi('theta2',filehead.wnames);
+   phi_ = strcmpi('phi2',filehead.wnames);
+end
 
 xGM = data.x(:,:,:,1);       % [Rg]
 yGM = data.x(:,:,:,2);       % [Rg]
 zGM = data.x(:,:,:,3);       % [Rg]
 
-theta1 = data.w(:,:,:,theta1_);
-phi1 = data.w(:,:,:,phi1_);
+theta = data.w(:,:,:,theta_);
+phi = data.w(:,:,:,phi_);
 
-Ftheta1 = griddedInterpolant(xGM,yGM,zGM,theta1);
-Fphi1 = griddedInterpolant(xGM,yGM,zGM,phi1);
+Ftheta1 = griddedInterpolant(xGM,yGM,zGM,theta);
+Fphi1 = griddedInterpolant(xGM,yGM,zGM,phi);
 
 clearvars Dir fnameGM theta1_ phi1_ data xGM yGM zGM theta1 phi1
 
 %% Calculate flux at the original locations
-% if strcmp(Parameters.Species,'ion')
-%    m = Parameters.mi * Parameters.mp;
-% else
-%    m = Parameters.me;
-% end
 
 xMin = min(particle(1,:)); xMax = max(particle(1,:));
 yMin = min(particle(2,:)); yMax = max(particle(2,:));
@@ -66,7 +66,7 @@ flux = accumarray(subs,...
    (0.5*sum(particle(4:6,:).^2,1)'.*vPar.*particle(7,:)')) ...
    .* No2SiMass ./ Volume;
 
-% Thermal pressure
+% % Thermal pressure
 % particleCounts = accumarray(subs,particle(7,:)');
 % ux = accumarray(subs,particle(4,:)'.*particle(7,:)') ./ particleCounts;
 % uy = accumarray(subs,particle(5,:)'.*particle(7,:)') ./ particleCounts;
@@ -85,6 +85,8 @@ if Debug
    histogram(vPar/1e3)
    xlabel('$v_\parallel$, [km/s]','Interpreter','latex'); ylabel('counts')
    
+   particleCounts = accumarray(subs,particle(7,:)');
+   
    figure
    contourf(particleCounts' / Volume); colorbar
    title('number density')
@@ -97,8 +99,8 @@ end
 
 %% Mapping onto the surface
 X = mean(particle(1,:)) * ones(size(Y));
-theta1 = Ftheta1(X,Y,Z);
-phi1   = Fphi1(X,Y,Z);
+theta = Ftheta1(X,Y,Z);
+phi   = Fphi1(X,Y,Z);
 
 % Get B field at the orginal locations
 [xF,yF,zF,Bx,By,Bz] = getField;
@@ -110,22 +112,22 @@ Bx = Fx(X,Y,Z); By = Fy(X,Y,Z); Bz = Fz(X,Y,Z);
 B  = sqrt(Bx.^2 + By.^2 + Bz.^2);
 
 [FBxSurf,FBySurf,FBzSurf] = getBsurface(false);
-BxSurf = FBxSurf(phi1,theta1);
-BySurf = FBySurf(phi1,theta1);
-BzSurf = FBzSurf(phi1,theta1);
+BxSurf = FBxSurf(phi,theta);
+BySurf = FBySurf(phi,theta);
+BzSurf = FBzSurf(phi,theta);
 Bsurf = sqrt(BxSurf.^2 + BySurf.^2 + BzSurf.^2);
 
 flux = flux .* Bsurf ./ B; 
 
 % Get the flux normal to the surface
-Br = BxSurf .* cosd(phi1) .* cosd(theta1) + ...
-     BySurf .* sind(phi1) .* cosd(theta1) + ...
-     BzSurf .* sind(theta1);
+Br = BxSurf .* cosd(phi) .* cosd(theta) + ...
+     BySurf .* sind(phi) .* cosd(theta) + ...
+     BzSurf .* sind(theta);
 flux = flux .* abs(Br) ./ Bsurf;
 
 if Debug
    figure
-   surf(phi1,theta1,flux)
+   surf(phi,theta,flux)
 end
 
 figure
@@ -137,7 +139,7 @@ mlabel('equator')
 setm(gca,'Origin',[0 180 0])
 plabel(120); 
 plabel('fontweight','bold')
-h1 = surfm(theta1,phi1,flux); c = colorbar;
+surfm(theta,phi,flux); c = colorbar;
 ylabel(c,'[W/m^2]')
 
 end

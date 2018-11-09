@@ -2,7 +2,7 @@
 %
 % Ion inertial length near the magnetopause of Ganymede
 %
-% The smallest is about 0.06, which is about 2 cells.
+% The smallest is about 0.06 RG, which is about 2 cells.
 % 
 % Hongyang Zhou, hyzhou@umich.edu 01/30/2018
 
@@ -20,11 +20,12 @@ mu       = 14;           % Average mass ratio
 
 ipict = 1;
 
-LambdaIEsti = c / (sqrt(e^2/(epsilon0*mu*mp)*Z^2*4)*1e3*RG)
+IonInertialsi = c / (sqrt(e^2/(epsilon0*mu*mp)*Z^2*4)*1e3*RG);
 % 2.28*1e2/Z*sqrt(mu/56)*1e3/RG
 
 %% Obtain the typical scales from simulation
-filenamePC = '~/Ganymede/newPIC/run_G8_newPIC/3d_fluid_35.outs';
+filenamePC = ['~/Documents/research/Ganymede/data/EnergeticFlux/'...
+   '3d_fluid_region0_0_t00000557_n00010710.out'];
 
 [filehead,data] = read_data(filenamePC,'verbose',false,'npict',ipict);
 
@@ -33,37 +34,87 @@ x = data.x(:,:,:,1); % [RG]
 y = data.x(:,:,:,2);
 z = data.x(:,:,:,3);
 
-Rhoe = data.w(:,:,:,1);    % [amu/cc]
-Rhoi = data.w(:,:,:,2)/mu;    % [/cc]
-Bx = data.w(:,:,:,3);      % [nT]
-By = data.w(:,:,:,4);
-Bz = data.w(:,:,:,5);
-Uex = data.w(:,:,:,9);     % [km/s]
-Uey = data.w(:,:,:,10);
-Uez = data.w(:,:,:,11);
+ne_  = strcmpi('rhos0',filehead.wnames);
+ni_  = strcmpi('rhos1',filehead.wnames);
+bx_  = strcmpi('bx',filehead.wnames);
+by_  = strcmpi('by',filehead.wnames);
+bz_  = strcmpi('bz',filehead.wnames);
+uex_ = strcmpi('uxs0',filehead.wnames);
+uey_ = strcmpi('uys0',filehead.wnames);
+uez_ = strcmpi('uzs0',filehead.wnames);
+uix_ = strcmpi('uxs1',filehead.wnames);
+uiy_ = strcmpi('uys1',filehead.wnames);
+uiz_ = strcmpi('uzs1',filehead.wnames);
 
 
+Rhoe = data.w(:,:,:,ne_);    % [amu/cc]
+Rhoi = data.w(:,:,:,ni_)/mu; % [amu/cc]
+Bx   = data.w(:,:,:,bx_);    % [nT]
+By   = data.w(:,:,:,by_);
+Bz   = data.w(:,:,:,bz_);
+Uex  = data.w(:,:,:,uex_);    % [km/s]
+Uey  = data.w(:,:,:,uey_);
+Uez  = data.w(:,:,:,uez_);
+Uix  = data.w(:,:,:,uix_);    % [km/s]
+Uiy  = data.w(:,:,:,uiy_);
+Uiz  = data.w(:,:,:,uiz_);
+
+
+x   = permute(x,[2 1 3]);
+y   = permute(y,[2 1 3]);
+z   = permute(z,[2 1 3]);
 Rhoe = permute(Rhoe,[2 1 3]);
 Rhoi = permute(Rhoi,[2 1 3]);
-Bx = permute(Bx,[2 1 3]);
-By = permute(By,[2 1 3]);
-Bz = permute(Bz,[2 1 3]);
-Uex = permute(Uex,[2 1 3]);
-Uey = permute(Uey,[2 1 3]);
-Uez = permute(Uez,[2 1 3]);
+Bx   = permute(Bx,[2 1 3]);
+By   = permute(By,[2 1 3]);
+Bz   = permute(Bz,[2 1 3]);
+Uex  = permute(Uex,[2 1 3]);
+Uey  = permute(Uey,[2 1 3]);
+Uez  = permute(Uez,[2 1 3]);
+Uix  = permute(Uix,[2 1 3]);
+Uiy  = permute(Uiy,[2 1 3]);
+Uiz  = permute(Uiz,[2 1 3]);
 
 % Ion plasma frequency
-OmegaI = sqrt(e^2/(epsilon0*mu*mp)*Z^2*Rhoi)*1e3; %[rad/s]
-% Ion inertial length
-LambdaI = c / OmegaI;
+FreqIon = sqrt(e^2/(epsilon0*mu*mp)*Z^2*Rhoi)*1e3; %[rad/s]
+% Ion inertial length, [m]
+IonInertial = c / FreqIon;
 
-% Ion inertial length normalized to Ganymede`s radius
-LambdaI = LambdaI / RG;
+% Ion inertial length normalized to Ganymede`s radius, [RG]
+IonInertial = IonInertial / RG;
 
 %sliceomatic(LambdaI);
 
-% Electron gyroradius
+%% Gyroradius 
+
 B = sqrt(Bx.^2 + By.^2 + Bz.^2);
-Ue = sqrt(Uex.^2 + Uey.^2 + Uez.^2);
-Re = me.*Ue*1e3./(e*B*1e-9);
+b = [Bx(:)'; By(:)'; Bz(:)'] ./ B(:)';
+
+% Electron gyroradius, [RG]
+UePar = abs(dot([Uex(:)'; Uey(:)'; Uez(:)'],b));
+UePerp = sqrt(Uex(:)'.^2 + Uey(:)'.^2 + Uez(:)'.^2 - UePar.^2);
+UePerp = reshape(UePerp,size(x));
+Re = me.*UePerp*1e3./(e*B*1e-9) ./ RG;
+
+% Ion gyroradius, [RG]
+UiPar = abs(dot([Uix(:)'; Uiy(:)'; Uiz(:)'],b));
+UiPerp = sqrt(Uix(:)'.^2 + Uiy(:)'.^2 + Uiz(:)'.^2 - UiPar.^2);
+UiPerp = reshape(UiPerp,size(x));
+Ri = mp*mu.*UiPerp*1e3./(e*B*1e-9) ./ RG;
+
+
+%% Visualization
+% Choose your cut
+cut = 'y'; PlaneIndex = 64;
+cut1 = squeeze(x(PlaneIndex,:,:));
+cut2 = squeeze(z(PlaneIndex,:,:));
+Ri = squeeze(Ri(PlaneIndex,:,:));
+
+figure;
+contourf(cut1,cut2,Ri,50,'Linestyle','none');
+colorbar; axis equal; 
+xlabel('x [R_G]'); ylabel('z [R_G]');
+set(gca,'FontSize',16,'LineWidth',1.1)
+
+
 

@@ -44,6 +44,7 @@ uz = data.w(:,:,:,uz_)*1e3; % [m/s]
 ms_ = strcmpi(mSpecies,filehead.variables);
 ms_ = circshift(ms_,-numel(filehead.wnames)-filehead.ndim);
 
+% The raw weight info 
 weight = squeeze(data.w(:,:,:,w_))*filehead.eqpar(ms_);
 
 end

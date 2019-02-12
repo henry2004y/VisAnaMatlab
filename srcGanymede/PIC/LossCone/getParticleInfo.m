@@ -34,7 +34,7 @@ end
 particle = particle(:,1:nP); 
 weight = weight(1:nP);
 
-% Get pitch angle for each particle 
+% Get pitch angle for each particle
 Fx = griddedInterpolant(xF,yF,zF,Bx);
 Fy = griddedInterpolant(xF,yF,zF,By);
 Fz = griddedInterpolant(xF,yF,zF,Bz);
@@ -52,7 +52,10 @@ angle = atan2d(vecnorm(cross(B,U),2,2),dot(B,U,2));
 B_P = sqrt(Bx_P.^2 + By_P.^2 + Bz_P.^2);
 
 % Plot pitch angles (weights included)
-[histw] = histwv(angle,abs(weight),0,180,50);
+% Note: In order to see the "real" distribution, it is not correct to use
+% angle directly as horizontal axis; instead, we should use cos(angle) as
+% the true horizontal axis! Think of it about the circle.
+[histw] = histwv(cosd(angle),abs(weight),-1,1,50);
 figure
 bar(linspace(0,180,50),histw)
 % histogram(histw)

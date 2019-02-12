@@ -60,10 +60,10 @@ Volume = (xMax - xMin)*dy*dz * Parameters.Rg^3;
 
 No2SiMass = Parameters.No2SiMass;
 
-% energy flux, [J/(m^2*s)]
+% energy flux density, [J/(m^2*s)]
 % Question: kinetic pressure + thermal pressure?
 flux = accumarray(subs,...
-   (0.5*sum(particle(4:6,:).^2,1)'.*vPar.*particle(7,:)')) ...
+   (0.5*sum(particle(4:6,:).^2,1)'.*abs(vPar).*particle(7,:)')) ...
    .* No2SiMass ./ Volume;
 
 % % Thermal pressure
@@ -87,9 +87,15 @@ if Debug
    
    particleCounts = accumarray(subs,particle(7,:)');
    
+%    figure
+%    contourf(particleCounts' / Volume); colorbar
+%    title('number density')
+   
+   me = 9.10938356e-31; %[kg] 
+   
    figure
-   contourf(particleCounts' / Volume); colorbar
-   title('number density')
+   contourf(particleCounts' / Volume *No2SiMass/me/1e6); colorbar
+   title('number density [/cc] for electron')
    
    figure
    surf(Y,Z,flux)
@@ -136,10 +142,10 @@ axis off;
 gridm on; 
 framem on;
 mlabel('equator')
-setm(gca,'Origin',[0 180 0])
+setm(gca,'Origin',[0 180 0],'Fontsize',14)
 plabel(120); 
 plabel('fontweight','bold')
 surfm(theta,phi,flux); c = colorbar;
-ylabel(c,'[W/m^2]')
+ylabel(c,'[W/m^2]'); c.FontSize = 14;
 
 end

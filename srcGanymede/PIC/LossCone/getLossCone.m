@@ -63,7 +63,11 @@ r_mirror = Bsurf ./ B_P;
 theta_loss = asind(1./sqrt(r_mirror));
 
 % Particles inside the loss cone
-PSelect = angle < theta_loss;
+if strcmp(Parameters.Hemisphere,'north') == 1
+   PSelect = angle < theta_loss;
+else
+   PSelect = abs(180-angle) < theta_loss;
+end
 particle = [particle(:,PSelect) ; abs(weight(PSelect)')];
 Bsurf  = Bsurf(PSelect);
 % BxSurf = BxSurf(PSelect);

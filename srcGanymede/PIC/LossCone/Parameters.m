@@ -3,11 +3,11 @@ classdef Parameters
    
    % Physical constants
    properties (Constant)
-      kb = 1.38064852e-23
+      kB = 1.38064852e-23
       me = 9.10938356e-31 % electron mass, [kg]
       mp = 1.6726219e-27  % proton mass, [kg]
       mi = 14             % average ion mass [amu]
-      q  = 1              % charge
+      q  = 1.602e-19      % charge [C]
       Rg = 2634*1e3       % radius of Ganymede, [m]
    end
    
@@ -16,7 +16,9 @@ classdef Parameters
       % Directory
       Dir        char = '~/Ganymede/MOP2018/runG8_PIC_1200s/EnergeticFlux/run_Analysis_largeDomain'
       % Follow B or anti-B direction
-      % User must set this and fnames, Region accordingly!
+      %=========================================================
+      % NOTE: user must set this and fnames, Region accordingly!
+      %=========================================================
       Hemisphere char{mustBeMember(Hemisphere,{'north','south'})} = 'north'
       % Shell output containing surface B field info
       fnameSurf  char = 'shl_var_1_t00000557_n00250489.out'
@@ -30,17 +32,27 @@ classdef Parameters
       % Topology info from MHD
       fnameGM    char = 'box_var_2_t00000557_n00250489.out'
       % Particle Species
-      Species    char{mustBeMember(Species,{'electron','ion'})}= 'electron' 
+      Species    char{mustBeMember(Species,{'electron','ion'})}= 'ion' 
       
       % Region of interest
       Region     = [-1.2 -1.125 -1.5 1.5 0.5 1.6];
       %Region     = [-1.2 -1.125 -1.5 1.5 -0.5 -1.6];
+      
       % Preallocation size for particles
       ncountmax  double {mustBeInteger} = 1071080
       % Number of bins
-      bins       double {mustBeInteger,mustBePositive} = 30 
+      bins       double {mustBeInteger,mustBePositive} = 30
+      
+      % Index
+      x_ = 1
+      y_ = 2
+      z_ = 3
+      vx_= 4
+      vy_= 5
+      vz_= 6
+      w_ = 7
    end
-
+   
    % Unit conversion factors from runlog
    properties (Constant)
       Si2NoRho = 917591263.419815

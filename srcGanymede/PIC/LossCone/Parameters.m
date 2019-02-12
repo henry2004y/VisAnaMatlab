@@ -14,7 +14,7 @@ classdef Parameters
    % 
    properties (Constant)
       % Directory
-      Dir        char = '~/Documents/research/Ganymede/data/EnergeticFlux'
+      Dir        char = '~/Ganymede/MOP2018/runG8_PIC_1200s/EnergeticFlux/run_Analysis_largeDomain'
       % Follow B or anti-B direction
       % User must set this and fnames, Region accordingly!
       Hemisphere char{mustBeMember(Hemisphere,{'north','south'})} = 'north'
@@ -24,20 +24,19 @@ classdef Parameters
       fnameField char = '3d_fluid_region0_0_t00000557_n00010710.out'
       % Electron
       fnameE     char = 'cut_particles0_region0_1_t00000557_n00010710.out'
-      %fnameE     char = 'cut_particles0_region0_3_t00000557_n00010710.out'
       % Ion
       fnameI     char = 'cut_particles1_region0_2_t00000557_n00010710.out'
-      %fnameI     char = 'cut_particles1_region0_4_t00000557_n00010710.out'
+      %fnameI     char = 'cut_particles1_region0_4_t00000557_n00010710.out';
       % Topology info from MHD
       fnameGM    char = 'box_var_2_t00000557_n00250489.out'
       % Particle Species
       Species    char{mustBeMember(Species,{'electron','ion'})}= 'electron' 
       
       % Region of interest
-      Region     = [-1.2 -1.125 -1.5 1.5 0.5 1.6]
-      %Region     = [-1.2 -1.125 -1.0 1.0 -1.6 -0.5]
+      Region     = [-1.2 -1.125 -1.5 1.5 0.5 1.6];
+      %Region     = [-1.2 -1.125 -1.5 1.5 -0.5 -1.6];
       % Preallocation size for particles
-      ncountmax  double {mustBeInteger} = 1771080
+      ncountmax  double {mustBeInteger} = 1071080
       % Number of bins
       bins       double {mustBeInteger,mustBePositive} = 30 
    end

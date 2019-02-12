@@ -33,7 +33,7 @@ classdef Parameters
       % Topology info from MHD
       fnameGM    char = 'box_var_2_t00000557_n00250489.out'
       % Particle Species
-      Species    char{mustBeMember(Species,{'electron','ion'})}= 'ion' 
+      Species    char{mustBeMember(Species,{'electron','ion'})}= 'electron' 
       
       % Region of interest
       Region     = [-1.2 -1.125 -1.5 1.5 0.5 1.6]

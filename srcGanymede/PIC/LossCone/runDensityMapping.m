@@ -89,8 +89,6 @@ rho = accumarray(subs, abs(particle(7,:))).* No2SiMass / mp /1e6 ./ Volume;
 
 ne = rho ./ 0.14;
 
-return
-
 %% Mapping to the surface
 X = mean(particle(1,:)) * ones(size(Y));
 theta = Ftheta1(X,Y,Z);
@@ -132,3 +130,15 @@ Brightness = neSurf*C*NO2*1e-6; % [R]
 figure
 surf(phi,theta,Brightness); colorbar
 title('Brightness [R]')
+
+
+% Secondary excitation
+% As being discussed in Eviator's paper, collisions are rare in Ganymede's
+% atmosphere because of the low column density. So the secondary electrons
+% are not important here!
+C2 = 1e-8;
+Brightness2 = neSurf*TMean/35 * C2 * NO2 *1e-6;
+
+figure
+surf(phi,theta,Brightness2); colorbar
+title('Brightness2 [R]')

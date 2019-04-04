@@ -261,7 +261,7 @@ for ipict = 1:npict
    %plot(CPCPt);
    %plot(time,CPCPb,time,CPCPz2,time,CPCPz3);
    plot(time,CPCPnew);
-   vline(ipict,'k');  
+   xline(ipict,'k');  
    %legend({'b','z=2','z=3'})
    
    
@@ -282,5 +282,3 @@ end
 
 v.close
 close(3)
-
-

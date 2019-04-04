@@ -18,9 +18,9 @@ time = datetime(data(:,1:6));
 xyz  = data(:,7:9);
 Bobs = data(:,10:12);
 BobsMag = sqrt(Bobs(:,1).^2+Bobs(:,2).^2+Bobs(:,3).^2);
-%filename = '~/Ganymede/newPIC/G2/box_traj_steady.out';
+filename = '~/Ganymede/newPIC/G2/box_traj_steady.out';
 %filename = '~/Ganymede/newPIC/G2/box_var_4_t00000800_n00221232.out';
-filename='~/Ganymede/newPIC/G2/box_fixed_test.out';
+%filename='~/Ganymede/newPIC/G2/box_fixed_test.out';
 
 
 npict = 1; % Remember to change this for different runs!
@@ -95,21 +95,21 @@ if DoPlot
    hold on
    plot(timePLS,Uobs(:,1),'.-','MarkerSize',16,'Color',[0.5 0.5 0.5])
    plot(timePLS(18:43),UObsIon(:,1),'.-k','MarkerSize',16)
-   hline(0,'--k')
+   yline(0,'--k')
    h.XTickLabel = []; 
    h.Position(4) = Height;
    ylabel('Ux [km/s]');
    xlim([min(time) max(time)]);
    %ylim([min(Bobs(:,1))-50 max(Bobs(:,1))+50 ]);
    %title({'(a)',strcat('Galileo G',int2str(flyby),' Flyby Magnetic field')})
-   title(strcat('Galileo G',int2str(flyby),' Flyby Magnetic field'))
+   title(strcat('Galileo G',int2str(flyby),' Flyby'))
    set(gca,'FontSize',FS,'yMinorTick','on','LineWidth',LW2);
    h = subplot(412);
    plot(time,Usim(:,2),'r','LineWidth',LW1); %Uy
    hold on
    plot(timePLS,Uobs(:,2),'.-','MarkerSize',16,'Color',[0.5 0.5 0.5])
    plot(timePLS(18:43),UObsIon(:,2),'.-k','MarkerSize',16)
-   hline(0,'--k')
+   yline(0,'--k')
    h.XTickLabel = [];
    h.Position(4) = Height;   
    ylabel('Uy [km/s]');
@@ -121,7 +121,7 @@ if DoPlot
    hold on
    plot(timePLS,Uobs(:,3),'.-','MarkerSize',16,'Color',[0.5 0.5 0.5])
    plot(timePLS(18:43),UObsIon(:,3),'.-k','MarkerSize',16)
-   hline(0,'--k')
+   yline(0,'--k')
    
    h.XTickLabel = [];
    h.Position(4) = Height;   
@@ -166,7 +166,7 @@ plot(time,Upar,'r','LineWidth',LW1);
 hold on
 plot(timePLS,UparObs,'.-','MarkerSize',16,'Color',[0.5 0.5 0.5]);
 plot(timePLS(18:43),UparObsIon,'.-k','MarkerSize',16)
-hline(0,'--k')
+yline(0,'--k')
 
 h.XTickLabel = [];
 ylabel('$U_\parallel$ [km/s]','Interpreter','Latex')

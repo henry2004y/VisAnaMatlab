@@ -1,4 +1,4 @@
-% Estimation of plasma paramters near Ganymede.
+% Estimation of plasma parameters near Ganymede.
 %
 % Ion inertial length near the magnetopause of Ganymede
 %
@@ -60,9 +60,9 @@ Uiy  = data.w(:,:,:,uiy_);
 Uiz  = data.w(:,:,:,uiz_);
 
 
-x   = permute(x,[2 1 3]);
-y   = permute(y,[2 1 3]);
-z   = permute(z,[2 1 3]);
+x    = permute(x,[2 1 3]);
+y    = permute(y,[2 1 3]);
+z    = permute(z,[2 1 3]);
 Rhoe = permute(Rhoe,[2 1 3]);
 Rhoi = permute(Rhoi,[2 1 3]);
 Bx   = permute(Bx,[2 1 3]);

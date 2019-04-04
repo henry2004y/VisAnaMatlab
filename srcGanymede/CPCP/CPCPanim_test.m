@@ -10,15 +10,13 @@ v.open
 hfig = figure(1);
 set(hfig,'position', [10, 10, 800, 200]) 
 colormap(jet);
-%fig = gcf;
-%ax = fig.CurrentAxes;
 
 npict = 600;
 
 for ipict=1:npict
    
    plot(CPCPt,'-*');
-   vline(ipict,'k','Current time');
+   xline(ipict,'k','Current time','LabelOrientation','horizontal');
    
    frame = getframe(gcf);
    

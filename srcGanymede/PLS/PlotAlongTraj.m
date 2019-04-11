@@ -1,4 +1,5 @@
-% G1 x=0 plane contour plot with field lines and quiver showing U.
+% Comparison with Galileo PLS data along spacecraft trajectory.
+% x=0 plane contour plot with field lines and quivers showing U.
 % Note that the traj is not aligned with the plane, so it is actually a
 % projection of velocity onto the plane.
 %
@@ -8,7 +9,7 @@ clear; clc
 %% Read Galileo trajectory data
 flyby = 1;
 flybyfile = strcat('Galileo_G',int2str(flyby),'_flyby_MAG.dat');
-f = fullfile('../Galileo',flybyfile);
+f = fullfile('~/Ganymede/GalileoData/galileomagdata',flybyfile);
 [~,data] = read_log_data(f);
 
 time = datetime(data(:,1:6));
@@ -16,7 +17,7 @@ xyz  = data(:,7:9);
 
 %% Read simulation data
 %filename='~/Documents/research/Ganymede/SteadyRun/run_G1_insulatingB1_5000/GM/x*';
-filename='~/SWMF/SWMF/GM/BATSRUS/run_test/RESULTS/run_G1_test3/GM/x*outs';
+filename='~/SWMF/SWMF/GMTSRUS/run_test/RESULTS/run_G1_test3/GM/x*outs';
 npict = 21;
 [filehead,data] = read_data(filename,'npict',npict);
 data = data.file1;

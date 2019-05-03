@@ -7,16 +7,7 @@ This project contains the reader for all kinds of output data from SWMF. It also
 
 ### Prerequisites
 
-MATLAB
-
-```
-Give examples
-
-```
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags).
+Recent versions of MATLAB.
 
 ## Authors
 

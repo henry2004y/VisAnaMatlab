@@ -9,12 +9,13 @@ t = linspace(0,10,nPoints);
 RotationPeriod = 10*3600; % [s]
 omega = 2*pi/RotationPeriod; %
 phase = linspace(0,360,nPoints); % West Longitude
-offset = [-115,0,5,-115+90+180,0];
+offset = [-115,0,5,-140];
 
 % Baseline magnetic field
 B0 = [0, 70, 0];
 % Perturbation
-Mag = [83, 0, 10];
+%Mag = [83, 0, 10];
+Mag = [83, 0, 0];
 
 %% Compare with KK97 analytical model
 % Figure 2, Jia et.al [2008]
@@ -25,7 +26,7 @@ Bp = B0(3) + Mag(3).*sind(phase+offset(3));
 figure
 subplot(311)
 plot(phase,Br,'LineWidth',1.2)
-yline(0)
+yline(0);
 xlim([0 360])
 ylabel('Br [nT]')
 set(gca,'XMinorTick','on','LineWidth',1.2,'FontSize',14)
@@ -49,16 +50,18 @@ By = -Br;
 Bz = -Bt;
 
 % Density
-n = 3 + 1.0.*sind(phase+offset(4)); %[amu/cc]
+n = 3 + 1.0.*sind(2*phase+offset(4)); %[amu/cc]
 
 % Pressure, assuming constant temperature
+% Pmax = 3.8 [nPa]
 kb = 1.38e-23;
-T = 5.7367e7;    %[K]
+T = 6.8841e+07;    %[K]
 P = n*kb*T*1e15; %[nPa]
 
 
+
 %%
-figure('Position',[89 29 749 771])
+figure('Position',[89 29 749 771]);
 subplot(511)
 plot(phase,Bx,'LineWidth',1.2)
 xlim([0 360])
@@ -66,6 +69,7 @@ ylabel('Bx [nT]')
 set(gca,'XMinorTick','on','LineWidth',1.2,'FontSize',14)
 subplot(512)
 plot(phase,By,'LineWidth',1.2)
+yline(0);
 xlim([0 360])
 ylabel('By [nT]')
 set(gca,'XMinorTick','on','LineWidth',1.2,'FontSize',14)

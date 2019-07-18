@@ -1,18 +1,27 @@
 function plot_data( varargin )
 %PLOT_DATA Plot the variable from SWMF output.
-%   INPUT
-% data: original variable data
-% filehead: header information
-% vars: variable(s) for plotting
-% plotmode:  (optional) type of plotting
-% plotrange: (optional) range of plotting, [xmin xmax ymin ymax]
+%
+% plot_data(data.file1,filehead,'p','plotmode','contbar')
+%
+% plot_data(data.file1,filehead(1),'p','plotmode','grid')
+%
+% plot_data(data.file1,filehead(1),func...
+%    ,'plotmode','trimesh','plotrange',plotrange,'plotinterval',0.2)
+%
+% INPUTS:
+% data:         original variable data
+% filehead:     header information
+% vars:         variable(s) for plotting
+% plotmode:     (optional) type of plotting
+% plotrange:    (optional) range of plotting, [xmin xmax ymin ymax]
 % plotinterval: (optional) interval for interpolation
-% multifigure: logical value, 1 (default)for multifigure display,
-%              0 for subplot
+% multifigure:  logical value, 1 (default)for multifigure display,
+%               0 for subplot
 %
 % Right now this can only deal with 2D plots. 3D streamline plots
 % are demonstrated with fieldline.m and streamlinec.m
-%
+%--------------------------------------------------------------------------
+
 % 08/13
 % I want to add a cut usage like in idl like
 % cut = grid(10:30,*); plot_data

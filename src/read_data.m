@@ -3,11 +3,13 @@ function [ filehead,data,filelist ] = read_data( filename, varargin )
 %   Read the npict-th snapshot from an ascii or binary data file into          
 %   the x (coordinates) and w (data) arrays.
 %
-% Usage:                                                                     
-%                                                                               
-% filename='...' ; set file to read from (optional)                             
-% npict=...      ; set snapshot index (optional), default 1                            
-% read_data
+%   filehead = read_data(filename)
+%
+%   [filehead, data] = read_data(filename,'npict',10)
+%
+%   [filehead, data, filelist] = read_data(filename, 'npict', 2, 
+%      'verbose', false)
+%                                                                   
 %
 %   The "x" and "w" arrays and the header info will be read from the file.
 %

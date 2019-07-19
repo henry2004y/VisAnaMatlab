@@ -1,6 +1,6 @@
 % Find LMN direction using Minimum Derivative Direction method.
 
-clear; clc;% close all
+clear; clc; close all
 %%
 
 filename = '~/Ganymede/MOP2018/runG8_PIC_1200s/3d_t=280.out';
@@ -9,7 +9,6 @@ s = 0.9; % compact boundary factor [0,1]
 % PC upstream box outputs
 PCdir = '~/Ganymede/MOP2018/runG8_PIC_1200s/PC';
 PCfile= '3d_var_region0_0_t00000135_n00002849.out';
-%PCfile= '3d_var_region0_0_t00000444_n00008549.out';
 
 % %% Find boundary points from steady state solution
 % 
@@ -157,7 +156,6 @@ for j=1:3; for i=1:3
    matB_new(i,j,:,:,:) = F(xq,yq,zq);
 end; end
 
-
 %scatter3(x(:),y(:),z(:),'.')
 
 % range_x = linspace(min(x(:)),max(x(:)),size(x,1));
@@ -194,8 +192,8 @@ quiver3(xq,yq,zq,...
 axis equal
 xlabel('x'); ylabel('y'); zlabel('z');
 
-%%
 return
+%%
 
 V = Inf(3,3,size(matB,3)); D = Inf(3,3,size(matB,3));
 
@@ -210,7 +208,3 @@ for i=1:size(matB,3)
 end
 
 xlabel('x'); ylabel('y'); zlabel('z');
-
-
-
-

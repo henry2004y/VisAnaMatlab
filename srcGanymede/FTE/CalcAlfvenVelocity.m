@@ -2,7 +2,7 @@
 %
 %
 
-clear;clc;close all
+clear; clc; close all
 %% Physical Parameters
 mu0 = 4*pi*1e-7;    %[H/m]
 me  = 9.1094e-31;   %[kg] 
@@ -38,7 +38,6 @@ uix  = data.w(:,:,:,uix_);
 uiy  = data.w(:,:,:,uiy_);
 uiz  = data.w(:,:,:,uiz_);
 
-
 % From ndgrid to meshgrid format
 x  = permute(x,[2 1 3]);
 y  = permute(y,[2 1 3]);
@@ -63,14 +62,14 @@ ni = squeeze(ni(64,:,:));
 
 figure
 contourf(x,z,VA); colorbar
-axis equal; 
+axis equal
 % hold on
 % xLineCenter = -1.906;
 % plot([-0.6+xLineCenter 0.6+xLineCenter],[0 0],'--k')
 
 figure
 contourf(x,z,ni+ne); colorbar
-axis equal; 
+axis equal 
 
 ui = sqrt(uix.^2 + uiy.^2 + uiz.^2);
 

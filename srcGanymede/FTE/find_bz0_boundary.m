@@ -13,8 +13,7 @@ function [ x3bc,y3bc,z3bc ] = find_bz0_boundary( filename,varargin )
 % OUTPUT:
 % x3bc,y3bc,z3bc: coordinates of boundary points
 %
-% Hongyang Zhou, hyzhou@umich.edu
-% Modified 06/29/2018
+% Hongyang Zhou, hyzhou@umich.edu 06/29/2018
 %--------------------------------------------------------------------------
 
 if nargin==0
@@ -30,7 +29,6 @@ optargs = {0.5 true -1.7}; % default parameters
 optargs(1:nargin-1) = varargin;
 % Place optional args in memorable variable names
 [DoPlot, xThres] = optargs{:};
-
 
 [head,data] = read_data(filename,'verbose',false);
 
@@ -51,13 +49,11 @@ x3bc = x(BCindex_);
 y3bc = y(BCindex_);
 z3bc = z(BCindex_);
 
-
 % Find the outer boundary points
 BCindex_ = x3bc < xThres;
 x3bc = x3bc(BCindex_);
 y3bc = y3bc(BCindex_);
 z3bc = z3bc(BCindex_);
-
 
 if DoPlot
    figure; scatter3(x3bc,y3bc,z3bc,'.'); axis equal

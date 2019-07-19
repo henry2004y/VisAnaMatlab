@@ -1,12 +1,12 @@
 function [fitresult,gof] = surface_fit(x3bc,y3bc,z3bc,varargin)
 %SURFACE_FIT Fit the closed field line boundary with hypersurface fit
 %
-% INPUT:
+% INPUTS:
 % x3bc,y3bc,z3bc: 1D array of coordinates
 % TypeFit: fit model type (see MATLAB document)
 % DoPlot : logical, display figure or not
 %
-% OUTPUT:
+% OUTPUTS:
 % fitresult: fit model
 % gof: goodess of fit
 %
@@ -20,7 +20,6 @@ optargs = {'poly55' false}; % default parameters
 optargs(1:nargin-3) = varargin;
 [TypeFit,DoPlot] = optargs{:};
 
-
 % Set up fittype and options.
 ft = fittype( TypeFit );
 
@@ -31,7 +30,7 @@ if DoPlot
    % Plot fit with data.
    figure(1); %hold on
    h = plot( fitresult );
-   legend( h, 'poly5, x=x(y,z)', 'Location', 'NorthEast' );
+   legend(h, 'poly5, x=x(y,z)', 'Location', 'NorthEast');
    % Label axes
    xlabel('x [R_G]')
    ylabel('y [R_G]')
@@ -51,4 +50,3 @@ if DoPlot
 end
 
 end
-

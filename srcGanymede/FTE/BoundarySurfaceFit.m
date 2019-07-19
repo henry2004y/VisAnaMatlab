@@ -13,16 +13,16 @@
 
 clear; clc
 %% Find boundary points from steady state solution
-flyby = 'G28';
+flyby = 'G8';
 
 switch flyby
    case 'G8'
-      filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs';
+      filename = '~/Ganymede/MOP2018/runG8_PIC_1200s/3d_t=0.out';
    case 'G28'
       filename = '~/Ganymede/newPIC/run_G28_newPIC/3d_G28_steady.out';
 end
 
-s = 0.5; % compact boundary factor in [0,1]
+s = 0.8; % compact boundary factor in [0,1]
 
 [x3bc,y3bc,z3bc] = find_boundary_points( filename,s );
 
@@ -47,7 +47,7 @@ grid on; axis equal
 xx = get(h, 'XData');
 yy = get(h, 'YData');
 zz = get(h, 'Zdata');
-set(h, 'XData', zz, 'YData', xx, 'ZData', yy);
+set(h, 'XData', zz, 'YData', xx, 'ZData', yy, 'FaceAlpha',0.7);
 
 hold on;
 scatter3(x3bc,y3bc,z3bc,20,'r','filled'); hold off
@@ -88,6 +88,39 @@ if strcmp(flyby,'G28')
    yq = reshape(Yrot,size(yq));
    zq = reshape(Zrot,size(yq));
 end
+
+% % Calculate the normal direction to the fitted surface
+% [V, W] = differentiate(fitresult, yq, zq);
+% U = -ones(size(V));
+% 
+% % get the three local directions
+% % dipole-direction unit vector
+% unitDipole = [18 -51.82 716.8]/sqrt(18^2+51.82^2+716.8^2);
+% % Initialize local vectors: d1-> M d2->L d3-> N
+% dL = Inf(3,size(xq,1),size(xq,2));
+% dM = dL; dN = dL;
+% 
+% % This part could potentially be optimized!
+% for ix=1:size(xq,1)
+%    for iy=1:size(xq,2)
+%       dN(:,ix,iy) = [U(ix,iy) V(ix,iy) W(ix,iy)];
+%       dM(:,ix,iy) = cross(dN(:,ix,iy),unitDipole);
+%       dL(:,ix,iy) = cross(dM(:,ix,iy),dN(:,ix,iy));
+%       
+%       % Normalization
+%       dL(:,ix,iy) = dL(:,ix,iy) / norm(dL(:,ix,iy));
+%       dM(:,ix,iy) = dM(:,ix,iy) / norm(dM(:,ix,iy));
+%       dN(:,ix,iy) = dN(:,ix,iy) / norm(dN(:,ix,iy));
+%    end
+% end
+
+[U,V,W] = surfnorm(xq,yq,zq);
+
+figure
+quiver3(xq,yq,zq,U,V,W,1)
+axis equal
+
+return
 
 %%
 figure

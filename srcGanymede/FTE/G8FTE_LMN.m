@@ -32,7 +32,6 @@
 % modified 01/03/2018, version 1.2
 % modified 06/29/2018, version 1.3
 
-
 clear; clc
 %% Parameters
 % 3D GM outputs

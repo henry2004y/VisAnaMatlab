@@ -16,8 +16,7 @@ function [ x3bc,y3bc,z3bc ] = find_boundary_points( filename,varargin )
 % OUTPUT:
 % x3bc,y3bc,z3bc: coordinates of boundary points
 %
-% Hongyang Zhou, hyzhou@umich.edu
-% Modified 06/29/2018
+% Hongyang Zhou, hyzhou@umich.edu 06/29/2018
 %--------------------------------------------------------------------------
 
 if nargin==0
@@ -65,4 +64,3 @@ if DoPlot
 end
 
 end
-

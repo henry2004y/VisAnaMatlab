@@ -68,7 +68,6 @@ set(hfig,'position', [10, 10, 900, 520]);
 colormap(jet);
 
 % Loop over snapshots
-%ipict = 371:371
 for ipict = 1:npict
    [filehead,data] = read_data(fnameFTE,'verbose',false,'npict',ipict);
    
@@ -184,11 +183,11 @@ for ipict = 1:npict
    caxis([0.1 0.9])
    title('j')
    
-   hold on;   
+   hold on
    [centroid,boundaries,FTEcountJ] = find_FTE(jv,'VarThreshold',threshold_j,...
       'AreaThreshold',40);
    
-   for k = 1 : FTEcountJ
+   for k = 1:FTEcountJ
       % switch to grid axis
       thisBoundary = (boundaries{k}-1)*dy + [ymin zmin];
       plot(thisBoundary(:,1), thisBoundary(:,2), 'k', 'LineWidth', 1);
@@ -197,7 +196,7 @@ for ipict = 1:npict
       text(thiscentroid(2), thiscentroid(1), num2str(k), ...
       'FontSize', 10, 'FontWeight', 'Bold')
    end
-   hold off;
+   hold off
    
    subplot_tight(3,3,8);
    %scatter(y3bc,z3bc,[],bv,'filled'); colorbar;
@@ -215,13 +214,13 @@ for ipict = 1:npict
    caxis([2 12]);
    title('p [nPa]')
    
-   hold on;   
+   hold on
    [centroid,boundaries,FTEcountP] = find_FTE(pv,'VarThreshold',threshold_p,...
       'AreaThreshold',40);
    
    %pthres(ipict) = graythresh((pv-min(pv(:))) ./ (max(pv(:))-min(pv(:))));
    
-   for k = 1 : numel(boundaries)
+   for k = 1:numel(boundaries)
       % switch to grid axis
       thisBoundary = (boundaries{k}-1)*dy + [ymin zmin];
       plot(thisBoundary(:,1), thisBoundary(:,2), 'k', 'LineWidth', 1);
@@ -230,7 +229,7 @@ for ipict = 1:npict
       text(thiscentroid(2), thiscentroid(1), num2str(k), ...
       'FontSize', 10, 'FontWeight', 'Bold')
    end
-   hold off;
+   hold off
    
    
    dim = [0.1 0.01 0.1 0.045];

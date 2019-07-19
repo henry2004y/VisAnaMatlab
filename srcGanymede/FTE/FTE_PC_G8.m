@@ -15,7 +15,6 @@ clear; clc
 %% Parameters
 IsGatheredFile = false; % Single or multiple input files
 % 3D GM outputs
-%filename = '~/Ganymede/newPIC/run_G8_newPIC/3d_G8_steady.outs';
 %filename = '~/Ganymede/MOP2018/runG8_PIC_1200s/3d_t=0.out';
 filename = '~/Ganymede/MOP2018/runG8_PIC_1200s/3d_t=280.out';
 s = 0.8; % compact boundary factor [0,1]
@@ -23,7 +22,7 @@ s = 0.8; % compact boundary factor [0,1]
 % PC upstream box outputs
 PCdir = '~/Ganymede/MOP2018/runG8_PIC_1200s/PC';
 %filenamePC = '~/Ganymede/newPIC/G8_PIC_theta51/3d_fluid_600s.outs';
-%filenamePC = '3d_fluid_600s.outs';
+
 % Output movie
 Vname = '~/Ganymede/MOP2018/2DMagnetopause_G8.avi';
 vFrameRate = 10;
@@ -137,19 +136,19 @@ for ipict=1:npict
    y = data.x(:,:,:,2);
    z = data.x(:,:,:,3);
    
-   ne = data.w(:,:,:,ne_)*1e6;    % [/m^3]
-   ni = data.w(:,:,:,ni_)*1e6;    % [/m^3]
-   bx   = data.w(:,:,:,bx_);      % [nT]
-   by   = data.w(:,:,:,by_);
-   bz   = data.w(:,:,:,bz_);
-   uex  = data.w(:,:,:,uex_);      % [km/s]
-   uey  = data.w(:,:,:,uey_);
-   uez  = data.w(:,:,:,uez_);
-   uix  = data.w(:,:,:,uix_);
-   uiy  = data.w(:,:,:,uiy_);
-   uiz  = data.w(:,:,:,uiz_);
-   pe   = data.w(:,:,:,pe_);     % [nPa]
-   pi   = data.w(:,:,:,pi_);
+   ne  = data.w(:,:,:,ne_)*1e6;  % [/m^3]
+   ni  = data.w(:,:,:,ni_)*1e6;  % [/m^3]
+   bx  = data.w(:,:,:,bx_);      % [nT]
+   by  = data.w(:,:,:,by_);
+   bz  = data.w(:,:,:,bz_);
+   uex = data.w(:,:,:,uex_);     % [km/s]
+   uey = data.w(:,:,:,uey_);
+   uez = data.w(:,:,:,uez_);
+   uix = data.w(:,:,:,uix_);
+   uiy = data.w(:,:,:,uiy_);
+   uiz = data.w(:,:,:,uiz_);
+   pe  = data.w(:,:,:,pe_);      % [nPa]
+   pi  = data.w(:,:,:,pi_);
    
    % From ndgrid to meshgrid format
    ne = permute(ne,[2 1 3]);

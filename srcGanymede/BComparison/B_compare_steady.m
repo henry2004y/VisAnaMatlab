@@ -19,15 +19,15 @@
 
 %clear;clc
 %% Parameters
-flyby = 28;   % [1,2,7,8,28,29]
+flyby = 8;   % [1,2,7,8,28,29]
 DoPlot = 1;  % Plot output
 DoSave = 0;  % Save norm2 number
 % Select the method for interpolation
-InterpolationMethod = 1;
+InterpolationMethod = 4;
 
 %% Read observation data
 flybyfile = strcat('Galileo_G',int2str(flyby),'_flyby_MAG.dat');
-f = fullfile('~/Ganymede/GalileoData/galileomagdata',flybyfile);
+f = fullfile('~/Documents/research/Ganymede/Galileo/',flybyfile);
 [~,data] = read_log_data(f);
 
 time = datetime(data(:,1:6));
@@ -36,14 +36,8 @@ Bobs = data(:,10:12);
 BobsStrength = sqrt(Bobs(:,1).^2+Bobs(:,2).^2+Bobs(:,3).^2);
 
 %% Read/Plot simulation data  
-%filename = strcat('~/Ganymede/newPIC/run_G8_newPIC/box_B_G8_1200s.outs');
-%filename = strcat('~/Ganymede/newPIC/run_G28_newPIC/box_B_G28_1200s.outs');
-%filename = strcat('~/Ganymede/newPIC/G2/box*.out');
-%filename = '~/Ganymede/newPIC/G8_PIC_theta51/box_B_1200s.outs';
-% filename = '~/Ganymede/MOP2018/G8_PIC/GM/box_B_estimatePhi.outs';
-%filename='~/Ganymede/MOP2018/runG8_PIC_estimatePhi_1200s/GM/box_var_4_t00000557_n00250489.out';
-filename='~/Ganymede/MOP2018/runG28_PIC_1200s/GM/box_var_4_t00000212_n00127429.out';
-% filename = '~/Ganymede/MOP2018/G8_PIC/GM/box_B_600s.outs';
+
+filename='~/box_var_4_t00000510_n00223817.out';
 npict = 1; % Remember to change this for different runs!
 [filehead,data] = read_data(filename,'npict',npict);
 
@@ -85,6 +79,7 @@ if InterpolationMethod==1
    Bsim(:,2) = interp3(x,y,z,by,xyz(:,1),xyz(:,2),xyz(:,3));
    Bsim(:,3) = interp3(x,y,z,bz,xyz(:,1),xyz(:,2),xyz(:,3));
 elseif InterpolationMethod==2
+   % scattered interpolation
    % Using griddata will only have interpolation
    % This is about 3 times faster than scatteredInterpolant
    x = data.x;

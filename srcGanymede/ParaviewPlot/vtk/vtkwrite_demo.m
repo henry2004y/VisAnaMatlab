@@ -17,6 +17,9 @@
 %
 % Here are some example usages. Just type in the following codes.
 %
+% Note: passing argument 'binary' in the vtkwrite will generate binary
+% files, even though it is not documented.
+%
 
 %% Example 1 : export 3D array (typical of an image volume )
 

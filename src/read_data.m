@@ -20,38 +20,6 @@ function [ filehead,data,filelist ] = read_data( filename, varargin )
 %   In this case the data is read into x0,w0 and x1,w1 for the two files
 %--------------------------------------------------------------------------
 
-% Right now I cannot deal with multiple files. 06/25
-% Do it later!!!
-% I am confused with nx: what is it? In my current application it is always
-% 1, but I may need to change it in the future for more general files.
-% 07/03
-%
-% The filetype input is always overwritten inside the function,
-% which means that it is useless to give it as an argument!
-% Consider remove it!
-% 07/31
-%
-% Removed the global variables. 08/19/2017
-%
-% Removed preallocation of filehead in the main function: move to a
-% get_file_head as its persistent variable. 08/20/2017  
-%
-% I decided to use a slightly different reading logic compared to Gabor`s.
-% 08/21/2017
-%
-% A more audacious trial: use nested function to save memory. I will create
-% another branch for this, just for testing. 08/27/2017
-%
-% Now I understand why shouldn`t I use the first header! iteration number
-% and time are different! 08/29/2017
-%
-% I can try containers.map or table data structure to save vars. 09/22/2017
-%
-% I need a way to deal with no output arguments. 02/14/2018
-%
-%--------------------------------------------------------------------------
-
-
 %% Input parameters parser
 p = inputParser;
 %defaultfilenames = '';       % array of filenames

@@ -9,7 +9,7 @@ switch filehead.ndim
       n1 = filehead.nx(1);
       fseek(fileID,4,'cof'); % skip record start tag.
       x  = fread(fileID,[n1,filehead.ndim],'*double');
-      w  = Inf(filehead.nw,n1);
+      w  = Inf(n1,filehead.nw);
       fseek(fileID,8,'cof'); % skip record end/start tags.
       for iw=1:filehead.nw
          w(:,iw) =fread(fileID,n1,'*double');

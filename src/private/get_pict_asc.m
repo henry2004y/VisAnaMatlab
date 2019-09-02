@@ -13,8 +13,9 @@ switch ndim
       x  = Inf(n1,ndim);
       w  = Inf(n1,nw);
       for ix=1:n1
-         x(ix,:) = fread(fileID,ndim,'*double');
-         w(ix,:) = fread(fileID,nw,'*double');
+         temp = str2double(split(fgetl(fileID)));
+         x(ix,:) = temp(2);
+         w(ix,:) = temp(3:end);
       end
    case 2 % 2D
       n1 = filehead.nx(1);
@@ -23,9 +24,9 @@ switch ndim
       w  = Inf(n1,n2,nw);
       for ix1=1:n1
          for ix2=1:n2
-            x(ix1,ix2,:) = fread(fileID,ndim,'*double');
-            w(ix1,ix2,:) = fread(fileID,nw,'*double');
-            %fseek(fileID,8,'cof');
+            temp = str2double(split(fgetl(fileID)));
+            x(ix1,ix2,:) = temp(2);
+            w(ix1,ix2,:) = temp(3:end);
          end
       end      
    case 3 % 3D
@@ -38,9 +39,9 @@ switch ndim
       for ix1=1:n1
          for ix2=1:n2
             for ix3=1:n3
-               x(ix1,ix2,ix3,:) = fread(fileID,ndim,'*double');
-               w(ix1,ix2,ix3,:) = fread(fileID,nw,'*double');
-               %fseek(fileID,8,'cof');
+               temp = str2double(split(fgetl(fileID)));
+               x(ix1,ix2,ix3,:) = temp(2);
+               w(ix1,ix2,ix3,:) = temp(3:end);
             end
          end
       end
@@ -48,4 +49,3 @@ switch ndim
 end
 
 end
-

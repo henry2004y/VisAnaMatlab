@@ -25,8 +25,8 @@ switch ndim
       for ix1=1:n1
          for ix2=1:n2
             temp = str2double(split(fgetl(fileID)));
-            x(ix1,ix2,:) = temp(2);
-            w(ix1,ix2,:) = temp(3:end);
+            x(ix1,ix2,:) = temp(2:3);
+            w(ix1,ix2,:) = temp(4:end);
          end
       end      
    case 3 % 3D
@@ -40,8 +40,8 @@ switch ndim
          for ix2=1:n2
             for ix3=1:n3
                temp = str2double(split(fgetl(fileID)));
-               x(ix1,ix2,ix3,:) = temp(2);
-               w(ix1,ix2,ix3,:) = temp(3:end);
+               x(ix1,ix2,ix3,:) = temp(2:4);
+               w(ix1,ix2,ix3,:) = temp(5:end);
             end
          end
       end

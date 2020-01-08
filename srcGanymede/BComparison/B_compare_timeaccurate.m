@@ -15,7 +15,7 @@
 % Hongyang Zhou, hyzhou@umich.edu 01/03/2018
 
 %% Parameters
-flyby =  28;   % [1,2,7,8,28,29]
+flyby =  8;   % [1,2,7,8,28,29]
 DoPlot = 1;  % Plot output
 DoSave = 0;  % Save norm2 number
 firstpict = 1; % first snapshot to pick
@@ -35,10 +35,14 @@ BobsStrength = sqrt(Bobs(:,1).^2+Bobs(:,2).^2+Bobs(:,3).^2);
 %% Read/Plot simulation data 
 switch flyby
    case 8
-      filename='~/Ganymede/MOP2018/runG8_PIC_estimatePhi_1200s/GM/box_B_Galileo.outs';
+      %filename='~/Ganymede/MOP2018/runG8_PIC_1200s/box_B_Galileo.outs';
+      filename='~/Ganymede/Hall_AMR3/GM/box_Hall_B_1200.outs';
+      %filename='~/Ganymede/Hall_AMR2/box_900s.outs';
+      %filename='~/Ganymede/PIC_frontera/GM/box_PIC_B_1200.outs';
       % Select the starting time for synthetic satellite
-      %time_start = datetime(1997,5,7,15,45,2); % G8
-      time_start = datetime(1997,5,7,15,48,7); % G8
+      time_start = datetime(1997,5,7,15,47,30);
+      %time_start = datetime(1997,5,7,15,45,40); % G8 PIC
+      %time_start = datetime(1997,5,7,15,48,7); % G8
    case 28
       filename='~/Ganymede/MOP2018/runG28_PIC_1200s/GM/box_B_Galileo.outs';
       % Select the starting time for synthetic satellite
@@ -103,16 +107,16 @@ bz = data.w(:,:,:,3);
 % Bsim(1:kStart,2) = interp3(x,y,z,by,xyz(1:kStart,1),xyz(1:kStart,2),xyz(1:kStart,3));
 % Bsim(1:kStart,3) = interp3(x,y,z,bz,xyz(1:kStart,1),xyz(1:kStart,2),xyz(1:kStart,3));
 
-   F1 = griddedInterpolant(x,y,z,bx);
-   F1.Method = 'linear';
-   F2 = griddedInterpolant(x,y,z,by);
-   F2.Method = 'linear';
-   F3 = griddedInterpolant(x,y,z,bz);
-   F3.Method = 'linear';
-   
-   Bsim(1:kStart,1) = F1(xyz(1:kStart,1),xyz(1:kStart,2),xyz(1:kStart,3));
-   Bsim(1:kStart,2) = F2(xyz(1:kStart,1),xyz(1:kStart,2),xyz(1:kStart,3));
-   Bsim(1:kStart,3) = F3(xyz(1:kStart,1),xyz(1:kStart,2),xyz(1:kStart,3)); 
+F1 = griddedInterpolant(x,y,z,bx);
+F1.Method = 'linear';
+F2 = griddedInterpolant(x,y,z,by);
+F2.Method = 'linear';
+F3 = griddedInterpolant(x,y,z,bz);
+F3.Method = 'linear';
+
+Bsim(1:kStart,1) = F1(xyz(1:kStart,1),xyz(1:kStart,2),xyz(1:kStart,3));
+Bsim(1:kStart,2) = F2(xyz(1:kStart,1),xyz(1:kStart,2),xyz(1:kStart,3));
+Bsim(1:kStart,3) = F3(xyz(1:kStart,1),xyz(1:kStart,2),xyz(1:kStart,3));
 
 
 % From ndgrid to meshgrid format
@@ -188,23 +192,29 @@ BsimStrength = sqrt(Bsim(:,1).^2+Bsim(:,2).^2+Bsim(:,3).^2);
 
 if DoPlot
    figure('Position', [100, 100, 1000, 700]);
+   tStart_ = 2000;
+   tEnd_   = 5000;
    h = subplot(411); LW1 = 2.5; LW2 = 1.5; FS=16; Height = 0.2;
    plot(time, Bobs(:,1),'k',timesim,Bsim(:,1),'r','LineWidth',LW1); %Bx
    h.XTickLabel = []; 
    h.Position(4) = Height;
    ylabel('Bx [nT]');
    legend(h,{'Obs','Sim'})
-   xlim([min(time) max(time)]);
+   xlim([time(tStart_) time(tEnd_)]);
    ylim([min(Bobs(:,1))-50 max(Bobs(:,1))+50 ]);
    %title({'(a)',strcat('Galileo G',int2str(flyby),' Flyby Magnetic field')})
    title(strcat('Galileo G',int2str(flyby),' Flyby Magnetic field'))
    set(gca,'FontSize',FS,'yMinorTick','on','LineWidth',LW2);
+   
+   hold on
+   xline(time(4000),'--r');
+   
    h = subplot(412);
    plot(time, Bobs(:,2),'k',timesim,Bsim(:,2),'r','LineWidth',LW1); %By
    h.XTickLabel = [];
    h.Position(4) = Height;   
    ylabel('By [nT]');
-   xlim([min(time) max(time)]);
+   xlim([time(tStart_) time(tEnd_)]);
    ylim([min(Bobs(:,2))-50 max(Bobs(:,2))+50 ]);
    set(gca,'FontSize',FS,'yMinorTick','on','LineWidth',LW2);
    h = subplot(413);
@@ -212,14 +222,19 @@ if DoPlot
    h.XTickLabel = [];
    h.Position(4) = Height;   
    ylabel('Bz [nT]');
-   xlim([min(time) max(time)]);
+   xlim([time(tStart_) time(tEnd_)]);
    ylim([min(Bobs(:,3))-50 max(Bobs(:,3))+50 ]);
    set(gca,'FontSize',FS,'yMinorTick','on','LineWidth',LW2);
    h = subplot(414);   
    plot(time,BobsStrength,'k',timesim,BsimStrength,'r','LineWidth',LW1); %|B|
    h.Position(4) = Height;   
    ylabel('B [nT]');
-   xlim([min(time) max(time)]);
+   xlim([time(tStart_) time(tEnd_)]);
    ylim([min(BobsStrength)-50 max(BobsStrength)+50 ]);
    set(gca,'FontSize',FS,'yMinorTick','on','LineWidth',LW2);
+end
+
+%% Save simulation line data
+if DoSave
+   save('B_G8_Hall_AMR2.mat','Bobs','Bsim','time','timesim')
 end

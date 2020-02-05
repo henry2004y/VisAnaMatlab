@@ -1,10 +1,10 @@
 function [dBx,dBy,dBz,limits] = GetMeanField(Dir,fnameParticle,...
    fnameField,limits)
-%GetMeanField Get the average field direction in limited region
+%GetMeanField Get the average field direction in limited region.
 %   * Obtain the limits from particle data
 %   * Extract the average field from field data
 
-%% Obtain the limits
+%% Obtain the limits if not provided
 if nargin < 4
    filename = fullfile(Dir,fnameParticle);
    [filehead,data] = read_data(filename,'verbose',false);
@@ -18,13 +18,6 @@ if nargin < 4
    zmin = min(data.x(:,:,:,3));
    zmax = max(data.x(:,:,:,3));
    
-   % xmin = -1.9;
-   % xmax = -1.85;
-   % ymin = -0.05;
-   % ymax = 0.05;
-   % zmin = -0.60;
-   % zmax = -0.55;
-   
    if strcmpi(filehead.headline(1:2),'SI')
       limits = [xmin,xmax,ymin,ymax,zmin,zmax]/2634000;
    else % planetary units
@@ -33,7 +26,7 @@ if nargin < 4
 end   
    
 %% Get the average field direction in limited region
-filename= fullfile(Dir,fnameField);
+filename = fullfile(Dir,fnameField);
 [filehead,data] = read_data(filename,'verbose',false);
 
 data = data.file1;

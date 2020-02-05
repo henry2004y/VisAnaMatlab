@@ -10,8 +10,10 @@ me = 9.10938356e-31; % electron mass, [kg]
 mp = 1.6726219e-27;  % proton mass, [kg]
 mi = 14;             % average ion mass [amu]
 
-ParticleType = 'e'; % {'i','e'}
-PlotVType = 1; % 1: v_par vs. v_perp1 2: v_perp1 vs. v_perp2
+ParticleType = 'i'; % {'i','e'}
+% 1: uy-ux; 2: ux-uz; 3: uy-uz
+% 4: v_perpOut-v_perpIn 5: v_perpIn-v_par; 6: v_perpOut-v_par
+PlotVType = 6;
 %Dir = '/Users/hyzhou/Ganymede/PIC_frontera/Particle/flux_rope';
 Dir = '~';
 
@@ -32,12 +34,12 @@ fnameField = strcat('3d_var_region0_0_',fnameParticle(end-22:end));
 nBox = 9; % number of box regions
 
 % Define regions
-xC = -1.94;   % center of boxes
+xC = -1.91; % center of boxes
 yC = 0.0;
-zC = 0.1;
-xL = 0.005; % box length in x
+zC = -0.15;
+xL = 0.008; % box length in x
 yL = 0.2;   % box length in y
-zL = 0.07;  % box length in z
+zL = 0.03;  % box length in z
 
 
 %% Classify particles based on locations
@@ -90,22 +92,47 @@ end
 %% Velocity distribution plot in 9 regions
 
 figure('Name','Distribution','Position',[1 1 1100 700]);
-for ipict=1:nBox       
-   uz = particle{ipict}(:,3);
-   ux = particle{ipict}(:,1);
-   uy = particle{ipict}(:,2);
+for iB=1:nBox
    
-   subplot(3,4,ipict+ceil(ipict/3));
-   if PlotVType==1
+   if PlotVType <= 3
+      uz = particle{iB}(:,3);
+      ux = particle{iB}(:,1);
+      uy = particle{iB}(:,2);
+   else
+      [dBx,dBy,dBz] = GetMeanField(Dir,fnameParticle,fnameField,...
+         Region{iB});
+      
+      % v_perp .vs. v_par phase space plot
+      % approximation: v_par = v_z, v_perp = sqrt(v_x^2 + v_y^2)
+      dPar = [dBx; dBy; dBz]; % Parallel direction
+      dPerpI = cross([0 -1 0]',dPar); % Perpendicular direction in-plane
+      dPerpO = cross(dPar,dPerpI); % Perpendicular direction out-of-plane
+      
+      uPar = particle{iB}(:,1:3)*dPar;
+      uPerp1 = particle{iB}(:,1:3)*dPerpI;
+      uPerp2 = particle{iB}(:,1:3)*dPerpO;
+   end
+   
+
+   subplot(3,4,iB+ceil(iB/3));
+   if PlotVType == 1
       h = histogram2(uy/cAlfven,ux/cAlfven);
-   elseif PlotVType==2
+   elseif PlotVType == 2
       h = histogram2(ux/cAlfven,uz/cAlfven);
+   elseif PlotVType == 3
+      h = histogram2(uy/cAlfven,uz/cAlfven);
+   elseif PlotVType == 4
+      h = histogram2(uPerp2/cAlfven,uPerp1/cAlfven);
+   elseif PlotVType == 5
+      h = histogram2(uPerp1/cAlfven,uPar/cAlfven);
+   elseif PlotVType == 6
+      h = histogram2(uPerp2/cAlfven,uPar/cAlfven);
    else
       error('Unknown PlotVType!')
    end
    if ParticleType == 'e'
       h.XBinLimits = [-10,12];
-      h.YBinLimits = [-10,12];
+      h.YBinLimits = [-10,10];
       str = 'electron';
    elseif ParticleType == 'i'
       h.XBinLimits = [-3,3];
@@ -125,10 +152,22 @@ for ipict=1:nBox
    elseif PlotVType==2
       xlabel('u_x','FontWeight','bold','FontSize',20)
       ylabel('u_z','FontWeight','bold','FontSize',20)
+   elseif PlotVType==3
+      xlabel('u_y','FontWeight','bold','FontSize',20)
+      ylabel('u_z','FontWeight','bold','FontSize',20)
+   elseif PlotVType==4
+      xlabel('$u_{\perp 2}$','FontWeight','bold','FontSize',20,'Interpreter','latex')
+      ylabel('$u_{\perp 1}$','FontWeight','bold','FontSize',20,'Interpreter','latex')
+   elseif PlotVType==5
+      xlabel('$u_{\perp 1}$','FontWeight','bold','FontSize',20,'Interpreter','latex')
+      ylabel('$u_\parallel$','FontWeight','bold','FontSize',20,'Interpreter','latex')
+   elseif PlotVType==6
+      xlabel('$u_{\perp 2}$','FontWeight','bold','FontSize',20,'Interpreter','latex')
+      ylabel('$u_\parallel$','FontWeight','bold','FontSize',20,'Interpreter','latex') 
    end
    %title(sprintf('PIC region %d',ipict))
    title(sprintf('%d, x[%3.3f,%3.3f], z[%3.3f,%3.3f]',...
-      ipict,Region{ipict}(1:2),Region{ipict}(5:6)),'FontSize',18)
+      iB,Region{iB}(1:2),Region{iB}(5:6)),'FontSize',18)
    colorbar
    colormap(gca,'hot')
    %caxis([0 100])
@@ -195,9 +234,9 @@ for is=1:numel(s)
    s(is).LineWidth = 1.3;
 end
 
-for ipict=1:nBox
-   rectangle('Position',[Region{ipict}(1) Region{ipict}(5) ...
-      Region{ipict}(2)-Region{ipict}(1) ...
-      Region{ipict}(6)-Region{ipict}(5)],'EdgeColor','r','LineWidth',1.5)
+for iB=1:nBox
+   rectangle('Position',[Region{iB}(1) Region{iB}(5) ...
+      Region{iB}(2)-Region{iB}(1) ...
+      Region{iB}(6)-Region{iB}(5)],'EdgeColor','r','LineWidth',1.5)
 end
 

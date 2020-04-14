@@ -8,15 +8,15 @@
 
 clear; clc
 %% Parameters
-mu0      = 4*pi*1e-7;    %[H/m]
-me       = 9.1094e-31;   %[kg] 
-mp       = 1.6726*1e-27; %[kg]
-epsilon0 = 8.8542*1e-12; %[F/m]
-e        = 1.6022*1e-19; %[C]
-c        = 2.9979*1e8;   %[m/s]
-RG       = 2634000;      %[m]
-Z        = 1;            % Charge state
-mu       = 14;           % Average mass ratio
+mu0      = 4*pi*1e-7;  %[H/m]
+me       = 9.1094e-31; %[kg] 
+mp       = 1.6726e-27; %[kg]
+epsilon0 = 8.8542e-12; %[F/m]
+e        = 1.6022e-19; %[C]
+c        = 2.9979e8;   %[m/s]
+RG       = 2634000;    %[m]
+Z        = 1;          % Charge state
+mu       = 14;         % Average mass ratio
 
 ipict = 1;
 

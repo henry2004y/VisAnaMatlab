@@ -1,10 +1,11 @@
 # VisAna
 Scripts and functions for reading, visualizing and analyzing simulation data.
-A new version has been implemented with Julia. Checkout [VisAnaJulia](https://github.com/henry2004y/VisAnaJulia) for more.
+This package contains the reader for all kinds of output data from SWMF.
+It also contains the series of analysis on Ganymede simulations.
+A new version with more functionalities has been implemented with Julia.
+Checkout [VisAnaJulia](https://github.com/henry2004y/VisAnaJulia) for more.
 
 ## Getting Started
-
-This project contains the reader for all kinds of output data from SWMF. It also contains the series of analysis on Ganymede simulations.
 
 ### Prerequisites
 
